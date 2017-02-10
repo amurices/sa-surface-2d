@@ -24,7 +24,7 @@ void printGene(const GA1DArrayAlleleGenome<double>& genomaTeste);
 
 void printSet(std::vector<point*> toPrint);
 
-void printEdge(link e);
+void printEdge(link_g e);
 
 void printPoint(point x);
 
@@ -52,6 +52,6 @@ double CCW(point a, point b, point c);
 
 int middle(int a, int b, int c);
 
-int intersect(link a, link b);
+int intersect(link_g a, link_g b);
 
 #endif /* Auxiliares_hpp */

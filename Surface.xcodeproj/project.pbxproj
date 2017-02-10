@@ -15,6 +15,7 @@
 		4CA22A551E1B418F00AD258A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA22A541E1B418F00AD258A /* OpenGL.framework */; };
 		4CA22A571E1B421B00AD258A /* libGLEW.2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA22A561E1B421B00AD258A /* libGLEW.2.0.0.dylib */; };
 		4CA22A591E1B454700AD258A /* libglfw.3.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA22A581E1B454700AD258A /* libglfw.3.2.dylib */; };
+		4CAC16431E4D891200896248 /* libemon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CAC16421E4D891200896248 /* libemon.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -43,6 +44,7 @@
 		4CA22A541E1B418F00AD258A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		4CA22A561E1B421B00AD258A /* libGLEW.2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.2.0.0.dylib; path = ../../../../usr/local/lib/libGLEW.2.0.0.dylib; sourceTree = "<group>"; };
 		4CA22A581E1B454700AD258A /* libglfw.3.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.2.dylib; path = ../../../../usr/local/Cellar/glfw/3.2.1/lib/libglfw.3.2.dylib; sourceTree = "<group>"; };
+		4CAC16421E4D891200896248 /* libemon.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libemon.a; path = ../../../../usr/local/lib/libemon.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +52,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CAC16431E4D891200896248 /* libemon.a in Frameworks */,
 				4C65EF851E2D91790077373A /* libga.a in Frameworks */,
 				4CA22A591E1B454700AD258A /* libglfw.3.2.dylib in Frameworks */,
 				4CA22A571E1B421B00AD258A /* libGLEW.2.0.0.dylib in Frameworks */,
@@ -95,6 +98,7 @@
 		4CA22A531E1B418F00AD258A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4CAC16421E4D891200896248 /* libemon.a */,
 				4C65EF841E2D91790077373A /* libga.a */,
 				4CA22A581E1B454700AD258A /* libglfw.3.2.dylib */,
 				4CA22A561E1B421B00AD258A /* libGLEW.2.0.0.dylib */,
@@ -260,6 +264,7 @@
 		4CA22A441E1B222300AD258A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LIBRARY = "compiler-default";
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
@@ -271,9 +276,9 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					/usr/local/lib/,
 					/usr/local/Cellar/glfw/3.2.1/lib,
 					/opt/local/lib,
-					/usr/local/lib/,
 					/usr/local/Cellar/galib/247/lib,
 				);
 				OTHER_LDFLAGS = "";
@@ -284,6 +289,7 @@
 		4CA22A451E1B222300AD258A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LIBRARY = "compiler-default";
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
@@ -295,9 +301,9 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					/usr/local/lib/,
 					/usr/local/Cellar/glfw/3.2.1/lib,
 					/opt/local/lib,
-					/usr/local/lib/,
 					/usr/local/Cellar/galib/247/lib,
 				);
 				OTHER_LDFLAGS = "";

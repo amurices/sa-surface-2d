@@ -73,7 +73,7 @@ void printSet(std::vector<point*> toPrint)
     }
 }
 
-void printEdge(link e)
+void printEdge(link_g e)
 {
     std::cout << "(" << e.first->x << ", " << e.first->y << ") -> (" << e.second->x << ", " << e.second->y << ")";
 }
@@ -211,7 +211,7 @@ int countIntersections(const surface& surf, std::vector<std::pair<float, float> 
     {
         for (size_t j = surf.e.size() - 1; j > i; j--)
         {
-            link a, b;
+            link_g a, b;
             a = surf.e[i];
             b = surf.e[j];
             if (intersect(a, b))
@@ -242,7 +242,7 @@ int middle(int a, int b, int c) {
     return 0;
 }
 
-int intersect(link a, link b) {
+int intersect(link_g a, link_g b) {
     if ( ( CCW(*(a.first), *(a.second), *(b.first)) * CCW(*(a.first), *(a.second), *(b.second)) < 0 ) &&
         ( CCW(*(b.first), *(b.second), *(a.first)) * CCW(*(b.first), *(b.second), *(a.second)) < 0 ) ) return 1;
     

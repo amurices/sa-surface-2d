@@ -29,7 +29,7 @@ surface Interfacer::generate_random(double perim, int pts){
 	}
 	
 	std::vector<point*> R;
-	std::vector<link> e;
+	std::vector<link_g> e;
 	
 	
 	double minDist = INFINITY;

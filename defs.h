@@ -24,7 +24,7 @@
 
 
 
-struct point{
+typedef struct point{
     int pid; // Facilita a cópia
     point *neighbor0, *neighbor1;
     double x;
@@ -33,13 +33,14 @@ struct point{
     {
         neighbor0 = this; neighbor1 = this; x = xn; y = yn; pid = idn;
     }
-};
+}point;
 
 
-typedef std::pair<point*, point*> link;
+typedef std::pair<point*, point*> link_g;
+
 typedef struct surface{
     std::vector<point>   v;
-    std::vector<link>    e;
+    std::vector<link_g>    e;
 } surface;
 
 #endif /* defs_h */

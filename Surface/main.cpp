@@ -13,8 +13,13 @@
 #include "SurfaceGenome.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <lemon/list_graph.h>
 
 const int NUM_POINTS = 8;
+
+
+using namespace lemon;
+using namespace std;
 
 void render(const surface &surf)
 {
