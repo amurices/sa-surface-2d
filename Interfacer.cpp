@@ -85,6 +85,8 @@ surface Interfacer::generate_random(double perim, int pts){
 		// Depois daqui, sabemos que o vértice de índice J em R é o mais próximo de uma das arestas
 		// que já incluímos.
 		point *u, *v, *x; // Para legibilidade
+		
+		// Comentário
 		u = surf.e[toRemoveE].first;
 		v = surf.e[toRemoveE].second;
 		x = R[toRemoveR];
