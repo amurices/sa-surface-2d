@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4C1CFE371E4690B800122E15 /* SurfaceGenome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C1CFE351E4690B800122E15 /* SurfaceGenome.cpp */; };
 		4C65EF851E2D91790077373A /* libga.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C65EF841E2D91790077373A /* libga.a */; };
 		4C65EF881E2D99590077373A /* Auxiliares.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C65EF861E2D99590077373A /* Auxiliares.cpp */; };
 		4CA22A401E1B222300AD258A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CA22A3F1E1B222300AD258A /* main.cpp */; };
@@ -32,8 +31,6 @@
 
 /* Begin PBXFileReference section */
 		4C1CFE341E4690B800122E15 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = SOURCE_ROOT; };
-		4C1CFE351E4690B800122E15 /* SurfaceGenome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SurfaceGenome.cpp; sourceTree = SOURCE_ROOT; };
-		4C1CFE361E4690B800122E15 /* SurfaceGenome.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SurfaceGenome.hpp; sourceTree = SOURCE_ROOT; };
 		4C65EF841E2D91790077373A /* libga.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libga.a; path = ../../../../usr/local/Cellar/galib/247/lib/libga.a; sourceTree = "<group>"; };
 		4C65EF861E2D99590077373A /* Auxiliares.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Auxiliares.cpp; sourceTree = SOURCE_ROOT; };
 		4C65EF871E2D99590077373A /* Auxiliares.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Auxiliares.hpp; sourceTree = SOURCE_ROOT; };
@@ -84,8 +81,6 @@
 			isa = PBXGroup;
 			children = (
 				4C1CFE341E4690B800122E15 /* defs.h */,
-				4C1CFE351E4690B800122E15 /* SurfaceGenome.cpp */,
-				4C1CFE361E4690B800122E15 /* SurfaceGenome.hpp */,
 				4CA22A3F1E1B222300AD258A /* main.cpp */,
 				4CA22A501E1B239500AD258A /* Interfacer.cpp */,
 				4CA22A511E1B239500AD258A /* Interfacer.hpp */,
@@ -164,7 +159,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4C1CFE371E4690B800122E15 /* SurfaceGenome.cpp in Sources */,
 				4CA22A401E1B222300AD258A /* main.cpp in Sources */,
 				4C65EF881E2D99590077373A /* Auxiliares.cpp in Sources */,
 				4CA22A521E1B239500AD258A /* Interfacer.cpp in Sources */,

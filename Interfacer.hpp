@@ -9,9 +9,9 @@
 #ifndef Interfacer_hpp
 #define Interfacer_hpp
 
-#include <stdio.h>
-#include "defs.h"
+#include <cmath>
 #include "Auxiliares.hpp"
+
 class Interfacer{
 public:
     Interfacer();

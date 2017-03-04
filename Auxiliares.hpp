@@ -9,8 +9,35 @@
 #ifndef Auxiliares_hpp
 #define Auxiliares_hpp
 
-#include <stdio.h>
-#include "defs.h"
+#include <ga/ga.h>
+#include <ga/GARealGenome.h>
+#include <vector>
+#include <math.h>
+#include <iomanip>
+#include <sstream>
+
+
+
+typedef struct point{
+    int pid; // Facilita a cópia
+    point *neighbor0, *neighbor1;
+    double x;
+    double y;
+    point (double xn, double yn, int idn = 0)
+    {
+        neighbor0 = this; neighbor1 = this; x = xn; y = yn; pid = idn;
+    }
+}point;
+
+
+typedef std::pair<point*, point*> link_g;
+
+typedef struct surface{
+    std::vector<point>   v;
+    std::vector<link_g>    e;
+} surface;
+
+
 
 void copySurface(surface* target, surface* origin);
 

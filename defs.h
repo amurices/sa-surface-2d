@@ -19,8 +19,7 @@
 #include <vector>
 #include <map>
 #include <cstdlib>
-#include <ga/ga.h>
-#include <ga/GARealGenome.h>
+
 
 
 

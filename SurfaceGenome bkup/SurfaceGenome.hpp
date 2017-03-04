@@ -5,13 +5,14 @@
 //  Created by André Muricy on 16/1/17.
 //  Copyright © 2017 André Muricy. All rights reserved.
 //
-
+/*
 #ifndef SurfaceGenome_hpp
 #define SurfaceGenome_hpp
 
-#include <stdio.h>
-// #include "Auxiliares.hpp"
-#include "defs.h"
+#include <iostream>
+#include "Auxiliares.hpp"
+#include <ga/ga.h>
+#include <ga/GARealGenome.h>
 
 float Objective(GAGenome &);
 
