@@ -260,19 +260,10 @@
 			buildSettings = {
 				CLANG_CXX_LIBRARY = "compiler-default";
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = (
-					/usr/local/include,
-					/opt/local/include,
-					/usr/local/Cellar/glfw/3.2.1/include,
-					/opt/local/Cellar/glfw/3.2.1/include,
-					/usr/local/Cellar/galib/247/include,
-					/opt/local/Cellar/galib/247/include,
-				);
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
 					/usr/local/lib/,
 					/usr/local/Cellar/glfw/3.2.1/lib,
-					/opt/local/lib,
 					/usr/local/Cellar/galib/247/lib,
 				);
 				OTHER_LDFLAGS = "";
@@ -285,19 +276,10 @@
 			buildSettings = {
 				CLANG_CXX_LIBRARY = "compiler-default";
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = (
-					/usr/local/include,
-					/opt/local/include,
-					/usr/local/Cellar/glfw/3.2.1/include,
-					/opt/local/Cellar/glfw/3.2.1/include,
-					/usr/local/Cellar/galib/247/include,
-					/opt/local/Cellar/galib/247/include,
-				);
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
 					/usr/local/lib/,
 					/usr/local/Cellar/glfw/3.2.1/lib,
-					/opt/local/lib,
 					/usr/local/Cellar/galib/247/lib,
 				);
 				OTHER_LDFLAGS = "";

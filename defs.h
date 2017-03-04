@@ -10,35 +10,32 @@
 #define defs_h
 
 #include <stdio.h>
-#include <sstream>
 #include <iostream>
 #include <string>
 #include <math.h>
-#include <iomanip>
 #include <utility>
 #include <vector>
 #include <map>
-#include <cstdlib>
+#include <ga/GARealGenome.h>
 
 
 
-
-typedef struct point{
+typedef struct point_g{
     int pid; // Facilita a cópia
-    point *neighbor0, *neighbor1;
+    point_g *neighbor0, *neighbor1;
     double x;
     double y;
-    point (double xn, double yn, int idn = 0)
+    point_g (double xn, double yn, int idn = 0)
     {
         neighbor0 = this; neighbor1 = this; x = xn; y = yn; pid = idn;
     }
-}point;
+}point_g;
 
 
-typedef std::pair<point*, point*> link_g;
+typedef std::pair<point_g*, point_g*> link_g;
 
 typedef struct surface{
-    std::vector<point>   v;
+    std::vector<point_g>   v;
     std::vector<link_g>    e;
 } surface;
 

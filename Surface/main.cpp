@@ -9,7 +9,6 @@
 #include <iostream>
 
 #include "Interfacer.hpp"
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <lemon/list_graph.h>
@@ -53,38 +52,55 @@ void render(const surface &surf)
             glColor3f(1.0f, 0.0f, 1.0f);
             glVertex2f(surf.e[i].second->x, surf.e[i].second->y);
             
-            std::vector<std::pair<float, float> > where;
-            int cnti = countIntersections(surf, where);
-            std::cout << "intersects of best: " << cnti;
-            if (cnti > 0)
-            {
-                std::cout << ", at ";
-                for (size_t j = 0; j < where.size(); j++)
-                {
-                    glColor3f(1.0f, 0.0f, 0.0f);
-                    glVertex2f(where[j].first - 0.005, where[j].second -0.005);
-                    
-                    glColor3f(1.0f, 0.0f, .0f);
-                    glVertex2f(where[j].first + 0.005, where[j].second +0.005);
-                    
-                    
-                    glColor3f(1.0f, 0.0f, 0.0f);
-                    glVertex2f(where[j].first + 0.005, where[j].second -0.005);
-                    
-                    glColor3f(1.0f, 0.0f, .0f);
-                    glVertex2f(where[j].first - 0.005, where[j].second +0.005);
-                }
-            }
+            
            
         }
     }
     glEnd();
 }
+
+// Renderiza interseções com um pequeno "x" vermelho no lugar
+void renderIntersections(const surface& surf)
+{
+    std::vector<std::pair<float, float> > where;
+
+    int cnti = countIntersections(surf, where);
+    std::cout << "intersects of best: " << cnti;
+    if (cnti > 0)
+    {
+        std::cout << ", at ";
+        for (size_t j = 0; j < where.size(); j++)
+        {
+            glColor3f(1.0f, 0.0f, 0.0f);
+            glVertex2f(where[j].first - 0.005, where[j].second -0.005);
+            
+            glColor3f(1.0f, 0.0f, .0f);
+            glVertex2f(where[j].first + 0.005, where[j].second +0.005);
+            
+            
+            glColor3f(1.0f, 0.0f, 0.0f);
+            glVertex2f(where[j].first + 0.005, where[j].second -0.005);
+            
+            glColor3f(1.0f, 0.0f, .0f);
+            glVertex2f(where[j].first - 0.005, where[j].second +0.005);
+        }
+    }
+}
+
 surface mySurf = Interfacer::generate_random(2.0, NUM_POINTS);
 
 
 
-int main(int argc, const char * argv[]) {
+int main() {
+    ListDigraph g;
+    ListDigraph::Node u = g.addNode();
+    ListDigraph::Node v = g.addNode();
+    ListDigraph::Arc  a = g.addArc(u, v);
+    cout << "Hello World! This is LEMON library here." << endl;
+    cout << "We have a directed graph with " << countNodes(g) << " nodes "
+    << "and " << countArcs(g) << " arc." << endl;
+    
+    
     GLFWwindow *window;
     
     
@@ -109,7 +125,7 @@ int main(int argc, const char * argv[]) {
     
     glfwMakeContextCurrent(window);
     
-       while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(window))
     {
         surface toRender;
         copySurface(&toRender, &mySurf);
@@ -121,8 +137,6 @@ int main(int argc, const char * argv[]) {
     }
     glfwTerminate();
     exit(EXIT_SUCCESS);
-    
-    
     
     return 0;
 }

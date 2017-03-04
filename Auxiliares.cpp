@@ -12,7 +12,7 @@ void copySurface(surface* target, surface* origin)
 {
     for (size_t i = 0; i < origin->v.size(); i++)
     {
-        target->v.push_back(point(origin->v[i].x, origin->v[i].y, origin->v[i].pid));
+        target->v.push_back(point_g(origin->v[i].x, origin->v[i].y, origin->v[i].pid));
     }
     
     for (size_t i = 0; i < origin->e.size(); i++)
@@ -61,7 +61,7 @@ void printGene(const GA1DArrayAlleleGenome<double>& genomaTeste)
     }
 }
 
-void printSet(std::vector<point*> toPrint)
+void printSet(std::vector<point_g*> toPrint)
 {
     for (size_t i = 0; i < toPrint.size(); i++)
     {
@@ -78,134 +78,20 @@ void printEdge(link_g e)
     std::cout << "(" << e.first->x << ", " << e.first->y << ") -> (" << e.second->x << ", " << e.second->y << ")";
 }
 
-void printPoint(point x)
+void printPoint(point_g x)
 {
     std::cout << "(" << x.x << ", " << x.y << ")";
 }
 
-double dist (point p1, point p2)
+double dist (point_g p1, point_g p2)
 {
     std::pair<double, double> norm = std::make_pair(p2.x - p1.x, p2.y - p1.y);
     return sqrt( norm.first * norm.first + norm.second * norm.second );
 }
 
-
-int IsPointInBoundingBox(float x1, float y1, float x2, float y2, float px, float py)
-{
-    float left, top, right, bottom; // Bounding Box For Line Segment
-    // For Bounding Box
-    if(x1 < x2)
-    {
-        left = x1;
-        right = x2;
-    }
-    else
-    {
-        left = x2;
-        right = x1;
-    }
-    if(y1 < y2)
-    {
-        top = y1;
-        bottom = y2;
-    }
-    else
-    {
-        top = y1;
-        bottom = y2;
-    }
-
-    if( (px+0.001) >= left && (px-0.001) <= right &&
-       (py+0.001) >= top && (py-0.001) <= bottom )
-    {
-        return 1;
-    }
-    else
-        return 0;
-}// ---------------------------------------  http://www.softwareandfinance.com/Visual_CPP/VCPP_Intersection_Two_line_Segments_EndPoints.html
-
-
-
-int LineIntersection(float l1x1, float l1y1, float l1x2, float l1y2,
-                     float l2x1, float l2y1, float l2x2, float l2y2,
-                     float *m1, float *c1, float *m2, float *c2,
-                     float* intersection_X, float* intersection_Y)
-
-{
-    float dx, dy;
-    dx = l1x2 - l1x1;
-    dy = l1y2 - l1y1;
-    
-    *m1 = dy / dx;
-    // y = mx + c
-    // intercept c = y - mx
-    *c1 = l1y1 - *m1 * l1x1; // which is same as y2 - slope * x2
-    
-    
-    dx = l2x2 - l2x1;
-    dy = l2y2 - l2y1;
-    
-    *m2 = dy / dx;
-    // y = mx + c
-    // intercept c = y - mx
-    *c2 = l2y1 - *m2 * l2x1; // which is same as y2 - slope * x2
-    
-    if( (*m1 - *m2) == 0)
-        return 0;
-    else
-    {
-        *intersection_X = (*c2 - *c1) / (*m1 - *m2);
-        *intersection_Y = *m1 * *intersection_X + *c1;
-        return 1;
-    }
-    
-}// ---------------------------------------  http://www.softwareandfinance.com/Visual_CPP/VCPP_Intersection_Two_line_Segments_EndPoints.html
-
-
-
-int LineSegmentIntersection(float l1x1, float l1y1, float l1x2, float l1y2,
-                            float l2x1, float l2y1, float l2x2, float l2y2,
-                            float *m1, float *c1, float *m2, float *c2,
-                            float* intersection_X, float* intersection_Y)
-
-{
-    float dx, dy;
-    dx = l1x2 - l1x1;
-    dy = l1y2 - l1y1;
-    
-    *m1 = dy / dx;
-    // y = mx + c
-    // intercept c = y - mx
-    *c1 = l1y1 - *m1 * l1x1; // which is same as y2 - slope * x2
-    
-    dx = l2x2 - l2x1;
-    dy = l2y2 - l2y1;
-    
-    *m2 = dy / dx;
-    // y = mx + c
-    // intercept c = y - mx
-    *c2 = l2y1 - *m2 * l2x1; // which is same as y2 - slope * x2
-    
-    if( (*m1 - *m2) == 0)
-        return 0;
-    else
-    {
-        *intersection_X = (*c2 - *c1) / (*m1 - *m2);
-        *intersection_Y = *m1 * *intersection_X + *c1;
-    }
-    if(IsPointInBoundingBox(l1x1, l1y1, l1x2, l1y2, *intersection_X, *intersection_Y) == 1 &&
-       IsPointInBoundingBox(l2x1, l2y1, l2x2, l2y2, *intersection_X, *intersection_Y) == 1)
-    {
-        return 1;
-    }
-    else
-        return 0;
-    
-} // ---------------------------------------  http://www.softwareandfinance.com/Visual_CPP/VCPP_Intersection_Two_line_Segments_EndPoints.html
-
 int countIntersections(const surface& surf, std::vector<std::pair<float, float> >& where)
 {
-    float m1, c1, m2, c2, intersection_X, intersection_Y;
+    float intersection_X, intersection_Y;
     int acc = 0;
     for (size_t i = 0; i < surf.e.size(); i++)
     {
@@ -225,7 +111,7 @@ int countIntersections(const surface& surf, std::vector<std::pair<float, float> 
 }
 
 
-double CCW(point a, point b, point c)
+double CCW(point_g a, point_g b, point_g c)
 {
     return (b.x-a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x);
 }
