@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4C5DFBB21E70C0AA00A405A6 /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C5DFBB01E70C0AA00A405A6 /* Renderer.cpp */; };
+		4C640CE81E6CA74500DEB3F5 /* Geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C640CE61E6CA74500DEB3F5 /* Geometry.cpp */; };
 		4C65EF851E2D91790077373A /* libga.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C65EF841E2D91790077373A /* libga.a */; };
 		4C65EF881E2D99590077373A /* Auxiliares.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C65EF861E2D99590077373A /* Auxiliares.cpp */; };
 		4CA22A401E1B222300AD258A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CA22A3F1E1B222300AD258A /* main.cpp */; };
@@ -15,6 +17,7 @@
 		4CA22A571E1B421B00AD258A /* libGLEW.2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA22A561E1B421B00AD258A /* libGLEW.2.0.0.dylib */; };
 		4CA22A591E1B454700AD258A /* libglfw.3.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA22A581E1B454700AD258A /* libglfw.3.2.dylib */; };
 		4CAC16431E4D891200896248 /* libemon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CAC16421E4D891200896248 /* libemon.a */; };
+		4CC4E3F11E7E1A1A00672939 /* libmatio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CC4E3F01E7E1A1A00672939 /* libmatio.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,9 +34,15 @@
 
 /* Begin PBXFileReference section */
 		4C1CFE341E4690B800122E15 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = SOURCE_ROOT; };
+		4C5DFBB01E70C0AA00A405A6 /* Renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Renderer.cpp; sourceTree = SOURCE_ROOT; };
+		4C5DFBB11E70C0AA00A405A6 /* Renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = SOURCE_ROOT; };
+		4C640CE61E6CA74500DEB3F5 /* Geometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Geometry.cpp; sourceTree = SOURCE_ROOT; };
+		4C640CE71E6CA74500DEB3F5 /* Geometry.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Geometry.hpp; sourceTree = SOURCE_ROOT; };
 		4C65EF841E2D91790077373A /* libga.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libga.a; path = ../../../../usr/local/Cellar/galib/247/lib/libga.a; sourceTree = "<group>"; };
 		4C65EF861E2D99590077373A /* Auxiliares.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Auxiliares.cpp; sourceTree = SOURCE_ROOT; };
 		4C65EF871E2D99590077373A /* Auxiliares.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Auxiliares.hpp; sourceTree = SOURCE_ROOT; };
+		4C685BB01E7392B100D08A8D /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		4C7F33B61E74829A00893F06 /* prettyprint.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = prettyprint.hpp; sourceTree = SOURCE_ROOT; };
 		4CA22A3C1E1B222300AD258A /* Surface */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Surface; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CA22A3F1E1B222300AD258A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4CA22A501E1B239500AD258A /* Interfacer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Interfacer.cpp; sourceTree = SOURCE_ROOT; usesTabs = 1; };
@@ -42,6 +51,8 @@
 		4CA22A561E1B421B00AD258A /* libGLEW.2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.2.0.0.dylib; path = ../../../../usr/local/lib/libGLEW.2.0.0.dylib; sourceTree = "<group>"; };
 		4CA22A581E1B454700AD258A /* libglfw.3.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.2.dylib; path = ../../../../usr/local/Cellar/glfw/3.2.1/lib/libglfw.3.2.dylib; sourceTree = "<group>"; };
 		4CAC16421E4D891200896248 /* libemon.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libemon.a; path = ../../../../usr/local/lib/libemon.a; sourceTree = "<group>"; };
+		4CC4E3ED1E7E174B00672939 /* libmatio.la */ = {isa = PBXFileReference; lastKnownFileType = text; name = libmatio.la; path = "../matio-1.5.10/src/libmatio.la"; sourceTree = "<group>"; };
+		4CC4E3F01E7E1A1A00672939 /* libmatio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmatio.a; path = ../../../../usr/local/lib/libmatio.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,6 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CC4E3F11E7E1A1A00672939 /* libmatio.a in Frameworks */,
 				4CAC16431E4D891200896248 /* libemon.a in Frameworks */,
 				4C65EF851E2D91790077373A /* libga.a in Frameworks */,
 				4CA22A591E1B454700AD258A /* libglfw.3.2.dylib in Frameworks */,
@@ -80,12 +92,17 @@
 		4CA22A3E1E1B222300AD258A /* Surface */ = {
 			isa = PBXGroup;
 			children = (
+				4C7F33B61E74829A00893F06 /* prettyprint.hpp */,
 				4C1CFE341E4690B800122E15 /* defs.h */,
 				4CA22A3F1E1B222300AD258A /* main.cpp */,
 				4CA22A501E1B239500AD258A /* Interfacer.cpp */,
 				4CA22A511E1B239500AD258A /* Interfacer.hpp */,
 				4C65EF861E2D99590077373A /* Auxiliares.cpp */,
 				4C65EF871E2D99590077373A /* Auxiliares.hpp */,
+				4C640CE61E6CA74500DEB3F5 /* Geometry.cpp */,
+				4C640CE71E6CA74500DEB3F5 /* Geometry.hpp */,
+				4C5DFBB01E70C0AA00A405A6 /* Renderer.cpp */,
+				4C5DFBB11E70C0AA00A405A6 /* Renderer.hpp */,
 			);
 			path = Surface;
 			sourceTree = "<group>";
@@ -93,6 +110,9 @@
 		4CA22A531E1B418F00AD258A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4CC4E3F01E7E1A1A00672939 /* libmatio.a */,
+				4CC4E3ED1E7E174B00672939 /* libmatio.la */,
+				4C685BB01E7392B100D08A8D /* GLUT.framework */,
 				4CAC16421E4D891200896248 /* libemon.a */,
 				4C65EF841E2D91790077373A /* libga.a */,
 				4CA22A581E1B454700AD258A /* libglfw.3.2.dylib */,
@@ -160,6 +180,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CA22A401E1B222300AD258A /* main.cpp in Sources */,
+				4C5DFBB21E70C0AA00A405A6 /* Renderer.cpp in Sources */,
+				4C640CE81E6CA74500DEB3F5 /* Geometry.cpp in Sources */,
 				4C65EF881E2D99590077373A /* Auxiliares.cpp in Sources */,
 				4CA22A521E1B239500AD258A /* Interfacer.cpp in Sources */,
 			);
@@ -265,8 +287,10 @@
 					/usr/local/lib/,
 					/usr/local/Cellar/glfw/3.2.1/lib,
 					/usr/local/Cellar/galib/247/lib,
+					"\"$(SRCROOT)/../matio-1.5.10/src\"",
 				);
 				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -281,8 +305,10 @@
 					/usr/local/lib/,
 					/usr/local/Cellar/glfw/3.2.1/lib,
 					/usr/local/Cellar/galib/247/lib,
+					"\"$(SRCROOT)/../matio-1.5.10/src\"",
 				);
 				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

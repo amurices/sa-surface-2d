@@ -8,49 +8,7 @@
 
 #include "Auxiliares.hpp"
 
-void copySurface(surface* target, surface* origin)
-{
-    for (size_t i = 0; i < origin->v.size(); i++)
-    {
-        target->v.push_back(point_g(origin->v[i].x, origin->v[i].y, origin->v[i].pid));
-    }
-    
-    for (size_t i = 0; i < origin->e.size(); i++)
-    {
-        int originu = origin->e[i].first->pid;
-        int originv = origin->e[i].second->pid;
-        target->e.push_back(std::make_pair(&target->v[originu], &target->v[originv]));
-        
-        target->v[originu].neighbor0 = &target->v[origin->v[i].neighbor0->pid]; // Confuso mas aqui é onde
-        target->v[originu].neighbor1 = &target->v[origin->v[i].neighbor1->pid]; // se traduz os vizinhos
-    }
-}
 
-std::vector<float> convertStringVectortoDoubleVector(const std::vector<std::string>& stringVector){
-    std::vector<float> doubleVector(stringVector.size());
-    
-    std::transform(stringVector.begin(), stringVector.end(), doubleVector.begin(), [](const std::string& val)
-                   {
-                       return stod(val);
-                   });
-    return doubleVector;
-}
-
-void split(const std::string &s, char delim, std::vector<std::string> &elems) {
-    std::stringstream ss;
-    ss.str(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-}
-
-
-std::vector<std::string> split(const std::string &s, char delim) {
-    std::vector<std::string> elems;
-    split(s, delim, elems);
-    return elems;
-}
 
 
 void printGene(const GA1DArrayAlleleGenome<double>& genomaTeste)
@@ -61,46 +19,52 @@ void printGene(const GA1DArrayAlleleGenome<double>& genomaTeste)
     }
 }
 
-void printSet(std::vector<point_g*> toPrint)
-{
-    for (size_t i = 0; i < toPrint.size(); i++)
-    {
-        std::cout << "v" << i << ": " << toPrint[i]->x << ", " << toPrint[i]->y << std::endl;
-        std::cout << "n0" << ": " << toPrint[i]->neighbor0->x << ", " << toPrint[i]->neighbor0->y << std::endl;
-        std::cout << "n1" << ": " << toPrint[i]->neighbor1->x << ", " << toPrint[i]->neighbor1->y << std::endl;
-        std::cout << std::endl;
-
-    }
-}
-
-void printEdge(link_g e)
-{
-    std::cout << "(" << e.first->x << ", " << e.first->y << ") -> (" << e.second->x << ", " << e.second->y << ")";
-}
-
-void printPoint(point_g x)
+void printPoint(point_t x)
 {
     std::cout << "(" << x.x << ", " << x.y << ")";
 }
 
-double dist (point_g p1, point_g p2)
+void printDegrees(const SurfaceData_t &surf)
+{
+    for (ListDigraph::NodeIt ne(surf.graph); ne != INVALID; ++ne)
+    {
+        ListDigraph::InArcIt	inCurrI(surf.graph, ne);		// get Pn
+        ListDigraph::OutArcIt	outCurrI(surf.graph, ne);		// and P1
+        int countInc = 0;
+        int countOut = 0;
+        while (inCurrI != INVALID)
+        {
+            countInc++;
+            ++inCurrI;
+        }
+        while (outCurrI != INVALID)
+        {
+            countOut++;
+            ++outCurrI;
+        }
+        
+        std::cout << "Node " << (*surf.coords)[ne] << ": " << countOut << " out, " << countInc << " in\n";
+    }
+}
+
+double dist (point_t p1, point_t p2)
 {
     std::pair<double, double> norm = std::make_pair(p2.x - p1.x, p2.y - p1.y);
     return sqrt( norm.first * norm.first + norm.second * norm.second );
 }
 
-int countIntersections(const surface& surf, std::vector<std::pair<float, float> >& where)
+int countIntersections(const SurfaceData_t& surf, std::vector<std::pair<float, float> >& where)
 {
     float intersection_X, intersection_Y;
     int acc = 0;
-    for (size_t i = 0; i < surf.e.size(); i++)
+    for (size_t i = 0; i < surf.nEdges; i++)
     {
-        for (size_t j = surf.e.size() - 1; j > i; j--)
+        for (size_t j = surf.nEdges - 1; j > i; j--)
         {
-            link_g a, b;
-            a = surf.e[i];
-            b = surf.e[j];
-            if (intersect(a, b))
+            ListDigraph::Arc a, b;
+            a = surf.graph.arcFromId(i);
+            b = surf.graph.arcFromId(j);
+            if (intersect(surf, a, b))
             {
                 acc++;
                 where.push_back(std::make_pair(intersection_X, intersection_Y));
@@ -111,7 +75,7 @@ int countIntersections(const surface& surf, std::vector<std::pair<float, float> 
 }
 
 
-double CCW(point_g a, point_g b, point_g c)
+double CCW(point_t a, point_t b, point_t c)
 {
     return (b.x-a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x);
 }
@@ -128,14 +92,25 @@ int middle(int a, int b, int c) {
     return 0;
 }
 
-int intersect(link_g a, link_g b) {
-    if ( ( CCW(*(a.first), *(a.second), *(b.first)) * CCW(*(a.first), *(a.second), *(b.second)) < 0 ) &&
-        ( CCW(*(b.first), *(b.second), *(a.first)) * CCW(*(b.first), *(b.second), *(a.second)) < 0 ) ) return 1;
+int intersect(const SurfaceData_t &surf, ListDigraph::Arc a, ListDigraph::Arc b) {
+    point_t *p1a, *p2a;
+    point_t *p1b, *p2b;
     
-    if ( CCW(*(a.first), *(a.second), *(b.first)) == 0 && middle(a.first->x, a.second->x, b.first->x) && middle(a.first->y, a.second->y, b.first->y) ) return 1;
-    if ( CCW(*(a.first), *(a.second), *(b.second)) == 0 && middle(a.first->x, a.second->x, b.second->x) && middle(a.first->y, a.second->y, b.second->y) ) return 1;
-    if ( CCW(*(b.first), *(b.second), *(a.first)) == 0 && middle(b.first->x, b.second->x, a.first->x) && middle(b.first->y, b.second->y, a.first->y) ) return 1;
-    if ( CCW(*(b.first), *(b.second), *(a.second)) == 0 && middle(b.first->x, b.second->x, a.second->x) && middle(b.first->y, b.second->y, a.second->y) ) return 1;
+    // Pegamos as referências às coordenadas dos pontos que queremos verificar
+    p1a = &(*surf.coords)[ surf.graph.source(a) ];
+    p2a = &(*surf.coords)[ surf.graph.target(a) ];
+    
+    p1b = &(*surf.coords)[ surf.graph.source(b) ];
+    p2b = &(*surf.coords)[ surf.graph.target(b) ];
+
+    
+    if ( ( CCW(*(p1a), *(p2a), *(p1b)) * CCW(*(p1a), *(p2a), *(p2b)) < 0 ) &&
+        ( CCW(*(p1b), *(p2b), *(p1a)) * CCW(*(p1b), *(p2b), *(p2a)) < 0 ) ) return 1;
+    
+    if ( CCW(*(p1a), *(p2a), *(p1b)) == 0 && middle(p1a->x, p2a->x, p1b->x) && middle(p1a->y, p2a->y, p1b->y) ) return 1;
+    if ( CCW(*(p1a), *(p2a), *(p2b)) == 0 && middle(p1a->x, p2a->x, p2b->x) && middle(p1a->y, p2a->y, p2b->y) ) return 1;
+    if ( CCW(*(p1b), *(p2b), *(p1a)) == 0 && middle(p1b->x, p2b->x, p1a->x) && middle(p1b->y, p2b->y, p1a->y) ) return 1;
+    if ( CCW(*(p1b), *(p2b), *(p2a)) == 0 && middle(p1b->x, p2b->x, p2a->x) && middle(p1b->y, p2b->y, p2a->y) ) return 1;
     
     return 0;
 }

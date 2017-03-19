@@ -9,8 +9,9 @@
 #ifndef Auxiliares_hpp
 #define Auxiliares_hpp
 
-// Definições, tipos, etc
-#include "defs.h"
+
+#include "defs.h"// Definições, tipos, etc
+#include "prettyprint.hpp"
 
 #include <ga/ga.h>
 #include <ga/GARealGenome.h>
@@ -20,32 +21,23 @@
 #include <sstream>
 
 
-void copySurface(surface* target, surface* origin);
-
-std::vector<float> convertStringVectortoDoubleVector(const std::vector<std::string>& stringVector);
-
-void split(const std::string &s, char delim, std::vector<std::string> &elems);
-
-std::vector<std::string> split(const std::string &s, char delim);
 
 void printGene(const GA1DArrayAlleleGenome<double>& genomaTeste);
 
-void printSet(std::vector<point_g*> toPrint);
+void printSet(std::vector<point_t*> toPrint);
 
-void printEdge(link_g e);
+void printDegrees(const SurfaceData_t &surf);
 
-void printPoint(point_g x);
+bool checkIntersection(point_t p1, point_t p2, point_t p3, point_t p4);
 
-bool checkIntersection(point_g p1, point_g p2, point_g p3, point_g p4);
+double dist(point_t p1, point_t p2);
 
-double dist(point_g p1, point_g p2);
+int countIntersections(const SurfaceData_t& surf, std::vector<std::pair<float, float> >& where);
 
-int countIntersections(const surface& surf, std::vector< std::pair<float, float> >& where);
-
-double CCW(point_g a, point_g b, point_g c);
+double CCW(point_t a, point_t b, point_t c);
 
 int middle(int a, int b, int c);
 
-int intersect(link_g a, link_g b);
+int intersect(const SurfaceData_t &surf, ListDigraph::Arc a, ListDigraph::Arc b);
 
 #endif /* Auxiliares_hpp */

@@ -16,27 +16,81 @@
 #include <utility>
 #include <vector>
 #include <map>
+
+#include <lemon/list_graph.h>
 #include <ga/GARealGenome.h>
 
+using namespace lemon;
 
 
-typedef struct point_g{
-    int pid; // Facilita a cópia
-    point_g *neighbor0, *neighbor1;
+
+typedef struct point_t{
     double x;
     double y;
-    point_g (double xn, double yn, int idn = 0)
+    point_t (double xn, double yn)
     {
-        neighbor0 = this; neighbor1 = this; x = xn; y = yn; pid = idn;
+        x = xn; y = yn;
     }
-}point_g;
+    point_t ()
+    {
+        
+    }
+    bool operator <(const point_t &p) const {
+        return x < p.x || (x == p.x && y < p.y);
+    }
+    
+    point_t operator +(const point_t &p) const {
+        return point_t(p.x + x, p.y + y);
+    }
+    
+    point_t operator -(const point_t &p) const {
+        return point_t(x - p.x, y - p.y);
+    }
+    
+    point_t operator *(const double &a) const {
+        return point_t(x*a, y*a);
+    }
+    
+    void operator *= (const double &a){
+        x *= a;
+        y *= a;
+    }
+    
+}point_t;
+
+inline std::ostream& operator<<(std::ostream&os, point_t const &p){
+    return os << "(" << p.x << ", " << p.y << ")";
+}
 
 
-typedef std::pair<point_g*, point_g*> link_g;
+typedef ListDigraph::NodeMap<point_t> Coords_t; // _t for type
+typedef ListDigraph::Node SNode;                // S for surface
+typedef struct SurfaceData_t{                   // _t for type
+    Coords_t    *coords;
+    ListDigraph graph;
+    
+    
+    SurfaceData_t(){
+        coords = new Coords_t(graph);
+        // Nota yurosal: Fazer destruidor ou consertar esta caralha e fazer deixar de ser apontador
+        nEdges = 0;
+        nNodes = 0;
+    }
+    
+    int nEdges;
+    int nNodes;
+} SurfaceData_t;
 
-typedef struct surface{
-    std::vector<point_g>   v;
-    std::vector<link_g>    e;
-} surface;
+typedef ListDigraph::NodeMap<double> Thicks_t;
+typedef struct ThickSurface_t{
+    Thicks_t *innerTs;
+    Thicks_t *outerTs;
+    
+    SurfaceData_t inner;
+    SurfaceData_t outer;
+    
+    int *nNodes;
+    
+} ThickSurface_t;
 
 #endif /* defs_h */

@@ -9,14 +9,18 @@
 #ifndef Interfacer_hpp
 #define Interfacer_hpp
 
-#include <cmath>
+#include <matio.h> // biblioteca de i/o pra .mat
+
+#include "defs.h"
+#include "Geometry.hpp"
 #include "Auxiliares.hpp"
 
 class Interfacer{
 public:
     Interfacer();
-    static surface generate_random(double perim, int pts = 500);
-    surface get_from_matlab();
+    static void generate_random(SurfaceData_t &surf, double perim, int pts);
+    static void generate_inner(SurfaceData_t &inner, const SurfaceData_t &surf);
+    static void get_from_matlab(SurfaceData_t &surf, const char* matFile);
 };
 
 #endif /* Interfacer_hpp */
