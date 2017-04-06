@@ -18,7 +18,6 @@
 #include <map>
 
 #include <lemon/list_graph.h>
-#include <ga/GARealGenome.h>
 
 using namespace lemon;
 
@@ -37,6 +36,10 @@ typedef struct point_t{
     }
     bool operator <(const point_t &p) const {
         return x < p.x || (x == p.x && y < p.y);
+    }
+    
+    bool operator ==(const point_t &p) const {
+        return x == p.x && y == p.y;
     }
     
     point_t operator +(const point_t &p) const {
@@ -58,8 +61,32 @@ typedef struct point_t{
     
 }point_t;
 
+typedef struct lines_t{
+    point_t p1;
+    point_t p2;
+    
+    lines_t(double x1n, double y1n, double x2n, double y2n)
+    {
+        p1.x = x1n; p2.x = x2n; p1.y = y1n; p2.y = y2n;
+    }
+    
+    lines_t(point_t p1n, point_t p2n)
+    {
+        p1 = p1n;
+        p2 = p2n;
+    }
+    
+    lines_t()
+    {
+        
+    }
+}lines_t;
+
 inline std::ostream& operator<<(std::ostream&os, point_t const &p){
     return os << "(" << p.x << ", " << p.y << ")";
+}
+inline std::ostream& operator<<(std::ostream&os, lines_t const &p){
+    return os << "(" << p.p1.x << ", " << p.p1.y << ") -> " << "(" << p.p2.x << ", " << p.p2.y << ")";
 }
 
 
@@ -83,14 +110,14 @@ typedef struct SurfaceData_t{                   // _t for type
 
 typedef ListDigraph::NodeMap<double> Thicks_t;
 typedef struct ThickSurface_t{
-    Thicks_t *innerTs;
-    Thicks_t *outerTs;
+    Thicks_t *thicknesses;
+    // ^ TIRAR DE APONTADOR
     
     SurfaceData_t inner;
     SurfaceData_t outer;
     
     int *nNodes;
-    
+    double scale = 1.0;
 } ThickSurface_t;
 
 #endif /* defs_h */

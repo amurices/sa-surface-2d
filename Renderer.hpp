@@ -16,25 +16,31 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <lemon/list_graph.h>
-
+#include <FTGL/ftgl.h>
 
 #include "Interfacer.hpp"
+
 
 class Renderer{
 public:
     GLFWwindow *window;
-    GLuint      tex;
+    int wWidth = 640;
+    int wHeight = 480;
+    
     
     int     initWindow();
+    
     void    handle(int code);
     
-    static void render_axes();
+    void        render_axes(FTGLPixmapFont &font);
     
-//  TODO:  static void render_text(const string text, point_t pos);
+    void        render_text(FTGLPixmapFont &font, const char* text, point_t pos, int faceSize);
+    
+    void        render_node(SNode no, const SurfaceData_t &surf);
     
     static void render_surface(const SurfaceData_t &surf);
     
-    static void render_intersections(const SurfaceData_t& surf);
+    static void render_intersections(std::vector<point_t> intersections);
 };
 
 

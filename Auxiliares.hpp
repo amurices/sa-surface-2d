@@ -11,7 +11,7 @@
 
 
 #include "defs.h"// Definições, tipos, etc
-#include "prettyprint.hpp"
+#include "Outsiders/prettyprint.hpp"
 
 #include <ga/ga.h>
 #include <ga/GARealGenome.h>

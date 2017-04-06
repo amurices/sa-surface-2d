@@ -7,7 +7,19 @@
 //
 
 #include "Interfacer.hpp"
-void Interfacer::generate_random(SurfaceData_t &surf, double perim, int pts){
+void Interfacer::generate_random(ThickSurface_t &ts, double perim, int pts)
+{
+	generate_outer_s(ts.outer, perim, pts);
+	ts.thicknesses = new Thicks_t(ts.outer.graph);
+	for (ListDigraph::NodeIt n(ts.outer.graph); n != INVALID; ++n) // Generate random thicknesses 1/10 of perimeter
+	{
+		double randX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.05 * perim;
+		(*ts.thicknesses)[n] = randX;
+	}
+	generate_inner_s(ts.inner, ts.outer, ts.thicknesses);
+}
+
+void Interfacer::generate_outer_s(SurfaceData_t &surf, double perim, int pts){
 	std::vector<point_t> pointsCluster;
 	std::vector<point_t> pointsSurface;
 	
@@ -34,7 +46,7 @@ void Interfacer::generate_random(SurfaceData_t &surf, double perim, int pts){
 	
 	surf.nNodes++;
 	( *(surf.coords) )[prevToMap] = point_t(pointsSurface[0].x, pointsSurface[0].y);
-	std::cout << "Node we're adding: " << (*surf.coords)[prevToMap] << std::endl;
+//	std::cout << "Node we're adding: " << (*surf.coords)[prevToMap] << std::endl;
 
 	for (size_t i = 1; i < pointsSurface.size(); i++)
 	{
@@ -42,13 +54,13 @@ void Interfacer::generate_random(SurfaceData_t &surf, double perim, int pts){
 		currToMap = surf.graph.addNode();
 		surf.nNodes++;
 		(*surf.coords)[currToMap] = point_t(pointsSurface[i].x, pointsSurface[i].y);
-		std::cout << "Node we're adding: " << (*surf.coords)[currToMap] << std::endl;
+	//	std::cout << "Node we're adding: " << (*surf.coords)[currToMap] << std::endl;
 		surf.graph.addArc(prevToMap, currToMap);
 		surf.nEdges++;
 		prevToMap = currToMap;
 	}
 	
-	std::cout << "Rn we have " << surf.nNodes << " nodes\n";
+//	std::cout << "Rn we have " << surf.nNodes << " nodes\n";
 	
 	surf.graph.addArc(prevToMap, fnode);
 	surf.nEdges++;
@@ -57,7 +69,7 @@ void Interfacer::generate_random(SurfaceData_t &surf, double perim, int pts){
 	
 }
 
-void Interfacer::generate_inner(SurfaceData_t &inner, const SurfaceData_t &surf)
+void Interfacer::generate_inner_s(SurfaceData_t &inner, const SurfaceData_t &surf, Thicks_t *ts)
 {
 	SNode	prev, next, last;
 	point_t	pPrev, pNext, pCurr, vd;
@@ -74,8 +86,8 @@ void Interfacer::generate_inner(SurfaceData_t &inner, const SurfaceData_t &surf)
 	pPrev = (*surf.coords)[prev];			// and P0
 
 
-	vd = find_direction_vector(pPrev, pNext);	// Pega direção
-	vd *= 0.02;									// proto-thickness
+	vd = find_direction_vector(pPrev, pNext, (*surf.coords)[fnode], MEDIAN_ANGLE);	// Pega direção
+	vd *= (*ts)[fnode];									// proto-thickness
 	
 	
 	SNode finode = inner.graph.addNode();	// Add node à inner; guarda a referencia ao primeiro no
@@ -96,8 +108,8 @@ void Interfacer::generate_inner(SurfaceData_t &inner, const SurfaceData_t &surf)
 		pNext = (*surf.coords)[next];
 		pPrev = (*surf.coords)[prev];
 		
-		vd = find_direction_vector(pPrev, pNext);
-		vd *= 0.02;
+		vd = find_direction_vector(pPrev, pNext, (*surf.coords)[curr], MEDIAN_ANGLE);
+		vd *= (*ts)[curr];
 		
 		innerCurrToMap = inner.graph.addNode();
 		inner.nNodes++;
@@ -135,4 +147,12 @@ void Interfacer::get_from_matlab(SurfaceData_t &surf, const char* matFile)
 		Mat_VarFree(matvar);
 	}
 }
+
+void Interfacer::get_from_ttf(FTGLPixmapFont *fonti, const char* ttfFile)
+{
+	fonti = new FTGLPixmapFont(ttfFile);
+	if(fonti->Error())
+		exit(EXIT_FAILURE);
+}
+
 

@@ -44,7 +44,7 @@
 #ifndef BRKGA_H
 #define BRKGA_H
 
-// #include <omp.h>
+#include "omp.h"
 #include <algorithm>
 #include <exception>
 #include <stdexcept>
