@@ -40,6 +40,7 @@
  *  Last update: Sep 28, 2010 by rtoso
  *      Authors: Rodrigo Franco Toso <rtoso@cs.rutgers.edu>
  */
+#pragma once
 
 #ifndef BRKGA_H
 #define BRKGA_H

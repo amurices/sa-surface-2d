@@ -8,20 +8,84 @@
 
 #include "Auxiliares.hpp"
 
-
-
-
-void printGene(const GA1DArrayAlleleGenome<double>& genomaTeste)
+bool ltTolerance(double a, double b, double tol)
 {
-    for (size_t i = 0; i <  genomaTeste.length(); i++)
-    {
-        std::cout << "gene " << i << std::setprecision(2) << genomaTeste.gene(i) << std::endl;
-    }
+    return (a < (b - tol));
+}
+bool gtTolerance(double a, double b, double tol)
+{
+    return (a > (b + tol));
 }
 
-void printPoint(point_t x)
+bool eqTolerance(double a, double b, double tol)
 {
-    std::cout << "(" << x.x << ", " << x.y << ")";
+    return (a > b - tol) && (a < b + tol);
+}
+
+void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg)
+{
+    SNode	prev, next, last;
+    point_t	pPrev, pNext, pCurr, vd;
+    
+    SNode fnode		= org.graph.nodeFromId(0);				// fnode = P0
+    
+    ListDigraph::InArcIt	inCurrI(org.graph, fnode);		// get Pn
+    ListDigraph::OutArcIt	outCurrI(org.graph, fnode);     // and P1
+    
+    prev = org.graph.source(inCurrI);		// cont ^
+    next = org.graph.target(outCurrI);		// cont ^
+    
+    pNext = (*org.coords)[next];			// get coordinates Pn
+    pPrev = (*org.coords)[prev];			// and P0
+    
+    SNode finode = trg.graph.addNode();                 // Add node à inner; guarda a referencia ao primeiro no
+    SNode trgCurrToMap = finode;                        // Primeiro no agora é o atual
+    trg.nNodes++;                                       // incrementa no. de nós
+    (*trg.coords)[trgCurrToMap] = (*org.coords)[fnode];	// seta coordenadas
+    SNode trgPrevToMap = trgCurrToMap;                  // prev agora é o atual
+    SNode curr;
+    
+    for (curr = next; curr != fnode; curr = next)
+    {
+        ListDigraph::OutArcIt	outCurr(org.graph, curr);
+        ListDigraph::InArcIt	inCurr(org.graph, curr);
+        
+        next = org.graph.target(outCurr);
+        prev = org.graph.source(inCurr);
+        
+        pNext = (*org.coords)[next];
+        pPrev = (*org.coords)[prev];
+    
+        trgCurrToMap = trg.graph.addNode();
+        trg.nNodes++;
+        (*trg.coords)[trgCurrToMap] = (*org.coords)[curr] - vd;
+        
+        trg.graph.addArc(trgPrevToMap, trgCurrToMap);
+        trg.nEdges++;
+        trgPrevToMap = trgCurrToMap;
+    }
+    
+    trg.graph.addArc(trgPrevToMap, finode);
+    trg.nEdges++;
+}
+
+// Start timer
+void time_b(struct timeval &tvalBefore)
+{
+    gettimeofday (&tvalBefore, NULL);
+}
+
+
+float time_a(struct timeval &tvalBefore)
+{
+    struct timeval tvalAfter;  // removed comma
+    gettimeofday (&tvalAfter, NULL);
+    float timeSince = tvalAfter.tv_sec - tvalBefore.tv_sec;
+    float diff = tvalBefore.tv_usec - tvalAfter.tv_usec;
+    if (diff > 0)
+        timeSince -= 1.0;
+    timeSince += std::abs(diff) / 1000000;
+    return timeSince;
 }
 
 void printDegrees(const SurfaceData_t &surf)
@@ -52,28 +116,6 @@ double dist (point_t p1, point_t p2)
     std::pair<double, double> norm = std::make_pair(p2.x - p1.x, p2.y - p1.y);
     return sqrt( norm.first * norm.first + norm.second * norm.second );
 }
-
-int countIntersections(const SurfaceData_t& surf, std::vector<std::pair<float, float> >& where)
-{
-    float intersection_X, intersection_Y;
-    int acc = 0;
-    for (size_t i = 0; i < surf.nEdges; i++)
-    {
-        for (size_t j = surf.nEdges - 1; j > i; j--)
-        {
-            ListDigraph::Arc a, b;
-            a = surf.graph.arcFromId(i);
-            b = surf.graph.arcFromId(j);
-            if (intersect(surf, a, b))
-            {
-                acc++;
-                where.push_back(std::make_pair(intersection_X, intersection_Y));
-            }
-        }
-    }
-    return acc;
-}
-
 
 double CCW(point_t a, point_t b, point_t c)
 {

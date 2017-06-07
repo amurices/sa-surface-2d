@@ -62,18 +62,18 @@ void Renderer::render_text(FTGLPixmapFont &font, const char* text, point_t pos, 
 }
 
 // Draw individual node as triangle
-void Renderer::render_node(SNode no, const SurfaceData_t &surf)
+void Renderer::render_node(SNode no, const SurfaceData_t &surf, const triple_t color)
 {
     glBegin(GL_TRIANGLES);
     
     point_t pos = (*surf.coords)[ no ];
-    glColor3f(1.0f, 0.0f, 1.0f);
+    glColor3f(color._1, color._2, color._3);
     glVertex2f(pos.x, pos.y - 0.02);
     
-    glColor3f(1.0f, 0.0f, 1.0f);
+    glColor3f(color._1, color._2, color._3);
     glVertex2f(pos.x - 0.02, pos.y + 0.02);
     
-    glColor3f(1.0f, 0.0f, 1.0f);
+    glColor3f(color._1, color._2, color._3);
     glVertex2f(pos.x + 0.02, pos.y + 0.02);
 
     glEnd();
@@ -81,20 +81,21 @@ void Renderer::render_node(SNode no, const SurfaceData_t &surf)
 
 
 // Draws the entire surface
-void Renderer::render_surface(const SurfaceData_t &surf)
+void Renderer::render_surface(const SurfaceData_t &surf, const triple_t color)
 {
     // Rasterise edges as lines
     glBegin(GL_LINES);
-
+    int count = 0;
     for (ListDigraph::ArcIt e(surf.graph); e != INVALID; ++e )
     {
-        glColor3f(1.0f, 0.0f, 1.0f);
+        count++;
+        glColor3f(color._1, color._2, color._3);
         glVertex2f((*surf.coords)[ surf.graph.source(e) ].x, (*surf.coords)[ surf.graph.source(e) ].y);
         
-        glColor3f(1.0f, 0.0f, 1.0f);
+        glColor3f(color._1, color._2, color._3);
         glVertex2f((*surf.coords)[ surf.graph.target(e) ].x , (*surf.coords)[ surf.graph.target(e) ].y);
     }
-    
+ //   std::cout << "Rendered: " << count << std::endl;
     glEnd();
     
     // Rasterise nodes as squares

@@ -15,7 +15,9 @@
 #include <vector>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 #include "defs.h"
+#include "Auxiliares.hpp"
 
 enum direction_t {ORTHOGONAL, MEDIAN, MEDIAN_ANGLE};
 
@@ -31,11 +33,14 @@ double      cross(const point_t &O, const point_t &A, const point_t &B);
 
 bool        find_lines_intersection(lines_t a, lines_t b, point_t &where);
 
+int         find_surface_intersections(const std::vector<SurfaceData_t*>& xs, std::vector<point_t> &is);
+
 point_t     find_direction_vector(const point_t &a, const point_t &b, const point_t&c = point_t(0,0), direction_t Type = ORTHOGONAL);
 
-std::vector<point_t> concave_hull(std::vector<point_t> cH, std::vector<point_t> &G, double threshold);
+std::vector<point_t> concave_hull(const std::vector<point_t> &cH, std::vector<point_t> &G, double threshold, std::vector<point_t> &is);
 
-std::vector<point_t> convex_hull(std::vector<point_t> P);
+std::vector<point_t> convex_hull(std::vector<point_t> P, std::vector<point_t> &is);
 
+double calculate_surface_area(const SurfaceData_t& s);
 
 #endif /* Geometry_hpp */

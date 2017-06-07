@@ -133,6 +133,11 @@ point_t find_direction_vector(const point_t &a, const point_t &b, const point_t 
         directionOffset = aShift + bShift;
         directionOffset = directionOffset * 0.5;
         
+        // Divide by norm
+        double offsetNorm = find_norm(directionOffset);
+        directionOffset.x /= offsetNorm;
+        directionOffset.y /= offsetNorm;
+        
         if (find_norm(dO - directionOffset) > find_norm(dO + directionOffset))
             directionOffset = directionOffset * (-1);
         
@@ -206,7 +211,7 @@ std::vector<point_t> find_inner_points(const std::vector<point_t> &G, const std:
 
 // Returns a list of point_ts on the convex hull in counter-clockwise order.
 // Note: the last point_t in the returned list is the same as the first one.
-std::vector<point_t> convex_hull(std::vector<point_t> P)
+std::vector<point_t> convex_hull(std::vector<point_t> P, std::vector<point_t> &is)
 {
     int n = P.size(), k = 0;
     std::vector<point_t> H(2*n);
@@ -228,7 +233,7 @@ std::vector<point_t> convex_hull(std::vector<point_t> P)
     
     H.resize(k-1);
     
-    std::vector<point_t> conc = concave_hull(H, P, 0.7);
+    std::vector<point_t> conc = concave_hull(H, P, 1, is);
 /*    std::cout << "Concave edges:\n";
     for (size_t jarel = 0; jarel < conc.size(); jarel++)
     {
@@ -238,7 +243,7 @@ std::vector<point_t> convex_hull(std::vector<point_t> P)
     return conc;
 }
 
-std::vector<point_t> concave_hull(std::vector<point_t> cH, std::vector<point_t> &G, double threshold)
+std::vector<point_t> concave_hull(const std::vector<point_t> &cH, std::vector<point_t> &G, double threshold, std::vector<point_t> &is)
 {
     // Small cheat below; we dedicate a small time to turn input into edges instead of nodes
     std::vector<lines_t> convexEdges(cH.size());
@@ -254,7 +259,6 @@ std::vector<point_t> concave_hull(std::vector<point_t> cH, std::vector<point_t> 
     std::vector<point_t> innerPoints = find_inner_points(G, cH);
     for (size_t j = 0; j < innerPoints.size(); ) // Isso pode dar merda; n sei como concaveEdges atualiza
     {
-        std::cout << "Looking at innerPoint no. " << j << "\n ----------------\n";
         int closestIndex; double closestDistance = INFINITY; // We're gonna need this for the search below
         double thisDistance; // This will hold the value of the d_pt_ls func so we only compute it once/iteration
        
@@ -262,7 +266,6 @@ std::vector<point_t> concave_hull(std::vector<point_t> cH, std::vector<point_t> 
         for (size_t i = 0; i < concaveEdges.size(); i++)
         {
             thisDistance = distance_point_to_line_segment(innerPoints[j], concaveEdges[i]);
-            std::cout << "Distance from " << innerPoints[j] << " to " << concaveEdges[i] << ": " << thisDistance << std::endl << std::endl;
             if (thisDistance <= closestDistance)
             {
                 closestIndex = i;
@@ -302,7 +305,6 @@ std::vector<point_t> concave_hull(std::vector<point_t> cH, std::vector<point_t> 
             j++; // We advance only conditionally
     }
     // Check for intersections
-    std::vector<point_t> is;
     for (size_t i = 0; i < concaveEdges.size(); i++)
     {
         for (size_t j = i; j < concaveEdges.size(); j++)
@@ -310,7 +312,7 @@ std::vector<point_t> concave_hull(std::vector<point_t> cH, std::vector<point_t> 
             point_t where;
             if (find_lines_intersection(concaveEdges[i], concaveEdges[j], where))
             {
-                std::cout << "at " << where << ", btwn " << concaveEdges[i] << " and " << concaveEdges[j]<< std::endl;
+              //  std::cout << "at " << where << ", btwn " << concaveEdges[i] << " and " << concaveEdges[j]<< std::endl;
                 is.push_back(where);
             }
         }
@@ -374,9 +376,11 @@ bool find_lines_intersection(lines_t a, lines_t b, point_t &where)
     
     // If both T and U are in [0, 1] interval, then an intersection happens. We adopt an exclusive interval
     // so that neighbor edges aren't taken to be intersecting.
-    if (t > 0 && t < 1 && u > 0 && u < 1)
+    if (gtTolerance(t, 0, TOLERANCE) && ltTolerance(t, 1, TOLERANCE) && gtTolerance(u, 0, TOLERANCE) && ltTolerance(u, 1, TOLERANCE))
     {
         where = p + r * t;
+      //  std::cout.precision(20);
+      //  std::cout << "Our int: " << std::fixed << where << ", t and u: " << std::fixed << t << std::fixed <<  u << std::endl;
         return true;
     }
     
@@ -384,29 +388,90 @@ bool find_lines_intersection(lines_t a, lines_t b, point_t &where)
     return false;
 }
 
-/* Pseudocode of the concave phase
-    Data: list A with edges for the convex hull
-    Result: list B with edges for a concave hull
- 
-    Sort list A after the length of the edges;
- 
-    while list A is not empty
-        Select the longest edge e from list A;
-        Remove edge e from list A;
-        Calculate local maximum distance d for edges;
- 
-        if length of edge is larger than distance d
-            Find the point_t p with the smallest maximum angle a;
-            if angle a is small enough and point p is not on the boundary
- 
-                Create edges e2 and e3 between point p and endpoints of edge e;
-                if edge e2 and e3 don't intersect any other edge
- 
-                    Add edge e2 and e3 to list A;
-                    Set point_t p to be on the boundary;
- 
-        if edge e2 and e3 was not added to list A
-            Add edge e to list B;
- ---- //Fonte: http://www.it.uu.se/edu/course/homepage/projektTDB/ht13/project10/Project-10-report.pdf */
-// ---------------------------------------------------------------
+int find_surface_intersections(const std::vector<SurfaceData_t*>& xs, std::vector<point_t> &is)
+{
+    std::vector<lines_cg> linePool;
+    
+    // Compute all intersection points.
+    std::list<point_cg>     pts;
+    
+    // This turns into n (constructing input) + n lg n (BentleyOttman)
+    for (size_t i = 0; i < xs.size(); i++)  // For every surface in our input
+    {
+        for (ListDigraph::ArcIt ed(xs[i]->graph); ed != INVALID; ++ed) // We iterate thru its arcs
+        {
+            point_t pt1 = (*xs[i]->coords)[xs[i]->graph.source(ed)]; // And create a pool of all lines
+            point_t pt2 = (*xs[i]->coords)[xs[i]->graph.target(ed)]; // which cannot intersect
+            point_cg pc1(pt1.x, pt2.y);
+            point_cg pc2(pt2.x, pt2.y);
+            
+            linePool.push_back(lines_cg(pc1, pc2));
+        }
+    }
+    
+    CGAL::compute_intersection_points (linePool.begin(), linePool.end(),
+                                       std::back_inserter (pts));
+    return pts.size();
+    /*
+    int count = 0;
+    for (size_t i = 0; i < xs.size(); i++)
+    {
+        for (ListDigraph::ArcIt ed(xs[i]->graph); ed != INVALID; ++ed)
+        {
+            for (size_t j = i; j < xs.size(); j++)
+            {
+                for (ListDigraph::ArcIt edi(xs[j]->graph); edi != INVALID; ++edi)
+                {
+                    point_t where;
+                    
+                    lines_t ediL((*xs[j]->coords)[xs[j]->graph.source(edi)], (*xs[j]->coords)[xs[j]->graph.target(edi)]);
+                    
+                    lines_t edL((*xs[i]->coords)[xs[i]->graph.source(ed)], (*xs[i]->coords)[xs[i]->graph.target(ed)]);
+                    
+                    if (find_lines_intersection(ediL, edL, where))
+                    {
+                        is.push_back(where);
+                        count++;
+                    }
+                }
 
+            }
+        }
+    }
+    return count;
+    */
+}
+
+void find_intersection_area(const SurfaceData_t &s1)
+{
+    
+}
+
+double calculate_surface_area(const SurfaceData_t& s)
+{
+    double area = 0;
+    ListDigraph::InArcIt prev;
+    ListDigraph::OutArcIt next;
+    SNode fnode;
+    
+    SNode no = s.graph.nodeFromId(0);
+    fnode = no;
+    next = ListDigraph::OutArcIt(s.graph, no);
+    no = s.graph.target(next);
+    for(; no != fnode ;)
+    {
+        prev = ListDigraph::InArcIt(s.graph, no);
+        next = ListDigraph::OutArcIt(s.graph, no);
+        area += (*s.coords)[no].x * ( (*s.coords)[s.graph.target(next)].y - (*s.coords)[s.graph.source(prev)].y);
+        no = s.graph.target(next);
+    }
+    prev = ListDigraph::InArcIt(s.graph, no);
+    next = ListDigraph::OutArcIt(s.graph, no);
+    area += (*s.coords)[no].x * ( (*s.coords)[s.graph.target(next)].y - (*s.coords)[s.graph.source(prev)].y);
+    area /= 2;
+    
+    if (area < 0)
+        area = 0;
+    
+    return area;
+}

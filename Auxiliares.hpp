@@ -13,16 +13,17 @@
 #include "defs.h"// Definições, tipos, etc
 #include "Outsiders/prettyprint.hpp"
 
-#include <ga/ga.h>
-#include <ga/GARealGenome.h>
 #include <vector>
+#include <sys/time.h>
 #include <math.h>
 #include <iomanip>
 #include <sstream>
 
+// Comparators for analytical precise floating point numbers. Tol must be positive.
+bool ltTolerance(double a, double b, double tol);
+bool gtTolerance(double a, double b, double tol);
+bool eqTolerance(double a, double b, double tol);
 
-
-void printGene(const GA1DArrayAlleleGenome<double>& genomaTeste);
 
 void printSet(std::vector<point_t*> toPrint);
 
@@ -30,11 +31,15 @@ void printDegrees(const SurfaceData_t &surf);
 
 bool checkIntersection(point_t p1, point_t p2, point_t p3, point_t p4);
 
+void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg);
+
 double dist(point_t p1, point_t p2);
 
-int countIntersections(const SurfaceData_t& surf, std::vector<std::pair<float, float> >& where);
-
 double CCW(point_t a, point_t b, point_t c);
+
+void time_b(struct timeval &tvalBefore);
+
+float time_a(struct timeval &tvalBefore);
 
 int middle(int a, int b, int c);
 

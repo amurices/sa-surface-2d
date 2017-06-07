@@ -12,7 +12,9 @@
 #include <iostream>
 #include <vector>
 #include <list>
-#include "defs.h"
+#include "Geometry.hpp"
+#include "MTRand.h"
+#include "Interfacer.hpp"
 
 class SurfaceDecoder {
 public:
@@ -22,9 +24,9 @@ public:
     {
     }
     
-    
-    
-    void decode(const std::vector< double >& chromosome) const;
+    ThickSurface_t *org;
+        
+    double decode(const std::vector< double >& chromosome) const;
 
 private:
 };

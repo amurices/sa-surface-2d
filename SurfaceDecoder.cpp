@@ -9,20 +9,32 @@
 #include "SurfaceDecoder.hpp"
 
 
-void SurfaceDecoder::decode(const std::vector< double >& chromosome) const {
-    std::vector< std::pair< double, unsigned > > ranking(chromosome.size());
-    
-    for(unsigned i = 0; i < chromosome.size(); ++i) {
-        ranking[i] = std::pair< double, unsigned >(chromosome[i], i);
+double SurfaceDecoder::decode(const std::vector< double >& chromosome) const {
+    ThickSurface_t thickGen;
+    SurfaceData_t outerGen, innerGen, bridges;
+    std::vector<point_t> inters;
+    copy_surface(org->outer, thickGen.outer);
+    int count = 0;
+    for (ListDigraph::NodeIt no(thickGen.outer.graph); no != INVALID; ++no)
+    {
+        (*thickGen.outer.coords)[no].x += chromosome[count];
+        (*thickGen.outer.coords)[no].y += chromosome[count + chromosome.size() * 0.5];
+        count++;
     }
+    // OTIMIZAÇÃO A SE FAZER AQUI
+    // Os offsets podem ser adicionados e logo em seguida utilizados p/ calcular a inner
+    Interfacer::generate_inner_s(thickGen.inner, thickGen.outer, org->thicknesses);
     
-    // Here we sort 'permutation', which will then produce a permutation of [n] in pair::second:
-    std::sort(ranking.begin(), ranking.end());
+    Interfacer::generate_bridges(thickGen);
     
-    // permutation[i].second is in {0, ..., n - 1}; a permutation can be obtained as follows
-    std::list< unsigned > permutation;
-    for(std::vector< std::pair< double, unsigned > >::const_iterator i = ranking.begin();
-        i != ranking.end(); ++i) {
-        permutation.push_back(i->second);
-    }
+    double res = calculate_surface_area(thickGen.outer);
+    
+    std::vector<SurfaceData_t*> surfaces;
+    surfaces.push_back(&thickGen.outer);
+    surfaces.push_back(&thickGen.inner);
+    surfaces.push_back(&thickGen.bridges);
+    
+    int intsOuter = find_surface_intersections(surfaces, inters);
+    res += 100000 * intsOuter;
+    return res;
 }

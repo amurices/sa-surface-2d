@@ -13,15 +13,31 @@
 #include <iostream>
 #include <string>
 #include <math.h>
+#include <cmath>
 #include <utility>
 #include <vector>
 #include <map>
+
+#include <CGAL/Cartesian.h>
+#include <CGAL/MP_Float.h>
+#include <CGAL/Quotient.h>
+#include <CGAL/Arr_segment_traits_2.h>
+#include <CGAL/Sweep_line_2_algorithms.h>
 
 #include <lemon/list_graph.h>
 
 using namespace lemon;
 
+const double TOLERANCE  = 0.00000001;
+const double PI         = 3.14159265358979323846;
 
+typedef struct triple_t{
+    double _1;
+    double _2;
+    double _3;
+    
+    triple_t (double r, double g, double b){ _1 = r; _2 = g; _3 = b; }
+} triple_t;
 
 typedef struct point_t{
     double x;
@@ -82,6 +98,15 @@ typedef struct lines_t{
     }
 }lines_t;
 
+// CGAL typedefs
+typedef CGAL::Quotient<CGAL::MP_Float>      NT;
+typedef CGAL::Cartesian<NT>                 Kernel;
+typedef Kernel::Point_2                     point_cg;
+typedef CGAL::Arr_segment_traits_2<Kernel>  traits_cg;
+typedef traits_cg::Curve_2                  lines_cg;
+
+
+
 inline std::ostream& operator<<(std::ostream&os, point_t const &p){
     return os << "(" << p.x << ", " << p.y << ")";
 }
@@ -89,13 +114,13 @@ inline std::ostream& operator<<(std::ostream&os, lines_t const &p){
     return os << "(" << p.p1.x << ", " << p.p1.y << ") -> " << "(" << p.p2.x << ", " << p.p2.y << ")";
 }
 
-
 typedef ListDigraph::NodeMap<point_t> Coords_t; // _t for type
 typedef ListDigraph::Node SNode;                // S for surface
 typedef struct SurfaceData_t{                   // _t for type
     Coords_t    *coords;
     ListDigraph graph;
     
+    std::map<int, int> correspondence;
     
     SurfaceData_t(){
         coords = new Coords_t(graph);
@@ -115,6 +140,8 @@ typedef struct ThickSurface_t{
     
     SurfaceData_t inner;
     SurfaceData_t outer;
+    
+    SurfaceData_t bridges;
     
     int *nNodes;
     double scale = 1.0;

@@ -19,10 +19,14 @@
 class Interfacer{
 public:
     Interfacer();
-    static void generate_random     (ThickSurface_t &ts, double perim, int pts);
-    static void generate_outer_s    (SurfaceData_t &surf,   double perim, int pts);
-    static void generate_outer_s0    (SurfaceData_t &surf,   double perim, int pts);
-    static void generate_inner_s    (SurfaceData_t &inner,  const SurfaceData_t &surf, Thicks_t *ts);
+    static void generate_random     (ThickSurface_t &ts, double perim, int pts, std::vector<point_t> &is);
+    static void generate_circle     (ThickSurface_t &ts, double radius, int pts, std::vector<point_t> &is);
+    static void generate_outer_s    (SurfaceData_t &surf,   double perim, int pts, std::vector<point_t> &is);
+    static void generate_inner_s    (SurfaceData_t &inner,  SurfaceData_t &surf, Thicks_t *ts);
+    static void generate_bridges    (ThickSurface_t &ts);
+    static void update_inner_s      (SurfaceData_t &inner,  SurfaceData_t &surf, Thicks_t *ts);
+    static void update_bridges      (ThickSurface_t &ts);
+
     static void get_from_matlab     (SurfaceData_t &surf,   const char* matFile);
     static void get_from_ttf        (FTGLPixmapFont *fonti, const char* ttfFile);
 };

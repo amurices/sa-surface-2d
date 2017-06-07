@@ -25,7 +25,7 @@ class Renderer{
 public:
     GLFWwindow *window;
     int wWidth = 640;
-    int wHeight = 480;
+    int wHeight = 640;
     
     
     int     initWindow();
@@ -36,9 +36,9 @@ public:
     
     void        render_text(FTGLPixmapFont &font, const char* text, point_t pos, int faceSize);
     
-    void        render_node(SNode no, const SurfaceData_t &surf);
+    void        render_node(SNode no, const SurfaceData_t &surf, const triple_t color);
     
-    static void render_surface(const SurfaceData_t &surf);
+    static void render_surface(const SurfaceData_t &surf, const triple_t color);
     
     static void render_intersections(std::vector<point_t> intersections);
 };

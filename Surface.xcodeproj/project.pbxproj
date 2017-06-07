@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4C3321031EE746AF00E657A2 /* libCGAL.12.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C3321021EE746AF00E657A2 /* libCGAL.12.0.0.dylib */; };
 		4C5DFBB21E70C0AA00A405A6 /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C5DFBB01E70C0AA00A405A6 /* Renderer.cpp */; };
 		4C640CE81E6CA74500DEB3F5 /* Geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C640CE61E6CA74500DEB3F5 /* Geometry.cpp */; };
 		4C65EF851E2D91790077373A /* libga.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C65EF841E2D91790077373A /* libga.a */; };
@@ -23,6 +24,7 @@
 		4CC4E3F11E7E1A1A00672939 /* libmatio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CC4E3F01E7E1A1A00672939 /* libmatio.a */; };
 		4CC4E3F41E7F361600672939 /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CC4E3F31E7F361600672939 /* libfreetype.a */; };
 		4CC4E3F91E7F3BA700672939 /* freetype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CC4E3F81E7F3BA700672939 /* freetype.cpp */; };
+		4CF835391EB0F81D00F69F23 /* Optimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CF835371EB0F81D00F69F23 /* Optimizer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -39,6 +41,7 @@
 
 /* Begin PBXFileReference section */
 		4C1CFE341E4690B800122E15 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = SOURCE_ROOT; };
+		4C3321021EE746AF00E657A2 /* libCGAL.12.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.12.0.0.dylib; path = ../../../../usr/local/Cellar/cgal/4.9.1/lib/libCGAL.12.0.0.dylib; sourceTree = "<group>"; };
 		4C5DFBB01E70C0AA00A405A6 /* Renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Renderer.cpp; sourceTree = SOURCE_ROOT; };
 		4C5DFBB11E70C0AA00A405A6 /* Renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = SOURCE_ROOT; };
 		4C640CE61E6CA74500DEB3F5 /* Geometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Geometry.cpp; sourceTree = SOURCE_ROOT; };
@@ -68,6 +71,8 @@
 		4CC4E3F31E7F361600672939 /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = ../../../../usr/local/lib/libfreetype.a; sourceTree = "<group>"; };
 		4CC4E3F61E7F3B5400672939 /* prettyprint.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = prettyprint.hpp; path = Outsiders/prettyprint.hpp; sourceTree = "<group>"; };
 		4CC4E3F81E7F3BA700672939 /* freetype.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = freetype.cpp; path = Outsiders/freetype.cpp; sourceTree = "<group>"; };
+		4CF835371EB0F81D00F69F23 /* Optimizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Optimizer.cpp; sourceTree = SOURCE_ROOT; };
+		4CF835381EB0F81D00F69F23 /* Optimizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Optimizer.hpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +80,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C3321031EE746AF00E657A2 /* libCGAL.12.0.0.dylib in Frameworks */,
 				4C9EDCEE1E7FF2BC00551A66 /* libftgl.a in Frameworks */,
 				4CC4E3F41E7F361600672939 /* libfreetype.a in Frameworks */,
 				4CC4E3F11E7E1A1A00672939 /* libmatio.a in Frameworks */,
@@ -122,6 +128,8 @@
 				4C5DFBB11E70C0AA00A405A6 /* Renderer.hpp */,
 				4CBD363E1E9026BE000F2388 /* SurfaceDecoder.cpp */,
 				4CBD363F1E9026BE000F2388 /* SurfaceDecoder.hpp */,
+				4CF835371EB0F81D00F69F23 /* Optimizer.cpp */,
+				4CF835381EB0F81D00F69F23 /* Optimizer.hpp */,
 			);
 			path = Surface;
 			sourceTree = "<group>";
@@ -129,6 +137,7 @@
 		4CA22A531E1B418F00AD258A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4C3321021EE746AF00E657A2 /* libCGAL.12.0.0.dylib */,
 				4C9EDCED1E7FF2BC00551A66 /* libftgl.a */,
 				4CC4E3F31E7F361600672939 /* libfreetype.a */,
 				4CC4E3F01E7E1A1A00672939 /* libmatio.a */,
@@ -222,6 +231,7 @@
 				4CC4E3F91E7F3BA700672939 /* freetype.cpp in Sources */,
 				4C65EF881E2D99590077373A /* Auxiliares.cpp in Sources */,
 				4CA22A521E1B239500AD258A /* Interfacer.cpp in Sources */,
+				4CF835391EB0F81D00F69F23 /* Optimizer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -319,6 +329,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LIBRARY = "compiler-default";
+				GCC_OPTIMIZATION_LEVEL = 1;
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = (
@@ -327,6 +338,7 @@
 					/usr/local/Cellar/galib/247/lib,
 					"\"$(SRCROOT)/../matio-1.5.10/src\"",
 					"/usr/local/Cellar/ftgl/2.1.3-rc5/lib",
+					/usr/local/Cellar/cgal/4.9.1/lib,
 				);
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
@@ -346,6 +358,7 @@
 					/usr/local/Cellar/galib/247/lib,
 					"\"$(SRCROOT)/../matio-1.5.10/src\"",
 					"/usr/local/Cellar/ftgl/2.1.3-rc5/lib",
+					/usr/local/Cellar/cgal/4.9.1/lib,
 				);
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
