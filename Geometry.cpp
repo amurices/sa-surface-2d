@@ -348,7 +348,7 @@ std::vector<point_t> concave_hull(const std::vector<point_t> &cH, std::vector<po
     return cycle;
 }
 
-
+// Runs in O(1) time. Computes where the intersection of two linesegments lies
 bool find_lines_intersection(lines_t a, lines_t b, point_t &where)
 {
     // First rewrite linesegments a and b in vectorial form
@@ -379,8 +379,6 @@ bool find_lines_intersection(lines_t a, lines_t b, point_t &where)
     if (gtTolerance(t, 0, TOLERANCE) && ltTolerance(t, 1, TOLERANCE) && gtTolerance(u, 0, TOLERANCE) && ltTolerance(u, 1, TOLERANCE))
     {
         where = p + r * t;
-      //  std::cout.precision(20);
-      //  std::cout << "Our int: " << std::fixed << where << ", t and u: " << std::fixed << t << std::fixed <<  u << std::endl;
         return true;
     }
     
@@ -390,7 +388,9 @@ bool find_lines_intersection(lines_t a, lines_t b, point_t &where)
 
 int find_surface_intersections(const std::vector<SurfaceData_t*>& xs, std::vector<point_t> &is)
 {
-    std::vector<lines_cg> linePool;
+    struct timeval timer;
+    time_b(timer);
+   /* std::vector<lines_cg> linePool;
     
     // Compute all intersection points.
     std::list<point_cg>     pts;
@@ -404,16 +404,17 @@ int find_surface_intersections(const std::vector<SurfaceData_t*>& xs, std::vecto
             point_t pt2 = (*xs[i]->coords)[xs[i]->graph.target(ed)]; // which cannot intersect
             point_cg pc1(pt1.x, pt2.y);
             point_cg pc2(pt2.x, pt2.y);
-            
             linePool.push_back(lines_cg(pc1, pc2));
         }
     }
     
     CGAL::compute_intersection_points (linePool.begin(), linePool.end(),
                                        std::back_inserter (pts));
+    std::cout << "Time to find is: " << time_a(timer) << " with CGAL. linePool.size: " << linePool.size() << std::endl;
     return pts.size();
-    /*
+    */
     int count = 0;
+    int linesCounted = 0;
     for (size_t i = 0; i < xs.size(); i++)
     {
         for (ListDigraph::ArcIt ed(xs[i]->graph); ed != INVALID; ++ed)
@@ -425,7 +426,6 @@ int find_surface_intersections(const std::vector<SurfaceData_t*>& xs, std::vecto
                     point_t where;
                     
                     lines_t ediL((*xs[j]->coords)[xs[j]->graph.source(edi)], (*xs[j]->coords)[xs[j]->graph.target(edi)]);
-                    
                     lines_t edL((*xs[i]->coords)[xs[i]->graph.source(ed)], (*xs[i]->coords)[xs[i]->graph.target(ed)]);
                     
                     if (find_lines_intersection(ediL, edL, where))
@@ -438,8 +438,10 @@ int find_surface_intersections(const std::vector<SurfaceData_t*>& xs, std::vecto
             }
         }
     }
+ //   std::cout << "Time to find is: " << time_a(timer) << " with brutish" << std::endl;
+
     return count;
-    */
+    
 }
 
 void find_intersection_area(const SurfaceData_t &s1)

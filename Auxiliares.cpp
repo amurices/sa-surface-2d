@@ -24,11 +24,20 @@ bool eqTolerance(double a, double b, double tol)
 
 void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg)
 {
+    if (trg.nNodes > 0) // If non-empty target surface, we wipe it out, avoiding a memory leak
+    {
+        trg.nNodes = 0;
+        trg.nEdges = 0;
+        trg.graph.clear();
+    //    std::cout << "yep were here, u fucks" << std::endl;
+    //    delete trg.coords;
+    }
+    
     SNode	prev, next, last;
     point_t	pPrev, pNext, pCurr, vd;
     
     SNode fnode		= org.graph.nodeFromId(0);				// fnode = P0
-    
+
     ListDigraph::InArcIt	inCurrI(org.graph, fnode);		// get Pn
     ListDigraph::OutArcIt	outCurrI(org.graph, fnode);     // and P1
     
@@ -44,9 +53,9 @@ void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg)
     (*trg.coords)[trgCurrToMap] = (*org.coords)[fnode];	// seta coordenadas
     SNode trgPrevToMap = trgCurrToMap;                  // prev agora é o atual
     SNode curr;
-    
     for (curr = next; curr != fnode; curr = next)
     {
+        
         ListDigraph::OutArcIt	outCurr(org.graph, curr);
         ListDigraph::InArcIt	inCurr(org.graph, curr);
         
@@ -69,13 +78,29 @@ void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg)
     trg.nEdges++;
 }
 
+void copy_thick_surface(const ThickSurface_t &org, ThickSurface_t &trg)
+{
+    
+    
+    copy_surface(org.outer, trg.outer);                                  // Copying outer surface is O(n)
+    trg.thicknesses = new Thicks_t(trg.outer.graph);
+    for (int i = 0; i < trg.outer.nNodes; i++)
+    {        
+        (*trg.thicknesses)[trg.outer.graph.nodeFromId(i)] = (*org.thicknesses)[org.outer.graph.nodeFromId(i)];
+    }                                                                    // Copying thicknesses[] is O(n)
+    Interfacer::generate_inner_s(trg.inner, trg.outer, trg.thicknesses); // Generating inner surface is O(n)
+    Interfacer::generate_bridges(trg);                                   // Generating bridges is O(n)
+    
+    
+}
+
 // Start timer
 void time_b(struct timeval &tvalBefore)
 {
     gettimeofday (&tvalBefore, NULL);
 }
 
-
+// End timer, return seconds since last time_b call
 float time_a(struct timeval &tvalBefore)
 {
     struct timeval tvalAfter;  // removed comma

@@ -25,6 +25,8 @@ public:
     static void generate_inner_s    (SurfaceData_t &inner,  SurfaceData_t &surf, Thicks_t *ts);
     static void generate_bridges    (ThickSurface_t &ts);
     static void update_inner_s      (SurfaceData_t &inner,  SurfaceData_t &surf, Thicks_t *ts);
+    static void update_inner_node   (SurfaceData_t &inner,  SurfaceData_t &surf, Thicks_t *ts, int index);
+
     static void update_bridges      (ThickSurface_t &ts);
 
     static void get_from_matlab     (SurfaceData_t &surf,   const char* matFile);

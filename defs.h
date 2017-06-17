@@ -145,6 +145,7 @@ typedef struct ThickSurface_t{
     
     int *nNodes;
     double scale = 1.0;
+    
 } ThickSurface_t;
 
 #endif /* defs_h */

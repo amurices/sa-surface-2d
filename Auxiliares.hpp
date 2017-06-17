@@ -10,7 +10,8 @@
 #define Auxiliares_hpp
 
 
-#include "defs.h"// Definições, tipos, etc
+#include "defs.h"// Definitions, typedefs etc
+#include "Interfacer.hpp" // Generating inside of surface
 #include "Outsiders/prettyprint.hpp"
 
 #include <vector>
@@ -19,7 +20,7 @@
 #include <iomanip>
 #include <sstream>
 
-// Comparators for analytical precise floating point numbers. Tol must be positive.
+// Comparators for analytically precise floating point numbers. Tol must be positive.
 bool ltTolerance(double a, double b, double tol);
 bool gtTolerance(double a, double b, double tol);
 bool eqTolerance(double a, double b, double tol);
@@ -32,6 +33,8 @@ void printDegrees(const SurfaceData_t &surf);
 bool checkIntersection(point_t p1, point_t p2, point_t p3, point_t p4);
 
 void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg);
+
+void copy_thick_surface(const ThickSurface_t &org, ThickSurface_t &trg);
 
 double dist(point_t p1, point_t p2);
 

@@ -22,11 +22,10 @@
 #include "Interfacer.hpp"
 #include "Auxiliares.hpp"
 #include "Renderer.hpp"
-//#include "SurfaceDecoder.hpp"
-//#include "BRKGA.h"
+#include "Optimizer.hpp"
 
-const int NUM_POINTS = 2000;
 
+const int NUM_POINTS = 150;
 
 using namespace lemon;
 using namespace std;
@@ -39,9 +38,7 @@ int main() {
     // -----------------------------------------
     ThickSurface_t myThickSurf;         // the surface itself. ThickSurface_t is a wrapper around SurfaceData_t
     std::vector<point_t> is;
-    Interfacer::generate_circle(myThickSurf, 0.5, NUM_POINTS, is);
-    cout << "MyThick points: " << myThickSurf.outer.nNodes << endl;
-    //Interfacer::get_from_matlab(mySurf, "matlab.mat");
+    Interfacer::generate_circle(myThickSurf, 0.75, NUM_POINTS, is);
     FTGLPixmapFont fonti("/Library/Fonts/Arial.ttf");      // Load .ttf file to memory
     
     point_t mousePos;                                      // Mouse position for (minimal) input handling
@@ -53,104 +50,40 @@ int main() {
     
     // Error-handling calls:
     // -----------------------------------------
-    myRenderer.handle(init);                    // Window initialization handling
-    if(fonti.Error()) exit(EXIT_FAILURE);       // Font loading handling
+    myRenderer.handle(init);                // Window initialization handling
+    if(fonti.Error()) exit(EXIT_FAILURE);   // Font loading handling
     // -----------------------------------------
 
- /*   // Optimizer initialization:
-    // -----------------------------------------
-    const unsigned n = myThickSurf.outer.nNodes * 2;	// size of chromosomes
-    const unsigned p = 1000;                            // size of population
-    const double pe = 0.20;		// fraction of population to be the elite-set
-    const double pm = 0.10;		// fraction of population to be replaced by mutants
-    const double rhoe = 0.50;	// probability that offspring inherit an allele from elite parent
-    const unsigned K = 3;		// number of independent populations
-    const unsigned MAXT = 2;	// number of threads for parallel decoding
-    const unsigned X_INTVL = 100;	// exchange best individuals at every 100 generations
-    const unsigned X_NUMBER = 2;	// exchange top 2 best
-    const unsigned MAX_GENS = 10;	// run for 100 gens
-
-    SurfaceDecoder decoder;			// initialize the decoder
-    decoder.org = &myThickSurf;
-
-    const long unsigned rngSeed = 0;	// seed to the random number generator
-    MTRand rng(rngSeed);				// initialize the random number generator
+    SurfaceDecoder decoder;                 // initialize the decoder
+    decoder.org = &myThickSurf;             // Set decoder to work with reference of surface
+    const unsigned long rngSeed = 0;        // Set random number generator's seed
+    MTRand rng(rngSeed);                    // Create RNG object
     
-    // initialize the BRKGA-based heuristic
-    struct timeval tvalBefore;  // removed comma
-    time_b(tvalBefore);
-    BRKGA< SurfaceDecoder, MTRand > algorithm(n, p, pe, pm, rhoe, decoder, rng, K, MAXT);
-    printf("Time: %f seconds\n\n", time_a(tvalBefore));
-
-    unsigned generation = 0;		// current generation
-    do {
-        time_b(tvalBefore);
-        
-        algorithm.evolve();	// evolve the population for one generation
-        
-        printf("gen %d:\n Time: %f seconds\n",generation, time_a(tvalBefore));
-        
-        if((++generation) % X_INTVL == 0) {
-            algorithm.exchangeElite(X_NUMBER);	// exchange top individuals
-        }
-    } while (generation < MAX_GENS);
-  
-    std::vector<double> lel = algorithm.getBestChromosome();
+    Optimizer opt(myThickSurf, rng, decoder);     // Optimizer object
     
-    int count = 0;
-    point_t acc(0,0);
-    for (ListDigraph::NodeIt no(myThickSurf.outer.graph); no != INVALID; ++no)
-    {
-        (*myThickSurf.outer.coords)[no].x += lel[count];
-        (*myThickSurf.outer.coords)[no].y += lel[count + lel.size() * 0.5];
-        count++;
-        acc = acc + (*myThickSurf.outer.coords)[no];
-    }
-    acc = acc * (1/(double)myThickSurf.outer.nNodes);
+    opt.evolve_sa(1000);
+    ThickSurface_t nghbr;
     
-    Interfacer::update_inner_s(myThickSurf.inner, myThickSurf.outer, myThickSurf.thicknesses);
-    Interfacer::update_bridges(myThickSurf);
-    cout << "best area: " << algorithm.getBestFitness() << std::endl;
-    cout << "best chromosome: ";
-    for (size_t i = 0; i < lel.size(); i++)
+    for (int i = 0; i < 100; i++)
     {
-        cout << lel[i] << " ";
-    } cout << lel.size() << endl;
-    std::vector<SurfaceData_t*> surfaces;
-    surfaces.push_back(&myThickSurf.outer);
-    surfaces.push_back(&myThickSurf.inner);
-    surfaces.push_back(&myThickSurf.bridges);
-    cout << "Num ints: " << find_surface_intersections(surfaces, is) << std::endl;
-    
-    for (ListDigraph::NodeIt no(myThickSurf.outer.graph); no != INVALID; ++no)
-    {
-        (*myThickSurf.outer.coords)[no].x -= acc.x;
-        (*myThickSurf.outer.coords)[no].y -= acc.y;
-        (*myThickSurf.inner.coords)[no].x -= acc.x;
-        (*myThickSurf.inner.coords)[no].y -= acc.y;
-    }
-    for (ListDigraph::NodeIt no(myThickSurf.bridges.graph); no != INVALID; ++no)
-    {
-        (*myThickSurf.bridges.coords)[no].x -= acc.x;
-        (*myThickSurf.bridges.coords)[no].y -= acc.y;
+    //    copy_thick_surface(myThickSurf, nghbr);
+    //    opt.neighbor(myThickSurf, nghbr);
+    //    std::cout << "Copied for the " << i << "th time; check your memory storage!" << std::endl;
     }
     
     
-    for (size_t i = 0; i < is.size(); i++)
-    {
-        is[i].x -= acc.x;
-        is[i].y -= acc.y;
-    }
+//    opt.init_GA(1000, 0.2, 0.1, 0.5, 3, 2, 100, 2, 100); // Initialize
+//    opt.evolve_ga();                                   // And evolve right away
+//    opt.update_surface_ga(opt.bestSolution);
     
+    // Get intersections of solution and put them in is
+    opt.find_intersections(is);
     // Rendering loop below:
     // -----------------------------------------
     while (!glfwWindowShouldClose(myRenderer.window))
     {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
-
-     //   std::cout << mousePos << std::endl;
         
       //  glMatrixMode(GL_PROJECTION);
       //  glLoadIdentity();
@@ -160,9 +93,14 @@ int main() {
 
         myRenderer.render_text(fonti, "yo", point_t(-1, 0.76), 72);
         myRenderer.render_axes(fonti);
-        myRenderer.render_surface(myThickSurf.outer, triple_t (1.0, 0.0, 1.0));
-        myRenderer.render_surface(myThickSurf.inner, triple_t (0.7, 0.7, 0.3));
-        myRenderer.render_surface(myThickSurf.bridges, triple_t (0.7, 0.3, 0.7));
+        myRenderer.render_surface(opt.org->outer, triple_t (1.0, 0.0, 1.0));
+        myRenderer.render_surface(opt.org->inner, triple_t (0.7, 0.7, 0.3));
+        myRenderer.render_surface(opt.org->bridges, triple_t (0.7, 0.3, 0.7));
+        
+   //     myRenderer.render_surface(nghbr.outer, triple_t (0.5, 0.5, 1.0));
+   //     myRenderer.render_surface(nghbr.inner, triple_t (0.4, 0.4, 0.7));
+   //     myRenderer.render_surface(nghbr.bridges, triple_t (0.3, 0.7, 0.7));
+        
         myRenderer.render_intersections(is);
         
         // ----
@@ -173,12 +111,12 @@ int main() {
         mousePos.y = myRenderer.wHeight - mousePos.y;
         mousePos.y = mousePos.y * (2.0 / myRenderer.wHeight) - 1;
         
-        for (ListDigraph::NodeIt no(myThickSurf.outer.graph); no != INVALID; ++no)
+        for (ListDigraph::NodeIt no(opt.org->outer.graph); no != INVALID; ++no)
         {
-            if (dist(mousePos, (*myThickSurf.outer.coords)[ no ]) < 0.05)
+            if (dist(mousePos, (*opt.org->outer.coords)[ no ]) < 0.05)
             {
-                myRenderer.render_node(no, myThickSurf.outer, triple_t (1.0, 0.0, 1.0));
-                myRenderer.render_node(myThickSurf.inner.graph.nodeFromId(myThickSurf.outer.correspondence[myThickSurf.outer.graph.id(no)]), myThickSurf.inner, triple_t (0.7, 0.7, 0.3));
+                myRenderer.render_node(no, opt.org->outer, triple_t (1.0, 0.0, 1.0));
+                myRenderer.render_node(opt.org->inner.graph.nodeFromId(opt.org->outer.correspondence[opt.org->outer.graph.id(no)]), opt.org->inner, triple_t (0.7, 0.7, 0.3));
             }
         }
         glfwSwapBuffers(myRenderer.window);
@@ -186,6 +124,6 @@ int main() {
     }
     glfwTerminate();
     exit(EXIT_SUCCESS);
-    */
+   
     return 0;
 }

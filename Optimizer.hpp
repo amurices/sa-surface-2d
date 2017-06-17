@@ -10,25 +10,42 @@
 #define Optimizer_hpp
 
 #include <stdio.h>
-#include "defs.h"
+#include <stdlib.h>
 #include "Auxiliares.hpp"
-#include "SurfaceDecoder.hpp"
+#include "Interfacer.hpp"
 #include "BRKGA.h"
 #include "MTRand.h"
+#include "SurfaceDecoder.hpp"
 
 
 class Optimizer{
 public:
-    ThickSurface_t *org;    // Reference to original surface
-    SurfaceDecoder *decoder;
-    BRKGA< SurfaceDecoder, MTRand > *algorithm;     // heap-allocated evolver
+    ThickSurface_t  *org;                            // Reference to original surface
+    SurfaceDecoder  *dec;                            // Reference to decoder
+    MTRand          *rng;                            // Reference to RNG object
+    BRKGA< SurfaceDecoder, MTRand > *algorithm;      // heap-allocated evolver
+    std::vector<double> bestSolution;                // Where best solution is stored
+    
     unsigned X_INTVL;       // exchange best individuals at every X_INTVL generations
     unsigned X_NUMBER;      // exchange top X_NUMBER best
     unsigned MAX_GENS;      // run for MAX_GENS generations
-    void init_GA(const unsigned ps, const double ep, const double mp, const double rhoe, const unsigned K, const unsigned MAXT, const unsigned exi, const unsigned exn, const unsigned num_gens, const unsigned x_intvl, const unsigned x_number, const unsigned max_gens);
+    
+    Optimizer(ThickSurface_t &org, MTRand &rng, SurfaceDecoder &dec);
+    
+    void init_GA(const unsigned ps, const double ep, const double mp, const double rhoe, const unsigned K, const unsigned MAXT, const unsigned x_intvl, const unsigned x_number, const unsigned max_gens);
 
+    // GA functions ------
     void step();
-    void evolve(int MAX_GENS, bool time = true);
+    void evolve_ga(bool time = true);
+    void update_surface_ga(std::vector<double> &sol);
+    void find_intersections(std::vector<point_t> &is);
+    
+    // SA functions ------
+    double probability(ThickSurface_t &s);
+    double temperature();
+    void neighbor(ThickSurface_t &org, ThickSurface_t &n);
+    void evolve_sa(int kMax, bool time = true);
+
 };
 
 #endif /* Optimizer_hpp */

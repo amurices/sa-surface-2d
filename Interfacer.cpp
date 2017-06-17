@@ -69,6 +69,14 @@ void Interfacer::generate_outer_s(SurfaceData_t &surf, double perim, int pts, st
 
 void Interfacer::generate_inner_s(SurfaceData_t &inner, SurfaceData_t &surf, Thicks_t *ts)
 {
+	if (inner.nNodes > 0) // Anti-memory leakage
+	{
+		inner.nNodes = 0;
+		inner.nEdges = 0;
+		inner.graph.clear();
+	}
+	
+	
 	SNode	prev, next, last;
 	point_t	pPrev, pNext, pCurr, vd;
 
@@ -169,16 +177,44 @@ void Interfacer::update_inner_s(SurfaceData_t &inner,  SurfaceData_t &surf, Thic
 		vd = find_direction_vector(pPrev, pNext, (*surf.coords)[curr], MEDIAN_ANGLE);
 		vd *= (*ts)[curr];
 		
+		
+		std::cout << "Correspondence in inner(" << inner.graph.id(innerCurrToMap) << "): " <<inner.correspondence[inner.graph.id(innerCurrToMap)] << std::endl;
+		
+		std::cout << "Correspondence in outer(" << surf.graph.id(curr) << "): " << surf.correspondence[surf.graph.id(curr)] << std::endl << std::endl;
+		
+		inner.correspondence[inner.graph.id(innerCurrToMap)] = surf.graph.id(curr);		// Set
+		surf.correspondence[surf.graph.id(curr)] = inner.graph.id(innerCurrToMap);		// Correspondences
+		
 		innerCurrToMap = inner.graph.nodeFromId(surf.correspondence[surf.graph.id(curr)]);
 		(*inner.coords)[innerCurrToMap] = (*surf.coords)[curr] - vd;
-				innerPrevToMap = innerCurrToMap;
+		innerPrevToMap = innerCurrToMap;
 	}
 }
 
+void Interfacer::update_inner_node(SurfaceData_t &inner,  SurfaceData_t &surf, Thicks_t *ts, int index)
+{
+	SNode updatedOuterNode	= surf.graph.nodeFromId(index);
+	int corrInnerIndex		= surf.correspondence[index];
+	SNode corrInnerNode		= inner.graph.nodeFromId(corrInnerIndex);	// innerNode = corrs[index]
+	
+	ListDigraph::InArcIt	inCurrI(surf.graph, updatedOuterNode);	// get P(index - 1) and P(index + 1)
+	ListDigraph::OutArcIt	outCurrI(surf.graph, updatedOuterNode);	// ^ neighbors of correspondent
+	
+	SNode prev = surf.graph.source(inCurrI);		// Get neighbor nodes
+	SNode next = surf.graph.target(outCurrI);		// ^
+	
+	point_t pNext = (*surf.coords)[next];			// Get coordinates of neighbor nodes
+	point_t pPrev = (*surf.coords)[prev];			// ^
+	
+	point_t vd = find_direction_vector(pPrev, pNext, (*surf.coords)[updatedOuterNode], MEDIAN_ANGLE);	// Get direction
+	vd *= (*ts)[updatedOuterNode];									// After normalized, mult. by thickness of that point
+	
+	(*inner.coords)[corrInnerNode] = (*surf.coords)[updatedOuterNode] - vd; // Actually update this one node
+}
 
 void Interfacer::generate_circle(ThickSurface_t &ts, double radius, int pts, std::vector<point_t> &is)
 {
-	// Adicionamos um nó ao grafo, e as suas coordenadas ao mapa
+	// (1) Add one node to the graph, and its coordinates to the map
 	SNode fnode = ts.outer.graph.addNode();
 	SNode prevToMap = fnode;
 	SNode currToMap;
@@ -188,11 +224,10 @@ void Interfacer::generate_circle(ThickSurface_t &ts, double radius, int pts, std
 	
 	for (size_t i = 1; i < pts; i++)
 	{
-		// Adicionamos um nó ao grafo, e as suas coordenadas ao mapa
+		// Do (1) again, at the point resolution provided (number of pts)
 		currToMap = ts.outer.graph.addNode();
 		ts.outer.nNodes++;
 		(*ts.outer.coords)[currToMap] = point_t(cos(i * (2 * PI) / pts) * radius, sin(i * (2 * PI) / pts) * radius);
-		//	std::cout << "Node we're adding: " << (*surf.coords)[currToMap] << std::endl;
 		ts.outer.graph.addArc(prevToMap, currToMap);
 		ts.outer.nEdges++;
 		prevToMap = currToMap;
@@ -206,10 +241,10 @@ void Interfacer::generate_circle(ThickSurface_t &ts, double radius, int pts, std
 	
 	
 	ts.thicknesses = new Thicks_t(ts.outer.graph);
-	for (ListDigraph::NodeIt n(ts.outer.graph); n != INVALID; ++n) // Generate random thicknesses 1/10 of perimeter
+	for (ListDigraph::NodeIt n(ts.outer.graph); n != INVALID; ++n) // Generate random thicknsses 1/10 of radius
 	{
-		double randX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.5 * radius;
-		(*ts.thicknesses)[n] = randX;
+	//	double randX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.5 * radius;
+		(*ts.thicknesses)[n] = 0.06;
 	}
 	generate_inner_s(ts.inner, ts.outer, ts.thicknesses);
 	generate_bridges(ts);
@@ -217,12 +252,21 @@ void Interfacer::generate_circle(ThickSurface_t &ts, double radius, int pts, std
 
 void Interfacer::generate_bridges(ThickSurface_t &ts)
 {
+	if (ts.bridges.nNodes > 0) // Anti-memory leakage
+	{
+		ts.bridges.nNodes = 0;
+		ts.bridges.nEdges = 0;
+		ts.bridges.graph.clear();
+	}
 	for (ListDigraph::NodeIt no(ts.outer.graph); no != INVALID; ++no)
 	{
 		SNode curr = ts.bridges.graph.addNode();
 		SNode pair = ts.bridges.graph.addNode();
-		
+		ts.bridges.nNodes++;
+		ts.bridges.nNodes++;
+
 		ts.bridges.graph.addArc(curr, pair);
+		ts.bridges.nEdges++;
 		
 		(*ts.bridges.coords)[curr] = (*ts.outer.coords)[no];
 		int innerId = ts.outer.correspondence[ts.outer.graph.id(no)];
@@ -246,7 +290,6 @@ void Interfacer::update_bridges(ThickSurface_t &ts)
 		++pair; ++pair;
 	}
 }
-
 void Interfacer::get_from_matlab(SurfaceData_t &surf, const char* matFile)
 {
 	/*
