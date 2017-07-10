@@ -133,10 +133,9 @@ typedef struct SurfaceData_t{                   // _t for type
     int nNodes;
 } SurfaceData_t;
 
-typedef ListDigraph::NodeMap<double> Thicks_t;
 typedef struct ThickSurface_t{
-    Thicks_t *thicknesses;
-    // ^ TIRAR DE APONTADOR
+    double thickness; // Since we derive thickness from the avg, considering the cerebellum as a sphere-like
+                    // closed surface, we don't need more than one value
     
     SurfaceData_t inner;
     SurfaceData_t outer;

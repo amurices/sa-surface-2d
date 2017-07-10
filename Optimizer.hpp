@@ -21,6 +21,9 @@
 class Optimizer{
 public:
     ThickSurface_t  *org;                            // Reference to original surface
+    
+    
+    // GA attributes -----
     SurfaceDecoder  *dec;                            // Reference to decoder
     MTRand          *rng;                            // Reference to RNG object
     BRKGA< SurfaceDecoder, MTRand > *algorithm;      // heap-allocated evolver
@@ -29,19 +32,21 @@ public:
     unsigned X_INTVL;       // exchange best individuals at every X_INTVL generations
     unsigned X_NUMBER;      // exchange top X_NUMBER best
     unsigned MAX_GENS;      // run for MAX_GENS generations
-    
-    Optimizer(ThickSurface_t &org, MTRand &rng, SurfaceDecoder &dec);
-    
-    void init_GA(const unsigned ps, const double ep, const double mp, const double rhoe, const unsigned K, const unsigned MAXT, const unsigned x_intvl, const unsigned x_number, const unsigned max_gens);
-
     // GA functions ------
+    Optimizer(ThickSurface_t &org, MTRand &rng, SurfaceDecoder &dec); //  ga constructor
+    void init_GA(const unsigned ps, const double ep, const double mp, const double rhoe, const unsigned K, const unsigned MAXT, const unsigned x_intvl, const unsigned x_number, const unsigned max_gens);
     void step();
     void evolve_ga(bool time = true);
     void update_surface_ga(std::vector<double> &sol);
     void find_intersections(std::vector<point_t> &is);
     
+    // -------------------
+    // SA attributes ------
+    double scale;       // Index that will adjust some hyperparameters of evolution
     // SA functions ------
-    double probability(ThickSurface_t &s);
+    Optimizer(ThickSurface_t &org, double scale); //  met constructor
+
+    double probability(ThickSurface_t &s, double a0);
     double temperature();
     void neighbor(ThickSurface_t &org, ThickSurface_t &n);
     void evolve_sa(int kMax, bool time = true);

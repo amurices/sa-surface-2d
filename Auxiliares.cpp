@@ -22,6 +22,13 @@ bool eqTolerance(double a, double b, double tol)
     return (a > b - tol) && (a < b + tol);
 }
 
+double absol(double x)
+{
+    if (x < 0)
+        return -x;
+    return x;
+}
+
 void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg)
 {
     if (trg.nNodes > 0) // If non-empty target surface, we wipe it out, avoiding a memory leak
@@ -80,18 +87,10 @@ void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg)
 
 void copy_thick_surface(const ThickSurface_t &org, ThickSurface_t &trg)
 {
-    
-    
     copy_surface(org.outer, trg.outer);                                  // Copying outer surface is O(n)
-    trg.thicknesses = new Thicks_t(trg.outer.graph);
-    for (int i = 0; i < trg.outer.nNodes; i++)
-    {        
-        (*trg.thicknesses)[trg.outer.graph.nodeFromId(i)] = (*org.thicknesses)[org.outer.graph.nodeFromId(i)];
-    }                                                                    // Copying thicknesses[] is O(n)
-    Interfacer::generate_inner_s(trg.inner, trg.outer, trg.thicknesses); // Generating inner surface is O(n)
+    trg.thickness = org.thickness;                                       // Copying thickness is O(1)
+    Interfacer::generate_inner_s(trg.inner, trg.outer, trg.thickness);  // Generating inner surface is O(n)
     Interfacer::generate_bridges(trg);                                   // Generating bridges is O(n)
-    
-    
 }
 
 // Start timer
@@ -113,26 +112,13 @@ float time_a(struct timeval &tvalBefore)
     return timeSince;
 }
 
-void printDegrees(const SurfaceData_t &surf)
+void print_nodes_coordinates(const SurfaceData_t &surf)
 {
+    int count = 0;
     for (ListDigraph::NodeIt ne(surf.graph); ne != INVALID; ++ne)
     {
-        ListDigraph::InArcIt	inCurrI(surf.graph, ne);		// get Pn
-        ListDigraph::OutArcIt	outCurrI(surf.graph, ne);		// and P1
-        int countInc = 0;
-        int countOut = 0;
-        while (inCurrI != INVALID)
-        {
-            countInc++;
-            ++inCurrI;
-        }
-        while (outCurrI != INVALID)
-        {
-            countOut++;
-            ++outCurrI;
-        }
-        
-        std::cout << "Node " << (*surf.coords)[ne] << ": " << countOut << " out, " << countInc << " in\n";
+        std::cout << count << ":\t " << (*surf.coords)[ne] << std::endl;
+        count++;
     }
 }
 
@@ -159,25 +145,4 @@ int middle(int a, int b, int c) {
     return 0;
 }
 
-int intersect(const SurfaceData_t &surf, ListDigraph::Arc a, ListDigraph::Arc b) {
-    point_t *p1a, *p2a;
-    point_t *p1b, *p2b;
-    
-    // Pegamos as referências às coordenadas dos pontos que queremos verificar
-    p1a = &(*surf.coords)[ surf.graph.source(a) ];
-    p2a = &(*surf.coords)[ surf.graph.target(a) ];
-    
-    p1b = &(*surf.coords)[ surf.graph.source(b) ];
-    p2b = &(*surf.coords)[ surf.graph.target(b) ];
 
-    
-    if ( ( CCW(*(p1a), *(p2a), *(p1b)) * CCW(*(p1a), *(p2a), *(p2b)) < 0 ) &&
-        ( CCW(*(p1b), *(p2b), *(p1a)) * CCW(*(p1b), *(p2b), *(p2a)) < 0 ) ) return 1;
-    
-    if ( CCW(*(p1a), *(p2a), *(p1b)) == 0 && middle(p1a->x, p2a->x, p1b->x) && middle(p1a->y, p2a->y, p1b->y) ) return 1;
-    if ( CCW(*(p1a), *(p2a), *(p2b)) == 0 && middle(p1a->x, p2a->x, p2b->x) && middle(p1a->y, p2a->y, p2b->y) ) return 1;
-    if ( CCW(*(p1b), *(p2b), *(p1a)) == 0 && middle(p1b->x, p2b->x, p1a->x) && middle(p1b->y, p2b->y, p1a->y) ) return 1;
-    if ( CCW(*(p1b), *(p2b), *(p2a)) == 0 && middle(p1b->x, p2b->x, p2a->x) && middle(p1b->y, p2b->y, p2a->y) ) return 1;
-    
-    return 0;
-}

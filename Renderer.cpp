@@ -141,7 +141,8 @@ void Renderer::render_axes(FTGLPixmapFont &font)
     
     for (double marker = -1.0; marker < 1.0; marker += 0.1)
     {
-        
+        char stringForm[10];
+        sprintf(stringForm, "%.1f", marker);
         // Small lines are drawn at the marker's position
         glBegin(GL_LINES);
         
@@ -156,7 +157,7 @@ void Renderer::render_axes(FTGLPixmapFont &font)
         if (marker <= 0.01 && marker >= -0.01) // We can skip the Y axis if it's the origin
         {
             glEnd();                            // But before we do that, we have to glEnd()
-            render_text(font, "eita", point_t(marker, -0.02), 12); // and render our current text iteration ofc
+            render_text(font, stringForm, point_t(marker, -0.02), 13); // and render our current text iteration ofc
             continue;
         }
         glColor3f(0.5f, 0.5f, .5f);
@@ -166,8 +167,8 @@ void Renderer::render_axes(FTGLPixmapFont &font)
         glVertex2f(0, marker);
         glEnd();
         
-        render_text(font, "eita", point_t(marker, -0.02), 12);
-        render_text(font, "eita", point_t (0.0, marker - 0.003), 12);
+        render_text(font, stringForm, point_t(marker, -0.02), 13);
+        render_text(font, stringForm, point_t (0.0, marker - 0.003), 13);
 
     }
 

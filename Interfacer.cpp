@@ -10,13 +10,8 @@
 void Interfacer::generate_random(ThickSurface_t &ts, double perim, int pts, std::vector<point_t> &is)
 {
 	generate_outer_s(ts.outer, perim, pts, is);
-	ts.thicknesses = new Thicks_t(ts.outer.graph);
-	for (ListDigraph::NodeIt n(ts.outer.graph); n != INVALID; ++n) // Generate random thicknesses 1/10 of perimeter
-	{
-		double randX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.05 * perim;
-		(*ts.thicknesses)[n] = randX;
-	}
-	generate_inner_s(ts.inner, ts.outer, ts.thicknesses);
+	ts.thickness = 0.02; // placeholder
+	generate_inner_s(ts.inner, ts.outer, ts.thickness);
 }
 
 void Interfacer::generate_outer_s(SurfaceData_t &surf, double perim, int pts, std::vector<point_t> &is){
@@ -67,7 +62,7 @@ void Interfacer::generate_outer_s(SurfaceData_t &surf, double perim, int pts, st
 	
 }
 
-void Interfacer::generate_inner_s(SurfaceData_t &inner, SurfaceData_t &surf, Thicks_t *ts)
+void Interfacer::generate_inner_s(SurfaceData_t &inner, SurfaceData_t &surf, double thickness)
 {
 	if (inner.nNodes > 0) // Anti-memory leakage
 	{
@@ -93,7 +88,7 @@ void Interfacer::generate_inner_s(SurfaceData_t &inner, SurfaceData_t &surf, Thi
 
 
 	vd = find_direction_vector(pPrev, pNext, (*surf.coords)[fnode], MEDIAN_ANGLE);	// Pega direção
-	vd *= (*ts)[fnode];									// proto-thickness
+	vd *= thickness;
 	
 	
 	SNode finode = inner.graph.addNode();	// Add node à inner; guarda a referencia ao primeiro no
@@ -118,7 +113,7 @@ void Interfacer::generate_inner_s(SurfaceData_t &inner, SurfaceData_t &surf, Thi
 		pPrev = (*surf.coords)[prev];
 		
 		vd = find_direction_vector(pPrev, pNext, (*surf.coords)[curr], MEDIAN_ANGLE);
-		vd *= (*ts)[curr];
+		vd *= thickness;
 		
 		innerCurrToMap = inner.graph.addNode();
 		inner.nNodes++;
@@ -136,7 +131,7 @@ void Interfacer::generate_inner_s(SurfaceData_t &inner, SurfaceData_t &surf, Thi
 	inner.nEdges++;
 }
 
-void Interfacer::update_inner_s(SurfaceData_t &inner,  SurfaceData_t &surf, Thicks_t *ts)
+void Interfacer::update_inner_s(SurfaceData_t &inner,  SurfaceData_t &surf, double thickness)
 {
 	SNode	prev, next, last;
 	point_t	pPrev, pNext, pCurr, vd;
@@ -154,7 +149,7 @@ void Interfacer::update_inner_s(SurfaceData_t &inner,  SurfaceData_t &surf, Thic
 	
 	
 	vd = find_direction_vector(pPrev, pNext, (*surf.coords)[fnode], MEDIAN_ANGLE);	// Pega direção
-	vd *= (*ts)[fnode];									// proto-thickness
+	vd *= thickness;									// proto-thickness
 	
 	
 	SNode finode = inner.graph.nodeFromId(surf.correspondence[0]); // Updating
@@ -175,7 +170,7 @@ void Interfacer::update_inner_s(SurfaceData_t &inner,  SurfaceData_t &surf, Thic
 		pPrev = (*surf.coords)[prev];
 		
 		vd = find_direction_vector(pPrev, pNext, (*surf.coords)[curr], MEDIAN_ANGLE);
-		vd *= (*ts)[curr];
+		vd *= thickness;
 		
 		
 		std::cout << "Correspondence in inner(" << inner.graph.id(innerCurrToMap) << "): " <<inner.correspondence[inner.graph.id(innerCurrToMap)] << std::endl;
@@ -191,7 +186,7 @@ void Interfacer::update_inner_s(SurfaceData_t &inner,  SurfaceData_t &surf, Thic
 	}
 }
 
-void Interfacer::update_inner_node(SurfaceData_t &inner,  SurfaceData_t &surf, Thicks_t *ts, int index)
+void Interfacer::update_inner_node(SurfaceData_t &inner,  SurfaceData_t &surf, double thicks, int index)
 {
 	SNode updatedOuterNode	= surf.graph.nodeFromId(index);
 	int corrInnerIndex		= surf.correspondence[index];
@@ -207,7 +202,7 @@ void Interfacer::update_inner_node(SurfaceData_t &inner,  SurfaceData_t &surf, T
 	point_t pPrev = (*surf.coords)[prev];			// ^
 	
 	point_t vd = find_direction_vector(pPrev, pNext, (*surf.coords)[updatedOuterNode], MEDIAN_ANGLE);	// Get direction
-	vd *= (*ts)[updatedOuterNode];									// After normalized, mult. by thickness of that point
+	vd *= thicks;									// After normalized, mult. by thickness of that point
 	
 	(*inner.coords)[corrInnerNode] = (*surf.coords)[updatedOuterNode] - vd; // Actually update this one node
 }
@@ -240,13 +235,8 @@ void Interfacer::generate_circle(ThickSurface_t &ts, double radius, int pts, std
 	prevToMap = currToMap;
 	
 	
-	ts.thicknesses = new Thicks_t(ts.outer.graph);
-	for (ListDigraph::NodeIt n(ts.outer.graph); n != INVALID; ++n) // Generate random thicknsses 1/10 of radius
-	{
-	//	double randX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.5 * radius;
-		(*ts.thicknesses)[n] = 0.06;
-	}
-	generate_inner_s(ts.inner, ts.outer, ts.thicknesses);
+	ts.thickness = 0.27 * radius; // placeholder
+	generate_inner_s(ts.inner, ts.outer, ts.thickness);
 	generate_bridges(ts);
 }
 

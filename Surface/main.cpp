@@ -25,7 +25,8 @@
 #include "Optimizer.hpp"
 
 
-const int NUM_POINTS = 150;
+const int NUM_POINTS = 60;
+const int NUM_GENS = 10000;
 
 using namespace lemon;
 using namespace std;
@@ -54,27 +55,9 @@ int main() {
     if(fonti.Error()) exit(EXIT_FAILURE);   // Font loading handling
     // -----------------------------------------
 
-    SurfaceDecoder decoder;                 // initialize the decoder
-    decoder.org = &myThickSurf;             // Set decoder to work with reference of surface
-    const unsigned long rngSeed = 0;        // Set random number generator's seed
-    MTRand rng(rngSeed);                    // Create RNG object
+    Optimizer opt(myThickSurf, 0.3);
     
-    Optimizer opt(myThickSurf, rng, decoder);     // Optimizer object
-    
-    opt.evolve_sa(1000);
-    ThickSurface_t nghbr;
-    
-    for (int i = 0; i < 100; i++)
-    {
-    //    copy_thick_surface(myThickSurf, nghbr);
-    //    opt.neighbor(myThickSurf, nghbr);
-    //    std::cout << "Copied for the " << i << "th time; check your memory storage!" << std::endl;
-    }
-    
-    
-//    opt.init_GA(1000, 0.2, 0.1, 0.5, 3, 2, 100, 2, 100); // Initialize
-//    opt.evolve_ga();                                   // And evolve right away
-//    opt.update_surface_ga(opt.bestSolution);
+    opt.evolve_sa(NUM_GENS);
     
     // Get intersections of solution and put them in is
     opt.find_intersections(is);

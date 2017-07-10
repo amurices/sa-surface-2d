@@ -27,13 +27,9 @@ bool eqTolerance(double a, double b, double tol);
 
 
 void printSet(std::vector<point_t*> toPrint);
-
-void printDegrees(const SurfaceData_t &surf);
-
-bool checkIntersection(point_t p1, point_t p2, point_t p3, point_t p4);
+void print_nodes_coordinates(const SurfaceData_t &surf);
 
 void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg);
-
 void copy_thick_surface(const ThickSurface_t &org, ThickSurface_t &trg);
 
 double dist(point_t p1, point_t p2);
@@ -46,6 +42,5 @@ float time_a(struct timeval &tvalBefore);
 
 int middle(int a, int b, int c);
 
-int intersect(const SurfaceData_t &surf, ListDigraph::Arc a, ListDigraph::Arc b);
 
 #endif /* Auxiliares_hpp */

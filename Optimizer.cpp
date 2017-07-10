@@ -15,6 +15,12 @@ Optimizer::Optimizer(ThickSurface_t & org, MTRand &rng, SurfaceDecoder &dec)
     this->dec = &dec;
 }
 
+Optimizer::Optimizer(ThickSurface_t & org, double scale)
+{
+    this->scale = scale;
+    this->org = &org;
+}
+
 void Optimizer::init_GA(const unsigned ps, const double ep, const double mp, const double rhoe, const unsigned K, const unsigned MAXT, const unsigned x_intvl, const unsigned x_number, const unsigned max_gens)
 {
     const long unsigned rngSeed = 0;
@@ -68,7 +74,7 @@ void Optimizer::update_surface_ga(std::vector<double> &sol)
     acc = acc * (1/(double)org->outer.nNodes);
     
     // Reset inner part of surface
-    Interfacer::update_inner_s(org->inner, org->outer, org->thicknesses);
+    Interfacer::update_inner_s(org->inner, org->outer, org->thickness);
     // Reset bridges between outer and inner surfaces
     Interfacer::update_bridges(*org);
     
@@ -107,38 +113,43 @@ void Optimizer::neighbor(ThickSurface_t &original, ThickSurface_t &n)
     SNode randomNode = n.outer.graph.nodeFromId(randomIndex);
     
     double offsetX, offsetY;
-    offsetX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.5 - 0.25; // Random values btwn
-    offsetY = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.5 - 0.25; // -0.25 and 0.25
-    
-    std::cout << "randomIndex: " << randomIndex << ", offX: " << offsetX << ", offY: " << offsetY << std::endl;
+    offsetX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.005 - 0.0025; // Random values btwn
+    offsetY = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.005 - 0.0025; // -0.25 and 0.25
 
-    
     (*n.outer.coords)[randomNode].x += offsetX;
     (*n.outer.coords)[randomNode].y += offsetY;
     
-    n.thicknesses = new Thicks_t(n.outer.graph);
-    for (int i = 0; i < n.outer.nNodes; i++)
+    
+    // Routine to smooth out neighbour's relationship to current state
+    // --------------
+    SNode prev, next; int u = 5;
+    prev = next = randomNode;
+    for (int c = 0; c < u; c++)
     {
-        (*n.thicknesses)[n.outer.graph.nodeFromId(i)] = (*original.thicknesses)[original.outer.graph.nodeFromId(i)];
+        prev = n.outer.graph.source(ListDigraph::InArcIt(n.outer.graph, prev));
+        next = n.outer.graph.target(ListDigraph::OutArcIt(n.outer.graph, next));
     }
 
-    Interfacer::generate_inner_s(n.inner, n.outer, n.thicknesses);
-
     
-    // Todo -- update bridges and inner
+    
+    n.thickness = original.thickness; // What matter is avg thickness
+    Interfacer::generate_inner_s(n.inner, n.outer, n.thickness);
     Interfacer::generate_bridges(n);
 }
 
-double Optimizer::probability(ThickSurface_t &s)
+double Optimizer::probability(ThickSurface_t &s, double a0)
 {
-    double res = calculate_surface_area(s.outer);
+    double res;
+    double gray = abs(calculate_surface_area(s.outer) - calculate_surface_area(s.inner));
+    double diff = abs(a0 - gray);
+    
+    res = 1.0 * calculate_surface_area(s.outer) + 2 * diff;
     
     std::vector<SurfaceData_t*> surfaces;
     std::vector<point_t> inters;
 
     surfaces.push_back(&s.outer);
     surfaces.push_back(&s.inner);
- //   surfaces.push_back(&s.bridges);
     
     int intsOuter = find_surface_intersections(surfaces, inters);
     res += 100000 * intsOuter;
@@ -149,9 +160,13 @@ void Optimizer::evolve_sa(int kMax, bool time)
 {
     ThickSurface_t state;       // Local variables evolved state,
     ThickSurface_t nstate;      // new state,
-    ThickSurface_t nghbr;    // evolved state and random neighbor
+    ThickSurface_t nghbr;       // evolved state and random neighbor
     
+    std::cout << "in evolve_sa" << std::endl;
     copy_thick_surface(*org, state); // S = S0
+    
+
+    double a0 = calculate_surface_area(state.outer) - calculate_surface_area(state.inner); // initial gray matter area
     
     struct timeval timer;
     std::cout << "Alright... here we go. Timing" << std::endl;
@@ -159,9 +174,10 @@ void Optimizer::evolve_sa(int kMax, bool time)
     {
         time_b(timer);
         neighbor(state, nghbr);
-        double probN = probability(nghbr);
-        double probS = probability(state);
-        std::cout << "In the " << k << "th step, prob of neighbor is " << probN << " and of S is " << probS <<std::endl;
+        
+        double probN = probability(nghbr, a0);
+        double probS = probability(state, a0);
+        std::cout << k << "th step, pN: " << probN << ", pS: " << probS <<std::endl;
         if (probN < probS)
         {
             copy_thick_surface(nghbr, state);
@@ -170,6 +186,7 @@ void Optimizer::evolve_sa(int kMax, bool time)
 
     }
     
+
     copy_thick_surface(state, *org);
     
     point_t acc(0,0);
@@ -197,14 +214,4 @@ void Optimizer::evolve_sa(int kMax, bool time)
         (*org->bridges.coords)[no].x -= acc.x;
         (*org->bridges.coords)[no].y -= acc.y;
     }
-    
-    
- //   Let s = s0
-  //  For k = 0 through kmax (exclusive):
-  //  T ← temperature(k ∕ kmax)
-   // Pick a random neighbour, snew ← neighbour(s)
-  //  If P(E(s), E(snew), T) ≥ random(0, 1):
-  //  s ← snew
-    
-
 }

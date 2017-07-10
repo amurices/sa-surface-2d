@@ -444,10 +444,9 @@ int find_surface_intersections(const std::vector<SurfaceData_t*>& xs, std::vecto
     
 }
 
-void find_intersection_area(const SurfaceData_t &s1)
-{
-    
-}
+
+void smooth_neighbors(SurfaceData_t& s, int n);
+
 
 double calculate_surface_area(const SurfaceData_t& s)
 {

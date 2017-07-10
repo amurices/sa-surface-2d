@@ -23,7 +23,7 @@ double SurfaceDecoder::decode(const std::vector< double >& chromosome) const {
     }
     // OTIMIZAÇÃO A SE FAZER AQUI
     // Os offsets podem ser adicionados e logo em seguida utilizados p/ calcular a inner
-    Interfacer::generate_inner_s(thickGen.inner, thickGen.outer, org->thicknesses);
+    Interfacer::generate_inner_s(thickGen.inner, thickGen.outer, org->thickness);
     
     Interfacer::generate_bridges(thickGen);
     
