@@ -25,8 +25,9 @@
 #include "Optimizer.hpp"
 
 
-const int NUM_POINTS = 60;
-const int NUM_GENS = 10000;
+const int NUM_POINTS = 100;
+const int NUM_GENS = 5000;
+const int NUM_SMOOTH = 3;
 
 using namespace lemon;
 using namespace std;
@@ -55,7 +56,11 @@ int main() {
     if(fonti.Error()) exit(EXIT_FAILURE);   // Font loading handling
     // -----------------------------------------
 
-    Optimizer opt(myThickSurf, 0.3);
+    Optimizer opt(myThickSurf);
+    opt.init_SA(0.1, NUM_SMOOTH, 1, 2); // Why does increasing Pow decrease pS?
+    ThickSurface_t nghbr;
+    
+    opt.neighbor(myThickSurf, nghbr);
     
     opt.evolve_sa(NUM_GENS);
     
@@ -80,9 +85,9 @@ int main() {
         myRenderer.render_surface(opt.org->inner, triple_t (0.7, 0.7, 0.3));
         myRenderer.render_surface(opt.org->bridges, triple_t (0.7, 0.3, 0.7));
         
-   //     myRenderer.render_surface(nghbr.outer, triple_t (0.5, 0.5, 1.0));
-   //     myRenderer.render_surface(nghbr.inner, triple_t (0.4, 0.4, 0.7));
-   //     myRenderer.render_surface(nghbr.bridges, triple_t (0.3, 0.7, 0.7));
+///   myRenderer.render_surface(nghbr.outer, triple_t (0.5, 0.5, 1.0));
+   ///  myRenderer.render_surface(nghbr.inner, triple_t (0.4, 0.4, 0.7));
+     ///   myRenderer.render_surface(nghbr.bridges, triple_t (0.3, 0.7, 0.7));
         
         myRenderer.render_intersections(is);
         

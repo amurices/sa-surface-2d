@@ -15,10 +15,18 @@ Optimizer::Optimizer(ThickSurface_t & org, MTRand &rng, SurfaceDecoder &dec)
     this->dec = &dec;
 }
 
-Optimizer::Optimizer(ThickSurface_t & org, double scale)
+Optimizer::Optimizer(ThickSurface_t & org)
 {
-    this->scale = scale;
     this->org = &org;
+}
+
+void Optimizer::init_SA(double scale, int smooth, double diffMul, double diffPow)
+{
+    this->diffPow = diffPow;
+    this->diffMul = diffMul;
+    this->smooth = smooth;
+    this->scale = scale;
+    a0 = calculate_surface_area(org->outer) - calculate_surface_area(org->inner); // initial gray matter area
 }
 
 void Optimizer::init_GA(const unsigned ps, const double ep, const double mp, const double rhoe, const unsigned K, const unsigned MAXT, const unsigned x_intvl, const unsigned x_number, const unsigned max_gens)
@@ -41,7 +49,7 @@ void Optimizer::evolve_ga(bool time)
         if (time) // Only calculate time if bool is set
             time_b(tvalBefore);
         
-        step();	// evolve the population for one generation
+        step_ga();	// evolve the population for one generation
         
         if (time) // 
             printf("gen %d:\n Time: %f seconds\n",generation, time_a(tvalBefore));
@@ -53,7 +61,7 @@ void Optimizer::evolve_ga(bool time)
     bestSolution = algorithm->getBestChromosome();
 }
 
-void Optimizer::step()
+void Optimizer::step_ga()
 {
     algorithm->evolve();	// evolve the population for one generation
 }
@@ -113,21 +121,29 @@ void Optimizer::neighbor(ThickSurface_t &original, ThickSurface_t &n)
     SNode randomNode = n.outer.graph.nodeFromId(randomIndex);
     
     double offsetX, offsetY;
-    offsetX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.005 - 0.0025; // Random values btwn
-    offsetY = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.005 - 0.0025; // -0.25 and 0.25
+    offsetX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.05 - 0.025; // Random values btwn
+    offsetY = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.05 - 0.025; // -0.25 and 0.25
 
     (*n.outer.coords)[randomNode].x += offsetX;
     (*n.outer.coords)[randomNode].y += offsetY;
     
+    point_t dir(offsetX, offsetY);
+    
     
     // Routine to smooth out neighbour's relationship to current state
     // --------------
-    SNode prev, next; int u = 5;
+    SNode prev, next; int u = smooth;
     prev = next = randomNode;
     for (int c = 0; c < u; c++)
     {
         prev = n.outer.graph.source(ListDigraph::InArcIt(n.outer.graph, prev));
         next = n.outer.graph.target(ListDigraph::OutArcIt(n.outer.graph, next));
+
+        float ratio = (float)(u - c)/(u);
+        (*n.outer.coords)[prev].x += dir.x * ratio;
+        (*n.outer.coords)[prev].y += dir.y * ratio;
+        (*n.outer.coords)[next].x += dir.x * ratio;
+        (*n.outer.coords)[next].y += dir.y * ratio;
     }
 
     
@@ -135,15 +151,22 @@ void Optimizer::neighbor(ThickSurface_t &original, ThickSurface_t &n)
     n.thickness = original.thickness; // What matter is avg thickness
     Interfacer::generate_inner_s(n.inner, n.outer, n.thickness);
     Interfacer::generate_bridges(n);
+    
+    ln = &n; // Update reference to last neighbour calculated
 }
 
-double Optimizer::probability(ThickSurface_t &s, double a0)
+double Optimizer::probability(ThickSurface_t &s, double a0, double &p1, double &p2)
 {
     double res;
-    double gray = abs(calculate_surface_area(s.outer) - calculate_surface_area(s.inner));
-    double diff = abs(a0 - gray);
-    
-    res = 1.0 * calculate_surface_area(s.outer) + 2 * diff;
+    double gray = absol(calculate_surface_area(s.outer) - calculate_surface_area(s.inner));
+    std::cout << "gray: " << gray;
+    std::cout << " a0 = " << a0 << std::endl;
+    double diff = absol(a0 - gray);
+    p1 = calculate_surface_area(s.outer);
+    p2 = diffMul * pow((diff + 1), diffPow);
+    std::cout << "diff: " << diff << "; " << diffMul << " * diff ^ " << diffPow << ": " << p2 << std::endl;
+
+    res = p1 + p2;
     
     std::vector<SurfaceData_t*> surfaces;
     std::vector<point_t> inters;
@@ -169,15 +192,17 @@ void Optimizer::evolve_sa(int kMax, bool time)
     double a0 = calculate_surface_area(state.outer) - calculate_surface_area(state.inner); // initial gray matter area
     
     struct timeval timer;
+    double part1N, part2N, part1S, part2S;
     std::cout << "Alright... here we go. Timing" << std::endl;
     for (int k = 0; k < kMax; k++)
     {
         time_b(timer);
         neighbor(state, nghbr);
         
-        double probN = probability(nghbr, a0);
-        double probS = probability(state, a0);
-        std::cout << k << "th step, pN: " << probN << ", pS: " << probS <<std::endl;
+        double probN = probability(nghbr, a0, part1N, part2N);
+        double probS = probability(state, a0, part1S, part2S);
+        std::cout << k << "th step, pN: " << probN << " (" << part1N << " + " << part2N << ")";
+        std::cout << "\npS: " << probS << " (" << part1S << " + " << part2S << ")\n"  << std::endl;
         if (probN < probS)
         {
             copy_thick_surface(nghbr, state);

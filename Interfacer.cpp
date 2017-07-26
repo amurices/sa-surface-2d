@@ -235,7 +235,7 @@ void Interfacer::generate_circle(ThickSurface_t &ts, double radius, int pts, std
 	prevToMap = currToMap;
 	
 	
-	ts.thickness = 0.27 * radius; // placeholder
+	ts.thickness = 0.12 * radius; // placeholder
 	generate_inner_s(ts.inner, ts.outer, ts.thickness);
 	generate_bridges(ts);
 }

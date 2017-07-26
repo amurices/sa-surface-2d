@@ -25,6 +25,7 @@ bool ltTolerance(double a, double b, double tol);
 bool gtTolerance(double a, double b, double tol);
 bool eqTolerance(double a, double b, double tol);
 
+double absol(double x);
 
 void printSet(std::vector<point_t*> toPrint);
 void print_nodes_coordinates(const SurfaceData_t &surf);
