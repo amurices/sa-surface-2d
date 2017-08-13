@@ -30,6 +30,8 @@ double absol(double x);
 void printSet(std::vector<point_t*> toPrint);
 void print_nodes_coordinates(const SurfaceData_t &surf);
 
+void shift_to_origin(ThickSurface_t &org);
+
 void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg);
 void copy_thick_surface(const ThickSurface_t &org, ThickSurface_t &trg);
 

@@ -41,6 +41,6 @@ std::vector<point_t> concave_hull(const std::vector<point_t> &cH, std::vector<po
 
 std::vector<point_t> convex_hull(std::vector<point_t> P, std::vector<point_t> &is);
 
-double calculate_surface_area(const SurfaceData_t& s);
+double calculate_surface_area(const SurfaceData_t& s, double &perim);
 
 #endif /* Geometry_hpp */

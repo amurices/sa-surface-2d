@@ -27,7 +27,8 @@ double SurfaceDecoder::decode(const std::vector< double >& chromosome) const {
     
     Interfacer::generate_bridges(thickGen);
     
-    double res = calculate_surface_area(thickGen.outer);
+    double perim;
+    double res = calculate_surface_area(thickGen.outer, perim);
     
     std::vector<SurfaceData_t*> surfaces;
     surfaces.push_back(&thickGen.outer);

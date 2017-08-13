@@ -42,13 +42,22 @@ public:
     void find_intersections(std::vector<point_t> &is);
     
     // -------------------
-    // SA attributes ------
+    // SA attributes a) To actually function ------
     double  scale;       // Index that will adjust some hyperparameters of evolution
     double  a0;          // Area of the initial (relaxed) state
     int     smooth;      // Whether neighbors should be calculated using smoothing depressions or not
     double  diffPow;     // Power to raise difference btwn A0 and AS
     double  diffMul;     // Scalar ^
     ThickSurface_t *ln;   // Last neighbour calculated; useful for mid-evolution rendering
+    ThickSurface_t state;       // Local variables evolved state,
+    ThickSurface_t nstate;      // new state,
+    ThickSurface_t nghbr;       // evolved state and random neighbor
+    // SA attributes b) For testing purposes
+    double gray;         // Gray matter of any given solution (outer - inner areas)
+    double white;        // White matter (inner area)
+    double stretch;      // Stretch factor for any solution (diffMul * diff btwn grays ^ diffPow)
+    double perimeter;    // Perimeter of any given solution (sum of all vector lengths)
+    double energy;       // And fitness of solution ofc.
     
     // SA functions ------
     Optimizer(ThickSurface_t &org); //met constructor

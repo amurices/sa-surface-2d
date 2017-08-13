@@ -207,7 +207,7 @@ void Interfacer::update_inner_node(SurfaceData_t &inner,  SurfaceData_t &surf, d
 	(*inner.coords)[corrInnerNode] = (*surf.coords)[updatedOuterNode] - vd; // Actually update this one node
 }
 
-void Interfacer::generate_circle(ThickSurface_t &ts, double radius, int pts, std::vector<point_t> &is)
+void Interfacer::generate_circle(ThickSurface_t &ts, double radius, double thick_ratio, int pts, std::vector<point_t> &is)
 {
 	// (1) Add one node to the graph, and its coordinates to the map
 	SNode fnode = ts.outer.graph.addNode();
@@ -235,7 +235,7 @@ void Interfacer::generate_circle(ThickSurface_t &ts, double radius, int pts, std
 	prevToMap = currToMap;
 	
 	
-	ts.thickness = 0.12 * radius; // placeholder
+	ts.thickness = thick_ratio * radius; // placeholder
 	generate_inner_s(ts.inner, ts.outer, ts.thickness);
 	generate_bridges(ts);
 }

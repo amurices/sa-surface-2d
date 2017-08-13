@@ -20,7 +20,7 @@ class Interfacer{
 public:
     Interfacer();
     static void generate_random     (ThickSurface_t &ts, double perim, int pts, std::vector<point_t> &is);
-    static void generate_circle     (ThickSurface_t &ts, double radius, int pts, std::vector<point_t> &is);
+    static void generate_circle     (ThickSurface_t &ts, double radius, double thick_ratio, int pts, std::vector<point_t> &is);
     static void generate_outer_s    (SurfaceData_t &surf,   double perim, int pts, std::vector<point_t> &is);
     static void generate_inner_s    (SurfaceData_t &inner,  SurfaceData_t &surf, double thickness);
     static void generate_bridges    (ThickSurface_t &ts);

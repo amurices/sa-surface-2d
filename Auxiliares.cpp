@@ -29,6 +29,35 @@ double absol(double x)
     return x;
 }
 
+void shift_to_origin(ThickSurface_t &org)
+{
+    point_t acc(0,0);
+    int count = 0;
+    // Apply offsets to surface
+    for (ListDigraph::NodeIt no(org.outer.graph); no != INVALID; ++no)
+    {
+        count++;
+        acc = acc + (*org.outer.coords)[no];
+    }
+    
+    acc = acc * (1/(double)org.outer.nNodes);
+    
+    // Shift points to origin
+    for (ListDigraph::NodeIt no(org.outer.graph); no != INVALID; ++no)
+    {
+        (*org.outer.coords)[no].x -= acc.x;
+        (*org.outer.coords)[no].y -= acc.y;
+        (*org.inner.coords)[no].x -= acc.x;
+        (*org.inner.coords)[no].y -= acc.y;
+    }
+    // Shift "bridges" to origin
+    for (ListDigraph::NodeIt no(org.bridges.graph); no != INVALID; ++no)
+    {
+        (*org.bridges.coords)[no].x -= acc.x;
+        (*org.bridges.coords)[no].y -= acc.y;
+    }
+}
+
 void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg)
 {
     if (trg.nNodes > 0) // If non-empty target surface, we wipe it out, avoiding a memory leak

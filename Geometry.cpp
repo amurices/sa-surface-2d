@@ -445,12 +445,12 @@ int find_surface_intersections(const std::vector<SurfaceData_t*>& xs, std::vecto
 }
 
 
-void smooth_neighbors(SurfaceData_t& s, int n);
 
-
-double calculate_surface_area(const SurfaceData_t& s)
+double calculate_surface_area(const SurfaceData_t& s, double &perim)
 {
     double area = 0;
+    perim = 0;
+    
     ListDigraph::InArcIt prev;
     ListDigraph::OutArcIt next;
     SNode fnode;
@@ -463,16 +463,32 @@ double calculate_surface_area(const SurfaceData_t& s)
     {
         prev = ListDigraph::InArcIt(s.graph, no);
         next = ListDigraph::OutArcIt(s.graph, no);
+        
+        // Perimeter calculation: -----------------------------------------------------
+        point_t perimVector = (*s.coords)[no] - (*s.coords)[s.graph.source(prev)]; //--
+        double perimVectorNorm = find_norm(perimVector); //----------------------------
+        perim += perimVectorNorm; //---------------------------------------------------
+        // ----------------------------------------------------------------------------
+        
         area += (*s.coords)[no].x * ( (*s.coords)[s.graph.target(next)].y - (*s.coords)[s.graph.source(prev)].y);
         no = s.graph.target(next);
     }
     prev = ListDigraph::InArcIt(s.graph, no);
     next = ListDigraph::OutArcIt(s.graph, no);
+    
+    // Perimeter calculation: -----------------------------------------------------
+    point_t perimVector = (*s.coords)[no] - (*s.coords)[s.graph.source(prev)]; //--
+    double perimVectorNorm = find_norm(perimVector); //----------------------------
+    perim += perimVectorNorm; //---------------------------------------------------
+    // ----------------------------------------------------------------------------
+    
     area += (*s.coords)[no].x * ( (*s.coords)[s.graph.target(next)].y - (*s.coords)[s.graph.source(prev)].y);
     area /= 2;
     
     if (area < 0)
         area = 0;
+    
+    std::cout << "THIS CALL IS RETURNING " << perim << std::endl;
     
     return area;
 }

@@ -26,7 +26,30 @@ void Optimizer::init_SA(double scale, int smooth, double diffMul, double diffPow
     this->diffMul = diffMul;
     this->smooth = smooth;
     this->scale = scale;
-    a0 = calculate_surface_area(org->outer) - calculate_surface_area(org->inner); // initial gray matter area
+    
+    double p;
+    
+    a0 = calculate_surface_area(org->outer, p) - calculate_surface_area(org->inner, p); // initial gray matter area
+    copy_thick_surface(*org, state); // S = S0
+    
+    // Loop is ready to roll
+
+}
+
+void Optimizer::step_sa()
+{
+    neighbor(state, nghbr);
+    double part1N, part2N, part1S, part2S;
+    double probN = probability(nghbr, a0, part1N, part2N);
+    double probS = probability(state, a0, part1S, part2S); // Our accessible scope always gets
+    // its parameters from S if we run probability() on S after we do it on N
+    if (probN < probS)
+    {
+        copy_thick_surface(nghbr, state);
+        copy_thick_surface(nghbr, *org);
+    }
+    std::cout << "pN: " << probN << " (" << part1N << " + " << part2N << ")";
+    std::cout << "\npS: " << probS << " (" << part1S << " + " << part2S << ")\n"  << std::endl;
 }
 
 void Optimizer::init_GA(const unsigned ps, const double ep, const double mp, const double rhoe, const unsigned K, const unsigned MAXT, const unsigned x_intvl, const unsigned x_number, const unsigned max_gens)
@@ -158,13 +181,14 @@ void Optimizer::neighbor(ThickSurface_t &original, ThickSurface_t &n)
 double Optimizer::probability(ThickSurface_t &s, double a0, double &p1, double &p2)
 {
     double res;
-    double gray = absol(calculate_surface_area(s.outer) - calculate_surface_area(s.inner));
+    white = calculate_surface_area(s.inner, perimeter);
+    gray = absol(calculate_surface_area(s.outer, perimeter) - white);
     std::cout << "gray: " << gray;
     std::cout << " a0 = " << a0 << std::endl;
-    double diff = absol(a0 - gray);
-    p1 = calculate_surface_area(s.outer);
-    p2 = diffMul * pow((diff + 1), diffPow);
-    std::cout << "diff: " << diff << "; " << diffMul << " * diff ^ " << diffPow << ": " << p2 << std::endl;
+    stretch = absol(a0 - gray);
+    p1 = calculate_surface_area(s.outer, perimeter);
+    p2 = diffMul * pow((stretch + 1), diffPow);
+    std::cout << "stretch: " << stretch << "; " << diffMul << " * diff ^ " << diffPow << ": " << p2 << std::endl;
 
     res = p1 + p2;
     
@@ -175,68 +199,22 @@ double Optimizer::probability(ThickSurface_t &s, double a0, double &p1, double &
     surfaces.push_back(&s.inner);
     
     int intsOuter = find_surface_intersections(surfaces, inters);
-    res += 100000 * intsOuter;
+    res += 100000 * intsOuter;  // Intersection prevention
+    energy = res;
     return res;
 }
 
 void Optimizer::evolve_sa(int kMax, bool time)
 {
-    ThickSurface_t state;       // Local variables evolved state,
-    ThickSurface_t nstate;      // new state,
-    ThickSurface_t nghbr;       // evolved state and random neighbor
-    
-    std::cout << "in evolve_sa" << std::endl;
-    copy_thick_surface(*org, state); // S = S0
-    
-
-    double a0 = calculate_surface_area(state.outer) - calculate_surface_area(state.inner); // initial gray matter area
-    
     struct timeval timer;
-    double part1N, part2N, part1S, part2S;
-    std::cout << "Alright... here we go. Timing" << std::endl;
     for (int k = 0; k < kMax; k++)
     {
         time_b(timer);
-        neighbor(state, nghbr);
-        
-        double probN = probability(nghbr, a0, part1N, part2N);
-        double probS = probability(state, a0, part1S, part2S);
-        std::cout << k << "th step, pN: " << probN << " (" << part1N << " + " << part2N << ")";
-        std::cout << "\npS: " << probS << " (" << part1S << " + " << part2S << ")\n"  << std::endl;
-        if (probN < probS)
-        {
-            copy_thick_surface(nghbr, state);
-        }
+        step_sa();
         std::cout << "K = " << k << " and time: " << time_a(timer) << std::endl;
 
     }
-    
-
     copy_thick_surface(state, *org);
     
-    point_t acc(0,0);
-    int count = 0;
-    // Apply offsets to surface
-    for (ListDigraph::NodeIt no(org->outer.graph); no != INVALID; ++no)
-    {
-        count++;
-        acc = acc + (*org->outer.coords)[no];
-    }
-    acc = acc * (1/(double)org->outer.nNodes);
-    
-    
-    // Shift points to origin
-    for (ListDigraph::NodeIt no(org->outer.graph); no != INVALID; ++no)
-    {
-        (*org->outer.coords)[no].x -= acc.x;
-        (*org->outer.coords)[no].y -= acc.y;
-        (*org->inner.coords)[no].x -= acc.x;
-        (*org->inner.coords)[no].y -= acc.y;
-    }
-    // Shift "bridges" to origin
-    for (ListDigraph::NodeIt no(org->bridges.graph); no != INVALID; ++no)
-    {
-        (*org->bridges.coords)[no].x -= acc.x;
-        (*org->bridges.coords)[no].y -= acc.y;
-    }
+    shift_to_origin(*org);
 }
