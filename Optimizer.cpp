@@ -144,8 +144,8 @@ void Optimizer::neighbor(ThickSurface_t &original, ThickSurface_t &n)
     SNode randomNode = n.outer.graph.nodeFromId(randomIndex);
     
     double offsetX, offsetY;
-    offsetX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.05 - 0.025; // Random values btwn
-    offsetY = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.05 - 0.025; // -0.25 and 0.25
+    offsetX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.066 - 0.033; // Random values btwn
+    offsetY = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.066 - 0.033; // -0.25 and 0.25
 
     (*n.outer.coords)[randomNode].x += offsetX;
     (*n.outer.coords)[randomNode].y += offsetY;
@@ -169,8 +169,6 @@ void Optimizer::neighbor(ThickSurface_t &original, ThickSurface_t &n)
         (*n.outer.coords)[next].y += dir.y * ratio;
     }
 
-    
-    
     n.thickness = original.thickness; // What matter is avg thickness
     Interfacer::generate_inner_s(n.inner, n.outer, n.thickness);
     Interfacer::generate_bridges(n);

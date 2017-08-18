@@ -8,6 +8,7 @@
 //
 
 #include <iostream>
+#include <fstream>
 #include <sys/time.h>
 #include <cstdio>
 
@@ -36,9 +37,16 @@
 /// (free nrg, smoothness)              - thickness fixed on N values: N plots
 /// (free nrg, gray area / perimeter)   - smoothness fixed on N values: N x N plots
 
-const int NUM_POINTS = 340;
-const int NUM_GENS = 10000;
-const int NUM_SMOOTH = 5;
+const int NUM_POINTS = 350;
+const int NUM_GENS = 6500;
+const int NUM_SMOOTH = 3;
+
+const int numTests = 30;
+const int numFixed = 3;
+const int numParams = 2;
+
+const int smoothVar = 5;
+const double thicknessVar = 0.012;
 
 using namespace lemon;
 using namespace std;
@@ -49,9 +57,51 @@ using namespace std;
 int main() {
     // Rendering loop variable declarations below:
     // -----------------------------------------
-    ThickSurface_t myThickSurf; // the surface itself. ThickSurface_t is a wrapper around SurfaceData
+    // ThickSurface_t myThickSurf; // the surface itself. ThickSurface_t is a wrapper around SurfaceData
+    
+    ofstream output;
+    ofstream output_t;
+    
     std::vector<point_t> is;    // container to hold intersections
-    Interfacer::generate_circle(myThickSurf, 0.75, 0.025, NUM_POINTS, is);
+    // Interfacer::generate_circle(myThickSurf, 0.75, 0.025, NUM_POINTS, is);
+
+    vector<ThickSurface_t> myThickSurfaces(numTests * numFixed * numParams);
+    vector<Optimizer*> optimizers(numTests * numFixed * numParams);
+    
+    // Testing variable thickness, fixed smoothness
+    for (int i = 0; i < numTests; i++)
+    {
+        Interfacer::generate_circle(myThickSurfaces[i], 1, thicknessVar * (i + 1), NUM_POINTS, is);
+        optimizers[i] = new Optimizer(myThickSurfaces[i]);
+        optimizers[i]->init_SA(0.1, NUM_SMOOTH, 1, 2); // Why does increasing Pow decrease pS?
+
+        Interfacer::generate_circle(myThickSurfaces[i+numTests], 1, thicknessVar * (i + 1), NUM_POINTS, is);
+        optimizers[i+numTests] = new Optimizer(myThickSurfaces[i+numTests]);
+        optimizers[i+numTests]->init_SA(0.1, NUM_SMOOTH + smoothVar, 1, 2); // Why does increasing Pow decrease pS?
+
+        Interfacer::generate_circle(myThickSurfaces[i+2*numTests], 1, thicknessVar * (i + 1), NUM_POINTS, is);
+        optimizers[i+2*numTests] = new Optimizer(myThickSurfaces[i+2*numTests]);
+        optimizers[i+2*numTests]->init_SA(0.1, NUM_SMOOTH + 2*smoothVar, 1, 2); // Why does increasing Pow decrease pS?
+    }
+    
+    // Testing variable smoothness, fixed thickness
+    for (int i = numTests * numFixed; i < numTests * (numFixed + 1); i++)
+    {
+        Interfacer::generate_circle(myThickSurfaces[i], 1, 0.05, NUM_POINTS, is);
+        optimizers[i] = new Optimizer(myThickSurfaces[i]);
+        optimizers[i]->init_SA(0.1, NUM_SMOOTH - 2 + i - (numTests * numFixed), 1, 2); // Why does increasing Pow decrease pS?
+
+        Interfacer::generate_circle(myThickSurfaces[i+numTests], 1, 0.15, NUM_POINTS, is);
+        optimizers[i+numTests] = new Optimizer(myThickSurfaces[i+numTests]);
+        optimizers[i+numTests]->init_SA(0.1, NUM_SMOOTH - 2 + i - (numTests * numFixed), 1, 2); // Why does increasing Pow decrease pS?
+
+        Interfacer::generate_circle(myThickSurfaces[i+2*numTests], 1, 0.25, NUM_POINTS, is);
+        optimizers[i+2*numTests] = new Optimizer(myThickSurfaces[i+2*numTests]);
+        optimizers[i+2*numTests]->init_SA(0.1, NUM_SMOOTH - 2 + i - (numTests * numFixed), 1, 2); // Why does increasing Pow decrease pS?
+        cout << i << endl;
+
+
+    }
     FTGLPixmapFont fonti("/Library/Fonts/Arial.ttf");      // Load .ttf file to memory
     
     point_t mousePos;                                      // Mouse position for (minimal) input handling
@@ -66,21 +116,13 @@ int main() {
     myRenderer.handle(init);                // Window initialization handling
     if(fonti.Error()) exit(EXIT_FAILURE);   // Font loading handling
     // -----------------------------------------
-
-    Optimizer opt(myThickSurf);
-    opt.init_SA(0.1, NUM_SMOOTH, 1, 2); // Why does increasing Pow decrease pS?
-    ThickSurface_t nghbr;
     
-    opt.neighbor(myThickSurf, nghbr);
-    
- //   opt.evolve_sa(NUM_GENS);
-    
-    // Get intersections of solution and put them in is
-    opt.find_intersections(is);
     // Rendering loop below:
     // -----------------------------------------
-    int count = 0;
+    int count = 0; int currentThick = 0;
     bool wasDown = false; bool pause = false;
+    output.open ("output.txt");
+    output_t.open("output_t.txt");
     while (!glfwWindowShouldClose(myRenderer.window))
     {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -94,38 +136,71 @@ int main() {
 
         if (!pause && count != NUM_GENS)
         {
-            opt.step_sa();
+            optimizers[currentThick]->step_sa();
             count++;
         }
+        
+        
+        
         // Compile these later into a hyperparam struct. We want:
         char gen[16];   // Gen number
         char nrg[16];   // free energy (outer area + (diffMul * stretch ^ diffPow))
+        char nrgt[10];  // use it for nrg/time plot
         char wht[16];   // white matter (inner area)
         char gry[16];   // gray matter (outer area - inner area)
         char dif[16];   // stretch factor (initial gray matter - current gray matter)
         char prm[16];   // perimeter (sum of all distances)
+        char thk[16];   // thickness of this solution
+        char smt[16];   // thickness of this solution
         std::sprintf(gen, "gen %d", count);
-        std::sprintf(nrg, "nrg %.7f", opt.energy);
-        std::sprintf(wht, "wht %.7f", opt.white);
-        std::sprintf(gry, "gry %.7f", opt.gray);
-        std::sprintf(dif, "dif %.7f", opt.stretch);
-        std::sprintf(prm, "prm %.7f", opt.perimeter);
+        std::sprintf(nrg, "nrg %.7f", optimizers[currentThick]->energy);
+        std::sprintf(wht, "wht %.7f", optimizers[currentThick]->white);
+        std::sprintf(gry, "gry %.7f", optimizers[currentThick]->gray);
+        std::sprintf(dif, "dif %.7f", optimizers[currentThick]->stretch);
+        std::sprintf(prm, "prm %.7f", optimizers[currentThick]->perimeter);
+        std::sprintf(thk, "thk %.7f", optimizers[currentThick]->org->thickness);
+        std::sprintf(smt, "smt %d", optimizers[currentThick]->smooth);
+        
+        output_t << gen << endl;
+        output_t << nrg << endl;
+        output_t << wht << endl;
+        output_t << gry << endl;
+        output_t << dif << endl;
+        output_t << prm << endl;
+        output_t << thk << endl;
+        output_t << smt << endl;
 
+        if (count == NUM_GENS)
+        {
+            count = 0;
+            output << nrg << endl;
+            output << wht << endl;
+            output << gry << endl;
+            output << dif << endl;
+            output << prm << endl;
+            output << thk << endl;
+            output << smt << endl << endl;
+            output_t << endl;
+            currentThick++;
+            if (currentThick >= optimizers.size())
+                break;
+        }
+        
+        
         myRenderer.render_text(fonti, gen, point_t(-1, 0.76), 34);
         myRenderer.render_text(fonti, nrg, point_t(-1, 0.71), 34);
         myRenderer.render_text(fonti, wht, point_t(-1, 0.66), 34);
         myRenderer.render_text(fonti, gry, point_t(-1, 0.61), 34);
         myRenderer.render_text(fonti, dif, point_t(-1, 0.56), 34);
         myRenderer.render_text(fonti, prm, point_t(-1, 0.51), 34);
+        myRenderer.render_text(fonti, thk, point_t(-1, 0.46), 34);
+        myRenderer.render_text(fonti, smt, point_t(-1, 0.41), 34);
         myRenderer.render_axes(fonti);
-        myRenderer.render_surface(opt.org->outer, triple_t (1.0, 0.0, 1.0));
-        myRenderer.render_surface(opt.org->inner, triple_t (0.7, 0.7, 0.3));
-        myRenderer.render_surface(opt.org->bridges, triple_t (0.7, 0.3, 0.7));
+        myRenderer.render_surface(optimizers[currentThick]->org->outer, triple_t (1.0, 0.0, 1.0));
+        myRenderer.render_surface(optimizers[currentThick]->org->inner, triple_t (0.7, 0.7, 0.3));
+        myRenderer.render_surface(optimizers[currentThick]->org->bridges, triple_t (0.7, 0.3, 0.7));
         
-///   myRenderer.render_surface(nghbr.outer, triple_t (0.5, 0.5, 1.0));
-   ///  myRenderer.render_surface(nghbr.inner, triple_t (0.4, 0.4, 0.7));
-     ///   myRenderer.render_surface(nghbr.bridges, triple_t (0.3, 0.7, 0.7));
-        
+
         myRenderer.render_intersections(is);
         
         // ----------------------------------------------------
@@ -163,7 +238,7 @@ int main() {
         // ----------------------------------------------------
         // ----------------------------------------------------
 
-        
+        /*
         for (ListDigraph::NodeIt no(opt.org->outer.graph); no != INVALID; ++no)
         {
             int rendering = 0;
@@ -182,9 +257,12 @@ int main() {
                 
             }
         }
+        */
         glfwSwapBuffers(myRenderer.window);
         glfwPollEvents();
     }
+    output.close();
+    output_t.close();
     glfwTerminate();
     exit(EXIT_SUCCESS);
    
