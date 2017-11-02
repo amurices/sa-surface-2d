@@ -1,4 +1,4 @@
-//
+ //
 //  defs.h
 //  Surface BRKGA
 //
@@ -160,7 +160,7 @@ typedef struct InitSaParams{
     double diffMul; double diffPow;
     double areaPow; double areaMul;
     double multiProb; double forceOffsetRange;
-    double temperature;
+    double temperature; double compression;
 } InitSaParams;
 
 #endif /* defs_h */

@@ -339,12 +339,6 @@ std::vector<point_t> concave_hull(const std::vector<point_t> &cH, std::vector<po
         }
     }
         
-    
-    for (size_t i = 0; i < cycle.size(); i++)
-    {
-        std::cout << cycle[i] << std::endl;
-    }
-    
     return cycle;
 }
 
@@ -486,7 +480,7 @@ double calculate_surface_area(const SurfaceData_t& s, double &perim)
     if (area < 0)
         area = 0;
     
-    std::cout << "THIS CALL IS RETURNING " << perim << std::endl;
+//    std::cout << "THIS CALL IS RETURNING " << perim << std::endl;
     
     return area;
 }

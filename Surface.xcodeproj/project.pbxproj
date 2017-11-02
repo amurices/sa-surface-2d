@@ -360,6 +360,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LIBRARY = "compiler-default";
+				GCC_OPTIMIZATION_LEVEL = 1;
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = (

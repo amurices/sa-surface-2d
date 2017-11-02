@@ -62,7 +62,7 @@ void init_optimizers(Optimizer *opt,        std::vector<Optimizer*> &opts,
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-int main() {
+int main(int argc, char** args) {
     // Rendering loop variable declarations below:
     // -----------------------------------------
     ThickSurface_t innerCircle; // the surface itself. ThickSurface_t is a wrapper around SurfaceData
@@ -73,7 +73,34 @@ int main() {
     ofstream output;
     ofstream output_t;
     ifstream input; // File holding simulation parameters
-  //  input.open("input.txt");
+    input.open("input.txt");
+    std::string inputReader;
+    
+    InitSaParams params;
+    getline(input, inputReader);
+    params.radius           = atof(inputReader.c_str());
+    getline(input, inputReader);
+    params.thickness        = atof(inputReader.c_str());
+    getline(input, inputReader);
+    params.scale            = atof(inputReader.c_str());
+    getline(input, inputReader);
+    params.smooth           = atoi(inputReader.c_str());
+    getline(input, inputReader);
+    params.diffMul          = atof(inputReader.c_str());
+    getline(input, inputReader);
+    params.diffPow          = atof(inputReader.c_str());
+    getline(input, inputReader);
+    params.areaMul          = atof(inputReader.c_str());
+    getline(input, inputReader);
+    params.areaPow          = atof(inputReader.c_str());
+    getline(input, inputReader);
+    params.multiProb        = atof(inputReader.c_str());
+    getline(input, inputReader);
+    params.forceOffsetRange = atof(inputReader.c_str());
+    getline(input, inputReader);
+    params.temperature      = atof(inputReader.c_str());
+    getline(input, inputReader);
+    params.compression      = atof(inputReader.c_str());
     
     bool multiTests = false;
     
@@ -82,6 +109,7 @@ int main() {
     
     
     std::vector<point_t> is;    // container to hold intersections
+    /*
     InitSaParams params;
     params.radius           = RADIUS;
     params.thickness        = THICKNESS;
@@ -94,6 +122,8 @@ int main() {
     params.multiProb        = 0.4;
     params.forceOffsetRange = 0.166;
     params.temperature      = 0;
+    params.compression      = 1;
+    */
     init_optimizers(NULL, optimizers, NULL, myThickSurfaces, params, true, is, &innerCircle);
 
     Interfacer::generate_circle(innerCircle, RADIUS * 0.45, 0.13, NUM_POINTS, is);
@@ -156,7 +186,6 @@ int main() {
         if (count > NUM_GENS)
         {
             count++;
-            std::cout << "Hullpts: " << hull.nNodes << std::endl;
             myRenderer.render_surface(hull, triple_t (0.6, 0.6, 1.0));
         }
         
@@ -234,7 +263,7 @@ int main() {
         myRenderer.render_surface(hull, triple_t (1.0, 1.0, 1.0));
         myRenderer.render_surface(optimizers[currentThick]->org->outer, triple_t (1.0, 0.0, 1.0));
         myRenderer.render_surface(optimizers[currentThick]->org->inner, triple_t (0.7, 0.7, 0.3));
-        myRenderer.render_surface(optimizers[currentThick]->org->bridges, triple_t (0.7, 0.3, 0.7));
+     //   myRenderer.render_surface(optimizers[currentThick]->org->bridges, triple_t (0.7, 0.3, 0.7));
         myRenderer.render_surface(optimizers[currentThick]->innerCircle->outer, triple_t(0.5, 0.3, 0.2));
 
         myRenderer.render_axes(fonti);
@@ -343,31 +372,31 @@ void init_optimizers(Optimizer *opt,        std::vector<Optimizer*> &opts,
     // Testing variable thickness, fixed smoothness
     for (int i = 0; i < numTests; i++)
     {
-        Interfacer::generate_circle(thicks[i], RADIUS, thicknessVar * (i + 1), NUM_POINTS, is);
+        Interfacer::generate_circle(thicks[i], params.radius, thicknessVar * (i + 1), NUM_POINTS, is);
         opts[i] = new Optimizer(thicks[i]);
         opts[i]->init_SA(params.scale, NUM_SMOOTH,
                          params.diffPow, params.diffMul,
                          params.areaPow, params.areaMul,
-                         params.multiProb, params.forceOffsetRange);
+                         params.multiProb, params.forceOffsetRange, params.temperature, params.compression);
         opts[i]->innerCircle = innerCircle;
      //   opts[i]->init_SA(0.1, NUM_SMOOTH, 1, 2); // Why does increasing Pow decrease pS?
         
-        Interfacer::generate_circle(thicks[i+numTests], RADIUS, thicknessVar * (i + 1), NUM_POINTS, is);
+        Interfacer::generate_circle(thicks[i+numTests], params.radius, thicknessVar * (i + 1), NUM_POINTS, is);
         opts[i+numTests] = new Optimizer(thicks[i+numTests]);
         opts[i+numTests]->init_SA(params.scale, NUM_SMOOTH + smoothVar,
                          params.diffPow, params.diffMul,
                          params.areaPow, params.areaMul,
-                         params.multiProb, params.forceOffsetRange);
+                         params.multiProb, params.forceOffsetRange, params.temperature, params.compression);
         opts[i+numTests]->innerCircle = innerCircle;
 
     //    opts[i+numTests]->init_SA(0.1, NUM_SMOOTH + smoothVar, 1, 2); // Why does increasing Pow decrease pS?
         
-        Interfacer::generate_circle(thicks[i+2*numTests], RADIUS, thicknessVar * (i + 1), NUM_POINTS, is);
+        Interfacer::generate_circle(thicks[i+2*numTests], params.radius, thicknessVar * (i + 1), NUM_POINTS, is);
         opts[i+2*numTests] = new Optimizer(thicks[i+2*numTests]);
         opts[i+2*numTests]->init_SA(params.scale, NUM_SMOOTH + 2*smoothVar,
                          params.diffPow, params.diffMul,
                          params.areaPow, params.areaMul,
-                         params.multiProb, params.forceOffsetRange);
+                         params.multiProb, params.forceOffsetRange, params.temperature, params.compression);
         opts[i+2*numTests]->innerCircle = innerCircle;
 
     //    opts[i+2*numTests]->init_SA(0.1, NUM_SMOOTH + 2*smoothVar, 1, 2); // Why does increasing Pow decrease pS?
@@ -381,7 +410,8 @@ void init_optimizers(Optimizer *opt,        std::vector<Optimizer*> &opts,
         opts[i]->init_SA(params.scale, NUM_SMOOTH - 2 + i - (numTests * numFixed),
                          params.diffPow, params.diffMul,
                          params.areaPow, params.areaMul,
-                         params.multiProb, params.forceOffsetRange);
+                         params.multiProb, params.forceOffsetRange,
+                         params.temperature, params.compression);
         opts[i]->innerCircle = innerCircle;
     //   opts[i]->init_SA(0.1, NUM_SMOOTH - 2 + i - (numTests * numFixed), 1, 2); // Why does increasing Pow decrease pS?
         
@@ -390,7 +420,7 @@ void init_optimizers(Optimizer *opt,        std::vector<Optimizer*> &opts,
         opts[i+numTests]->init_SA(params.scale, NUM_SMOOTH - 2 + i - (numTests * numFixed),
                          params.diffPow, params.diffMul,
                          params.areaPow, params.areaMul,
-                         params.multiProb, params.forceOffsetRange);
+                         params.multiProb, params.forceOffsetRange, params.temperature, params.compression);
         opts[i+numTests]->innerCircle = innerCircle;
 
      //   opts[i+numTests]->init_SA(0.1, NUM_SMOOTH - 2 + i - (numTests * numFixed), 1, 2); // Why does increasing Pow decrease pS?
@@ -400,7 +430,7 @@ void init_optimizers(Optimizer *opt,        std::vector<Optimizer*> &opts,
         opts[i+2*numTests]->init_SA(params.scale, NUM_SMOOTH - 2 + i - (numTests * numFixed),
                                   params.diffPow, params.diffMul,
                                   params.areaPow, params.areaMul,
-                                  params.multiProb, params.forceOffsetRange);
+                                  params.multiProb, params.forceOffsetRange, params.temperature, params.compression);
         opts[i+2*numTests]->innerCircle = innerCircle;
 
      //   opts[i+2*numTests]->init_SA(0.1, NUM_SMOOTH - 2 + i - (numTests * numFixed), 1, 2); // Why does increasing Pow decrease pS?

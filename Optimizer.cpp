@@ -64,15 +64,15 @@ void Optimizer::step_sa()
         double randProb = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX);
         double diffNS = absol(probN - probS);
         double prob = (1.0/diffNS < 1.0 ? 1.0/diffNS : 1.0) * ((double)maxT - (double)gen)/(double)maxT * tempProb;
-        std::cout << "\n\nPROB: " << prob << "\n\n";
+   //     std::cout << "\n\nPROB: " << prob << "\n\n";
         if (prob > randProb)
         {
             copy_thick_surface(nghbr, state);
             copy_thick_surface(nghbr, *org);
         }
     }
-    std::cout << "pN: " << probN << " (" << part1N << " + " << part2N << ")";
-    std::cout << "\npS: " << probS << " (" << part1S << " + " << part2S << ")\n"  << std::endl;
+  //  std::cout << "pN: " << probN << " (" << part1N << " + " << part2N << ")";
+  //  std::cout << "\npS: " << probS << " (" << part1S << " + " << part2S << ")\n"  << std::endl;
 }
 
 void Optimizer::init_GA(const unsigned ps, const double ep, const double mp, const double rhoe, const unsigned K, const unsigned MAXT, const unsigned x_intvl, const unsigned x_number, const unsigned max_gens)
@@ -156,7 +156,7 @@ void Optimizer::find_intersections(std::vector<point_t> &is)
     surfaces.push_back(&org->outer);
     surfaces.push_back(&org->inner);
     surfaces.push_back(&org->bridges);
-    std::cout << "Num ints: " << find_surface_intersections(surfaces, is) << std::endl;
+ //   std::cout << "Num ints: " << find_surface_intersections(surfaces, is) << std::endl;
 }
 
 void Optimizer::neighbor(ThickSurface_t &original, ThickSurface_t &n)
@@ -175,37 +175,61 @@ void Optimizer::neighbor(ThickSurface_t &original, ThickSurface_t &n)
     {
         int randomIndex = randomIndexes[i];
         
-        SNode randomNode = n.outer.graph.nodeFromId(randomIndex);
+        SNode randomNode        = n.outer.graph.nodeFromId(randomIndex);
+        SNode randomInnerNode   = original.inner.graph.nodeFromId(n.outer.correspondence[randomIndex]);
         
         double offsetX, offsetY;
         offsetX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * forceOffsetRange - (forceOffsetRange/2);
         offsetY = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * forceOffsetRange - (forceOffsetRange/2);
-        std::cout << "Offsets: x " << offsetX << ", y: " << offsetY << std::endl;
-        (*n.outer.coords)[randomNode].x += offsetX;
-        (*n.outer.coords)[randomNode].y += offsetY;
-        
+     //   std::cout << "Offsets: x " << offsetX << ", y: " << offsetY << std::endl;
         
         point_t dir(offsetX, offsetY);
         
+        point_t pdir = (*n.outer.coords)[randomNode] + dir;
+        point_t mdir = (*n.outer.coords)[randomNode] - dir;
         
+        (*n.outer.coords)[randomNode] = pdir;
+
+        // We now have the offset of the neighbor in relation to the current state. If we want to know whether
+        // this particular force has stretched or compressed the surface, which will determine whether we multiply
+        // thickness by a value greater or less than than 1, we have to know if the offset point in the outer
+        // surface is closer to or further away from the original's corresponding inner point. This would be easily
+        // determined by looking at both polygons' areas, but since we're not in that realm yet (it belongs to the
+        // probability function) we can just compare the distance of the offset point if the offset were in the opposite
+        // direction.
+        
+        
+        n.thickness             = original.thickness; // What matter is avg thickness
+        double distPdir         = dist(pdir, (*original.inner.coords)[randomInnerNode]);
+        double distMdir         = dist(mdir, (*original.inner.coords)[randomInnerNode]);
+        
+        // If the distance to the inner node is now larger, then the surface will be stretched, otherwise itll be compressed
+        double thicknessDiff = n.thickness[randomIndex]; // Useful for the smoothness routine
+        n.thickness[randomIndex] *= (distPdir > distMdir ? compression : 1/compression);
+        thicknessDiff -= n.thickness[randomIndex];
+        std::cout << "comp: " << compression << ", n.thickness[" << randomIndex << "] set to " << n.thickness[randomIndex] << std::endl;
         // Routine to smooth out neighbour's relationship to current state
         // --------------
-        SNode prev, next; int u = smooth;
+        SNode prev, next; int u = smooth; int prevIndex, nextIndex;
         prev = next = randomNode;
         for (int c = 1; c < u; c++)
         {
             prev = n.outer.graph.source(ListDigraph::InArcIt(n.outer.graph, prev));
             next = n.outer.graph.target(ListDigraph::OutArcIt(n.outer.graph, next));
+            prevIndex = n.outer.graph.id(prev);
+            nextIndex = n.outer.graph.id(next);
             
             float ratio = (float)(u - c)/(u);
             (*n.outer.coords)[prev].x += dir.x * ratio;
             (*n.outer.coords)[prev].y += dir.y * ratio;
+            n.thickness[prevIndex]    -= thicknessDiff * ratio;
             (*n.outer.coords)[next].x += dir.x * ratio;
             (*n.outer.coords)[next].y += dir.y * ratio;
+            n.thickness[nextIndex]    -= thicknessDiff * ratio;
+
         }
     }
 
-    n.thickness = original.thickness; // What matter is avg thickness
     Interfacer::generate_inner_s(n.inner, n.outer, n.thickness);
     Interfacer::generate_bridges(n);
     
@@ -217,13 +241,13 @@ double Optimizer::probability(ThickSurface_t &s, double a0, double &p1, double &
     double res;
     white = calculate_surface_area(s.inner, perimeter);
     gray = absol(calculate_surface_area(s.outer, perimeter) - white);
-    std::cout << "gray: " << gray;
-    std::cout << " a0 = " << a0 << std::endl;
+ //   std::cout << "gray: " << gray;
+ //   std::cout << " a0 = " << a0 << std::endl;
     stretch = absol(a0 - gray);
     p1 = pow(calculate_surface_area(s.outer, perimeter), areaPow);
     p2 = pow((stretch + 1), diffPow); // Stretch is the difference; therefore p2 is raised to the right power here
                                       // We add 1 before raising to ensure the growth is not sublinear from the get-go
-    std::cout << "stretch: " << stretch << "; " << diffMul << " * diff ^ " << diffPow << ": " << p2 << std::endl;
+  //  std::cout << "stretch: " << stretch << "; " << diffMul << " * diff ^ " << diffPow << ": " << p2 << std::endl;
 
     res = areaMul * p1 + diffMul * p2;
     

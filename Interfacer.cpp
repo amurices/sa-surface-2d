@@ -36,7 +36,6 @@ void Interfacer::generate_hull(SurfaceData_t &surf, SurfaceData_t &points)
 	}
 	
 	hullpts = convex_hull(toHull, is);
-	std::cout << "hullpts fun: " << hullpts.size() << std::endl;
 	// Adicionamos um nó ao grafo, e as suas coordenadas ao mapa
 	SNode fnode = surf.graph.addNode();
 	SNode prevToMap = fnode;
