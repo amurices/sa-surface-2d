@@ -167,8 +167,8 @@ void Renderer::render_axes(FTGLPixmapFont &font)
         glVertex2f(0, marker);
         glEnd();
         
-        render_text(font, stringForm, point_t(marker, -0.02), 13);
-        render_text(font, stringForm, point_t (0.0, marker - 0.003), 13);
+       render_text(font, stringForm, point_t(marker, -0.02), 13);
+       render_text(font, stringForm, point_t (0.0, marker - 0.003), 13);
 
     }
 

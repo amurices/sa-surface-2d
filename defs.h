@@ -16,14 +16,16 @@
 #include <cmath>
 #include <utility>
 #include <vector>
+#include <algorithm>
 #include <map>
 
+/*
 #include <CGAL/Cartesian.h>
 #include <CGAL/MP_Float.h>
 #include <CGAL/Quotient.h>
 #include <CGAL/Arr_segment_traits_2.h>
 #include <CGAL/Sweep_line_2_algorithms.h>
-
+*/
 #include <lemon/list_graph.h>
 
 using namespace lemon;
@@ -99,13 +101,13 @@ typedef struct lines_t{
 }lines_t;
 
 // CGAL typedefs
+/*
 typedef CGAL::Quotient<CGAL::MP_Float>      NT;
 typedef CGAL::Cartesian<NT>                 Kernel;
 typedef Kernel::Point_2                     point_cg;
 typedef CGAL::Arr_segment_traits_2<Kernel>  traits_cg;
 typedef traits_cg::Curve_2                  lines_cg;
-
-
+*/
 
 inline std::ostream& operator<<(std::ostream&os, point_t const &p){
     return os << "(" << p.x << ", " << p.y << ")";
@@ -134,8 +136,9 @@ typedef struct SurfaceData_t{                   // _t for type
 } SurfaceData_t;
 
 typedef struct ThickSurface_t{
-    double thickness; // Since we derive thickness from the avg, considering the cerebellum as a sphere-like
-                    // closed surface, we don't need more than one value
+    std::vector<double> thickness; // Upgrading to variable thickness means many things,
+                    // But our new parameter 'compression' allows the known functioning
+                    // of the simulation to persist if we just set it to 1.0.
     
     SurfaceData_t inner;
     SurfaceData_t outer;
@@ -146,5 +149,18 @@ typedef struct ThickSurface_t{
     double scale = 1.0;
     
 } ThickSurface_t;
+
+typedef struct InitSaParams{
+    // Surface params
+    double radius;
+    double thickness;
+    // Optimizer params
+    double scale;
+    int smooth;
+    double diffMul; double diffPow;
+    double areaPow; double areaMul;
+    double multiProb; double forceOffsetRange;
+    double temperature;
+} InitSaParams;
 
 #endif /* defs_h */

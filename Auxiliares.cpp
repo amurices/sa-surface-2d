@@ -29,6 +29,9 @@ double absol(double x)
     return x;
 }
 
+
+
+
 void shift_to_origin(ThickSurface_t &org)
 {
     point_t acc(0,0);
@@ -65,8 +68,6 @@ void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg)
         trg.nNodes = 0;
         trg.nEdges = 0;
         trg.graph.clear();
-    //    std::cout << "yep were here, u fucks" << std::endl;
-    //    delete trg.coords;
     }
     
     SNode	prev, next, last;
@@ -100,11 +101,12 @@ void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg)
         
         pNext = (*org.coords)[next];
         pPrev = (*org.coords)[prev];
-    
+     //   std::cout << "In copy! org: " << (*org.coords)[curr] << std::endl;
         trgCurrToMap = trg.graph.addNode();
         trg.nNodes++;
         (*trg.coords)[trgCurrToMap] = (*org.coords)[curr] - vd;
-        
+     //   std::cout << "In copy! trg: " << (*trg.coords)[curr] << std::endl;
+
         trg.graph.addArc(trgPrevToMap, trgCurrToMap);
         trg.nEdges++;
         trgPrevToMap = trgCurrToMap;

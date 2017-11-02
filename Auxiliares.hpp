@@ -32,6 +32,8 @@ void print_nodes_coordinates(const SurfaceData_t &surf);
 
 void shift_to_origin(ThickSurface_t &org);
 
+
+
 void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg);
 void copy_thick_surface(const ThickSurface_t &org, ThickSurface_t &trg);
 
@@ -44,6 +46,7 @@ void time_b(struct timeval &tvalBefore);
 float time_a(struct timeval &tvalBefore);
 
 int middle(int a, int b, int c);
+
 
 
 #endif /* Auxiliares_hpp */

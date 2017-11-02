@@ -10,8 +10,60 @@
 void Interfacer::generate_random(ThickSurface_t &ts, double perim, int pts, std::vector<point_t> &is)
 {
 	generate_outer_s(ts.outer, perim, pts, is);
-	ts.thickness = 0.02; // placeholder
+	ts.thickness.resize(pts);
+	std::fill(ts.thickness.begin(), ts.thickness.end(), 0.02);
 	generate_inner_s(ts.inner, ts.outer, ts.thickness);
+}
+
+void Interfacer::generate_hull(SurfaceData_t &surf, SurfaceData_t &points)
+{
+	if (surf.nNodes > 0) // Anti-memory leakage
+	{
+		surf.nNodes = 0;
+		surf.nEdges = 0;
+		surf.graph.clear();
+	}
+	
+	
+	
+	std::vector<point_t> hullpts;
+	std::vector<point_t> is;
+	std::vector<point_t> toHull;
+	
+	for (int i = 0; i < points.nNodes; i++)
+	{
+		toHull.push_back((*points.coords)[points.graph.nodeFromId(i)]);
+	}
+	
+	hullpts = convex_hull(toHull, is);
+	std::cout << "hullpts fun: " << hullpts.size() << std::endl;
+	// Adicionamos um nó ao grafo, e as suas coordenadas ao mapa
+	SNode fnode = surf.graph.addNode();
+	SNode prevToMap = fnode;
+	SNode currToMap;
+	
+	surf.nNodes++;
+	( *(surf.coords) )[prevToMap] = point_t(hullpts[0].x, hullpts[0].y);
+	//	std::cout << "Node we're adding: " << (*surf.coords)[prevToMap] << std::endl;
+	
+	for (size_t i = 1; i < hullpts.size(); i++)
+	{
+		// Adicionamos um nó ao grafo, e as suas coordenadas ao mapa
+		currToMap = surf.graph.addNode();
+		surf.nNodes++;
+		(*surf.coords)[currToMap] = point_t(hullpts[i].x, hullpts[i].y);
+		//	std::cout << "Node we're adding: " << (*surf.coords)[currToMap] << std::endl;
+		surf.graph.addArc(prevToMap, currToMap);
+		surf.nEdges++;
+		prevToMap = currToMap;
+	}
+	
+	//	std::cout << "Rn we have " << surf.nNodes << " nodes\n";
+	
+	surf.graph.addArc(prevToMap, fnode);
+	surf.nEdges++;
+	prevToMap = currToMap;
+
 }
 
 void Interfacer::generate_outer_s(SurfaceData_t &surf, double perim, int pts, std::vector<point_t> &is){
@@ -62,7 +114,7 @@ void Interfacer::generate_outer_s(SurfaceData_t &surf, double perim, int pts, st
 	
 }
 
-void Interfacer::generate_inner_s(SurfaceData_t &inner, SurfaceData_t &surf, double thickness)
+void Interfacer::generate_inner_s(SurfaceData_t &inner, SurfaceData_t &surf, std::vector<double> &thickness)
 {
 	if (inner.nNodes > 0) // Anti-memory leakage
 	{
@@ -88,7 +140,7 @@ void Interfacer::generate_inner_s(SurfaceData_t &inner, SurfaceData_t &surf, dou
 
 
 	vd = find_direction_vector(pPrev, pNext, (*surf.coords)[fnode], MEDIAN_ANGLE);	// Pega direção
-	vd *= thickness;
+	vd *= thickness[0];
 	
 	
 	SNode finode = inner.graph.addNode();	// Add node à inner; guarda a referencia ao primeiro no
@@ -113,7 +165,7 @@ void Interfacer::generate_inner_s(SurfaceData_t &inner, SurfaceData_t &surf, dou
 		pPrev = (*surf.coords)[prev];
 		
 		vd = find_direction_vector(pPrev, pNext, (*surf.coords)[curr], MEDIAN_ANGLE);
-		vd *= thickness;
+		vd *= thickness[surf.graph.id(curr)];
 		
 		innerCurrToMap = inner.graph.addNode();
 		inner.nNodes++;
@@ -131,7 +183,7 @@ void Interfacer::generate_inner_s(SurfaceData_t &inner, SurfaceData_t &surf, dou
 	inner.nEdges++;
 }
 
-void Interfacer::update_inner_s(SurfaceData_t &inner,  SurfaceData_t &surf, double thickness)
+void Interfacer::update_inner_s(SurfaceData_t &inner,  SurfaceData_t &surf, std::vector<double> &thickness)
 {
 	SNode	prev, next, last;
 	point_t	pPrev, pNext, pCurr, vd;
@@ -149,7 +201,7 @@ void Interfacer::update_inner_s(SurfaceData_t &inner,  SurfaceData_t &surf, doub
 	
 	
 	vd = find_direction_vector(pPrev, pNext, (*surf.coords)[fnode], MEDIAN_ANGLE);	// Pega direção
-	vd *= thickness;									// proto-thickness
+	vd *= thickness[0];									// First node's thickness
 	
 	
 	SNode finode = inner.graph.nodeFromId(surf.correspondence[0]); // Updating
@@ -170,7 +222,7 @@ void Interfacer::update_inner_s(SurfaceData_t &inner,  SurfaceData_t &surf, doub
 		pPrev = (*surf.coords)[prev];
 		
 		vd = find_direction_vector(pPrev, pNext, (*surf.coords)[curr], MEDIAN_ANGLE);
-		vd *= thickness;
+		vd *= thickness[surf.graph.id(curr)];
 		
 		
 		std::cout << "Correspondence in inner(" << inner.graph.id(innerCurrToMap) << "): " <<inner.correspondence[inner.graph.id(innerCurrToMap)] << std::endl;
@@ -234,8 +286,8 @@ void Interfacer::generate_circle(ThickSurface_t &ts, double radius, double thick
 	ts.outer.nEdges++;
 	prevToMap = currToMap;
 	
-	
-	ts.thickness = thick_ratio * radius; // placeholder
+	ts.thickness.resize(pts);
+	std::fill(ts.thickness.begin(), ts.thickness.end(), thick_ratio * radius); // placeholder
 	generate_inner_s(ts.inner, ts.outer, ts.thickness);
 	generate_bridges(ts);
 }

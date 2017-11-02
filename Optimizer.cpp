@@ -10,6 +10,7 @@
 
 Optimizer::Optimizer(ThickSurface_t & org, MTRand &rng, SurfaceDecoder &dec)
 {
+    gen = 0;
     this->org = &org;
     this->rng = &rng;
     this->dec = &dec;
@@ -17,23 +18,33 @@ Optimizer::Optimizer(ThickSurface_t & org, MTRand &rng, SurfaceDecoder &dec)
 
 Optimizer::Optimizer(ThickSurface_t & org)
 {
+    gen = 0;
     this->org = &org;
 }
 
-void Optimizer::init_SA(double scale, int smooth, double diffMul, double diffPow)
+void Optimizer::init_SA(double scale, int smooth,
+                        double diffMul, double diffPow,
+                        double areaPow, double areaMul,
+                        double multiProb, double forceOffsetRange,
+                        double tempProb, double compression)
 {
-    this->diffPow = diffPow;
-    this->diffMul = diffMul;
-    this->smooth = smooth;
-    this->scale = scale;
-    
+    this->diffPow               = diffPow;
+    this->diffMul               = diffMul;
+    this->areaPow               = areaPow;
+    this->areaMul               = areaMul;
+    this->smooth                = smooth;
+    this->multiProb             = multiProb;
+    this->scale                 = scale;
+    this->forceOffsetRange      = forceOffsetRange;
+    this->tempProb              = tempProb;
+    this->compression           = compression;
+    gen = 0;
     double p;
     
     a0 = calculate_surface_area(org->outer, p) - calculate_surface_area(org->inner, p); // initial gray matter area
     copy_thick_surface(*org, state); // S = S0
     
     // Loop is ready to roll
-
 }
 
 void Optimizer::step_sa()
@@ -47,6 +58,18 @@ void Optimizer::step_sa()
     {
         copy_thick_surface(nghbr, state);
         copy_thick_surface(nghbr, *org);
+    }
+    else if (probN < 10)
+    {
+        double randProb = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX);
+        double diffNS = absol(probN - probS);
+        double prob = (1.0/diffNS < 1.0 ? 1.0/diffNS : 1.0) * ((double)maxT - (double)gen)/(double)maxT * tempProb;
+        std::cout << "\n\nPROB: " << prob << "\n\n";
+        if (prob > randProb)
+        {
+            copy_thick_surface(nghbr, state);
+            copy_thick_surface(nghbr, *org);
+        }
     }
     std::cout << "pN: " << probN << " (" << part1N << " + " << part2N << ")";
     std::cout << "\npS: " << probS << " (" << part1S << " + " << part2S << ")\n"  << std::endl;
@@ -105,7 +128,8 @@ void Optimizer::update_surface_ga(std::vector<double> &sol)
     acc = acc * (1/(double)org->outer.nNodes);
     
     // Reset inner part of surface
-    Interfacer::update_inner_s(org->inner, org->outer, org->thickness);
+    Interfacer::generate_inner_s(org->inner, org->outer, org->thickness);
+ //   Interfacer::update_inner_s(org->inner, org->outer, org->thickness);
     // Reset bridges between outer and inner surfaces
     Interfacer::update_bridges(*org);
     
@@ -138,35 +162,47 @@ void Optimizer::find_intersections(std::vector<point_t> &is)
 void Optimizer::neighbor(ThickSurface_t &original, ThickSurface_t &n)
 {
     copy_surface(original.outer, n.outer);
-    int randomIndex = rand() % n.outer.nNodes;
+    std::vector<int> randomIndexes;
     
+    double flip = 0.0;
+    do{
+        int randomIndex = rand() % n.outer.nNodes;
+        randomIndexes.push_back(randomIndex);
+        flip = static_cast<double>( rand() ) / static_cast<double>(RAND_MAX);
+    } while (flip < this->multiProb);
     
-    SNode randomNode = n.outer.graph.nodeFromId(randomIndex);
-    
-    double offsetX, offsetY;
-    offsetX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.066 - 0.033; // Random values btwn
-    offsetY = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * 0.066 - 0.033; // -0.25 and 0.25
-
-    (*n.outer.coords)[randomNode].x += offsetX;
-    (*n.outer.coords)[randomNode].y += offsetY;
-    
-    point_t dir(offsetX, offsetY);
-    
-    
-    // Routine to smooth out neighbour's relationship to current state
-    // --------------
-    SNode prev, next; int u = smooth;
-    prev = next = randomNode;
-    for (int c = 0; c < u; c++)
+    for (size_t i = 0; i < randomIndexes.size(); i++)
     {
-        prev = n.outer.graph.source(ListDigraph::InArcIt(n.outer.graph, prev));
-        next = n.outer.graph.target(ListDigraph::OutArcIt(n.outer.graph, next));
-
-        float ratio = (float)(u - c)/(u);
-        (*n.outer.coords)[prev].x += dir.x * ratio;
-        (*n.outer.coords)[prev].y += dir.y * ratio;
-        (*n.outer.coords)[next].x += dir.x * ratio;
-        (*n.outer.coords)[next].y += dir.y * ratio;
+        int randomIndex = randomIndexes[i];
+        
+        SNode randomNode = n.outer.graph.nodeFromId(randomIndex);
+        
+        double offsetX, offsetY;
+        offsetX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * forceOffsetRange - (forceOffsetRange/2);
+        offsetY = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) * forceOffsetRange - (forceOffsetRange/2);
+        std::cout << "Offsets: x " << offsetX << ", y: " << offsetY << std::endl;
+        (*n.outer.coords)[randomNode].x += offsetX;
+        (*n.outer.coords)[randomNode].y += offsetY;
+        
+        
+        point_t dir(offsetX, offsetY);
+        
+        
+        // Routine to smooth out neighbour's relationship to current state
+        // --------------
+        SNode prev, next; int u = smooth;
+        prev = next = randomNode;
+        for (int c = 1; c < u; c++)
+        {
+            prev = n.outer.graph.source(ListDigraph::InArcIt(n.outer.graph, prev));
+            next = n.outer.graph.target(ListDigraph::OutArcIt(n.outer.graph, next));
+            
+            float ratio = (float)(u - c)/(u);
+            (*n.outer.coords)[prev].x += dir.x * ratio;
+            (*n.outer.coords)[prev].y += dir.y * ratio;
+            (*n.outer.coords)[next].x += dir.x * ratio;
+            (*n.outer.coords)[next].y += dir.y * ratio;
+        }
     }
 
     n.thickness = original.thickness; // What matter is avg thickness
@@ -184,17 +220,22 @@ double Optimizer::probability(ThickSurface_t &s, double a0, double &p1, double &
     std::cout << "gray: " << gray;
     std::cout << " a0 = " << a0 << std::endl;
     stretch = absol(a0 - gray);
-    p1 = calculate_surface_area(s.outer, perimeter);
-    p2 = diffMul * pow((stretch + 1), diffPow);
+    p1 = pow(calculate_surface_area(s.outer, perimeter), areaPow);
+    p2 = pow((stretch + 1), diffPow); // Stretch is the difference; therefore p2 is raised to the right power here
+                                      // We add 1 before raising to ensure the growth is not sublinear from the get-go
     std::cout << "stretch: " << stretch << "; " << diffMul << " * diff ^ " << diffPow << ": " << p2 << std::endl;
 
-    res = p1 + p2;
+    res = areaMul * p1 + diffMul * p2;
     
     std::vector<SurfaceData_t*> surfaces;
     std::vector<point_t> inters;
 
     surfaces.push_back(&s.outer);
     surfaces.push_back(&s.inner);
+    if (innerCircle != NULL)
+        surfaces.push_back(&innerCircle->outer);
+    if (outerCircle != NULL)
+        surfaces.push_back(&outerCircle->outer);
     
     int intsOuter = find_surface_intersections(surfaces, inters);
     res += 100000 * intsOuter;  // Intersection prevention
@@ -209,6 +250,7 @@ void Optimizer::evolve_sa(int kMax, bool time)
     {
         time_b(timer);
         step_sa();
+        gen = k;
         std::cout << "K = " << k << " and time: " << time_a(timer) << std::endl;
 
     }

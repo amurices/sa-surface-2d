@@ -17,6 +17,9 @@ double SurfaceDecoder::decode(const std::vector< double >& chromosome) const {
     int count = 0;
     for (ListDigraph::NodeIt no(thickGen.outer.graph); no != INVALID; ++no)
     {
+     //   std::cout << "from org: " << (*org->outer.coords)[org->outer.graph.nodeFromId(count)] << std::endl;
+     //   std::cout << "from thickGen: " << (*thickGen.outer.coords)[thickGen.outer.graph.nodeFromId(count)] << std::endl;
+
         (*thickGen.outer.coords)[no].x += chromosome[count];
         (*thickGen.outer.coords)[no].y += chromosome[count + chromosome.size() * 0.5];
         count++;
@@ -33,7 +36,6 @@ double SurfaceDecoder::decode(const std::vector< double >& chromosome) const {
     std::vector<SurfaceData_t*> surfaces;
     surfaces.push_back(&thickGen.outer);
     surfaces.push_back(&thickGen.inner);
-    surfaces.push_back(&thickGen.bridges);
     
     int intsOuter = find_surface_intersections(surfaces, inters);
     res += 100000 * intsOuter;

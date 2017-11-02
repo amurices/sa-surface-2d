@@ -232,7 +232,7 @@ std::vector<point_t> convex_hull(std::vector<point_t> P, std::vector<point_t> &i
     }
     
     H.resize(k-1);
-    
+    return H;
     std::vector<point_t> conc = concave_hull(H, P, 1, is);
 /*    std::cout << "Concave edges:\n";
     for (size_t jarel = 0; jarel < conc.size(); jarel++)
@@ -427,7 +427,6 @@ int find_surface_intersections(const std::vector<SurfaceData_t*>& xs, std::vecto
                     
                     lines_t ediL((*xs[j]->coords)[xs[j]->graph.source(edi)], (*xs[j]->coords)[xs[j]->graph.target(edi)]);
                     lines_t edL((*xs[i]->coords)[xs[i]->graph.source(ed)], (*xs[i]->coords)[xs[i]->graph.target(ed)]);
-                    
                     if (find_lines_intersection(ediL, edL, where))
                     {
                         is.push_back(where);
@@ -439,7 +438,6 @@ int find_surface_intersections(const std::vector<SurfaceData_t*>& xs, std::vecto
         }
     }
  //   std::cout << "Time to find is: " << time_a(timer) << " with brutish" << std::endl;
-
     return count;
     
 }

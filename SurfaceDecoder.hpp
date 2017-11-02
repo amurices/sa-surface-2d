@@ -12,7 +12,7 @@
 #include <iostream>
 #include <vector>
 #include <list>
-#include "Interfacer.hpp"
+#include "Auxiliares.hpp"
 #include "Geometry.hpp"
 
 class SurfaceDecoder {

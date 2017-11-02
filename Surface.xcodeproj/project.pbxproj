@@ -7,10 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4C3321031EE746AF00E657A2 /* libCGAL.12.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C3321021EE746AF00E657A2 /* libCGAL.12.0.0.dylib */; };
+		4C3321031EE746AF00E657A2 /* libCGAL.12.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C3321021EE746AF00E657A2 /* libCGAL.12.0.0.dylib */; settings = {ATTRIBUTES = (Weak, ); }; };
 		4C3321061EE8B0F500E657A2 /* Optimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CF835371EB0F81D00F69F23 /* Optimizer.cpp */; };
 		4C3321081EE8B1D700E657A2 /* Population.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C3321071EE8B1D700E657A2 /* Population.cpp */; };
 		4C5DFBB21E70C0AA00A405A6 /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C5DFBB01E70C0AA00A405A6 /* Renderer.cpp */; };
+		4C6216AD1F9CF496004753A9 /* libhdf5.101.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C6216AC1F9CF496004753A9 /* libhdf5.101.dylib */; };
 		4C640CE81E6CA74500DEB3F5 /* Geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C640CE61E6CA74500DEB3F5 /* Geometry.cpp */; };
 		4C65EF851E2D91790077373A /* libga.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C65EF841E2D91790077373A /* libga.a */; };
 		4C65EF881E2D99590077373A /* Auxiliares.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C65EF861E2D99590077373A /* Auxiliares.cpp */; };
@@ -46,6 +47,7 @@
 		4C3321091EE8B26400E657A2 /* BRKGA.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BRKGA.cpp; path = Outsiders/brkga/BRKGA.cpp; sourceTree = "<group>"; };
 		4C5DFBB01E70C0AA00A405A6 /* Renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Renderer.cpp; sourceTree = SOURCE_ROOT; };
 		4C5DFBB11E70C0AA00A405A6 /* Renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = SOURCE_ROOT; };
+		4C6216AC1F9CF496004753A9 /* libhdf5.101.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libhdf5.101.dylib; path = ../../../../usr/local/Cellar/hdf5/1.10.1_2/lib/libhdf5.101.dylib; sourceTree = "<group>"; };
 		4C640CE61E6CA74500DEB3F5 /* Geometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Geometry.cpp; sourceTree = SOURCE_ROOT; };
 		4C640CE71E6CA74500DEB3F5 /* Geometry.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Geometry.hpp; sourceTree = SOURCE_ROOT; };
 		4C65EF841E2D91790077373A /* libga.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libga.a; path = ../../../../usr/local/Cellar/galib/247/lib/libga.a; sourceTree = "<group>"; };
@@ -82,6 +84,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C6216AD1F9CF496004753A9 /* libhdf5.101.dylib in Frameworks */,
 				4C3321031EE746AF00E657A2 /* libCGAL.12.0.0.dylib in Frameworks */,
 				4C9EDCEE1E7FF2BC00551A66 /* libftgl.a in Frameworks */,
 				4CC4E3F41E7F361600672939 /* libfreetype.a in Frameworks */,
@@ -139,6 +142,7 @@
 		4CA22A531E1B418F00AD258A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4C6216AC1F9CF496004753A9 /* libhdf5.101.dylib */,
 				4C3321021EE746AF00E657A2 /* libCGAL.12.0.0.dylib */,
 				4C9EDCED1E7FF2BC00551A66 /* libftgl.a */,
 				4CC4E3F31E7F361600672939 /* libfreetype.a */,
@@ -343,6 +347,7 @@
 					"\"$(SRCROOT)/../matio-1.5.10/src\"",
 					"/usr/local/Cellar/ftgl/2.1.3-rc5/lib",
 					/usr/local/Cellar/cgal/4.9.1/lib,
+					/usr/local/Cellar/hdf5/1.10.1_2/lib,
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				OTHER_LDFLAGS = "-v";
@@ -364,6 +369,7 @@
 					"\"$(SRCROOT)/../matio-1.5.10/src\"",
 					"/usr/local/Cellar/ftgl/2.1.3-rc5/lib",
 					/usr/local/Cellar/cgal/4.9.1/lib,
+					/usr/local/Cellar/hdf5/1.10.1_2/lib,
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				OTHER_LDFLAGS = "-v";
