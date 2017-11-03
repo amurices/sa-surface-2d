@@ -340,6 +340,8 @@ void Interfacer::get_from_matlab(SurfaceData_t &surf, const char* matFile)
 	//don't forget to close file with Mat_Close(matfp);
 	Mat_Close(matfp);
 	*/
+	
+	/* Commenting this out after cleansing our libraries linked. MatIO was amongst the purged.
 	mat_t		*thisMat;
 	matvar_t	*matvar;
 	
@@ -353,6 +355,7 @@ void Interfacer::get_from_matlab(SurfaceData_t &surf, const char* matFile)
 		Mat_VarPrint(matvar, 1);
 		Mat_VarFree(matvar);
 	}
+	 */
 }
 
 void Interfacer::get_from_ttf(FTGLPixmapFont *fonti, const char* ttfFile)

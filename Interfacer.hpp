@@ -9,7 +9,7 @@
 #ifndef Interfacer_hpp
 #define Interfacer_hpp
 
-#include <matio.h> // biblioteca de i/o pra .mat
+// #include <matio.h> We commented MatIO out because we're trying to purge our dependencies a little
 #include <FTGL/ftgl.h> // Para carregar fontes
 
 #include "defs.h"

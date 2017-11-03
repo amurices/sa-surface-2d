@@ -18,14 +18,6 @@
 #include <vector>
 #include <algorithm>
 #include <map>
-
-/*
-#include <CGAL/Cartesian.h>
-#include <CGAL/MP_Float.h>
-#include <CGAL/Quotient.h>
-#include <CGAL/Arr_segment_traits_2.h>
-#include <CGAL/Sweep_line_2_algorithms.h>
-*/
 #include <lemon/list_graph.h>
 
 using namespace lemon;

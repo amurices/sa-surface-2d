@@ -15,13 +15,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <lemon/list_graph.h>
-/*
-#include <CGAL/Cartesian.h>
-#include <CGAL/MP_Float.h>
-#include <CGAL/Quotient.h>
-#include <CGAL/Arr_segment_traits_2.h>
-#include <CGAL/Sweep_line_2_algorithms.h>
-*/
 #include "Auxiliares.hpp"
 #include "Renderer.hpp"
 #include "Optimizer.hpp"
