@@ -42,9 +42,9 @@ void shift_to_origin(ThickSurface_t &org)
         count++;
         acc = acc + (*org.outer.coords)[no];
     }
-    
+
     acc = acc * (1/(double)org.outer.nNodes);
-    
+
     // Shift points to origin
     for (ListDigraph::NodeIt no(org.outer.graph); no != INVALID; ++no)
     {
@@ -69,21 +69,21 @@ void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg)
         trg.nEdges = 0;
         trg.graph.clear();
     }
-    
+
     SNode	prev, next, last;
     point_t	pPrev, pNext, pCurr, vd;
-    
+
     SNode fnode		= org.graph.nodeFromId(0);				// fnode = P0
 
     ListDigraph::InArcIt	inCurrI(org.graph, fnode);		// get Pn
     ListDigraph::OutArcIt	outCurrI(org.graph, fnode);     // and P1
-    
+
     prev = org.graph.source(inCurrI);		// cont ^
     next = org.graph.target(outCurrI);		// cont ^
-    
+
     pNext = (*org.coords)[next];			// get coordinates Pn
     pPrev = (*org.coords)[prev];			// and P0
-    
+
     SNode finode = trg.graph.addNode();                 // Add node à inner; guarda a referencia ao primeiro no
     SNode trgCurrToMap = finode;                        // Primeiro no agora é o atual
     trg.nNodes++;                                       // incrementa no. de nós
@@ -92,13 +92,13 @@ void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg)
     SNode curr;
     for (curr = next; curr != fnode; curr = next)
     {
-        
+
         ListDigraph::OutArcIt	outCurr(org.graph, curr);
         ListDigraph::InArcIt	inCurr(org.graph, curr);
-        
+
         next = org.graph.target(outCurr);
         prev = org.graph.source(inCurr);
-        
+
         pNext = (*org.coords)[next];
         pPrev = (*org.coords)[prev];
      //   std::cout << "In copy! org: " << (*org.coords)[curr] << std::endl;
@@ -111,7 +111,11 @@ void copy_surface(const SurfaceData_t &org, SurfaceData_t &trg)
         trg.nEdges++;
         trgPrevToMap = trgCurrToMap;
     }
-    
+/*    std::cout << "Before copy:\n";
+    print_nodes_coordinates(org);
+    std::cout << "After copy:\n";
+    print_nodes_coordinates(trg);
+    */
     trg.graph.addArc(trgPrevToMap, finode);
     trg.nEdges++;
 }
@@ -148,7 +152,7 @@ void print_nodes_coordinates(const SurfaceData_t &surf)
     int count = 0;
     for (ListDigraph::NodeIt ne(surf.graph); ne != INVALID; ++ne)
     {
-        std::cout << count << ":\t " << (*surf.coords)[ne] << std::endl;
+        std::cout << surf.graph.id(ne) << ":\t " << (*surf.coords)[ne] << std::endl;
         count++;
     }
 }
@@ -175,5 +179,3 @@ int middle(int a, int b, int c) {
     if ( a <= c && c <= b ) return 1;
     return 0;
 }
-
-

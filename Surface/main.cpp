@@ -15,9 +15,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <lemon/list_graph.h>
-#include "Auxiliares.hpp"
-#include "Renderer.hpp"
-#include "Optimizer.hpp"
+#include "../Auxiliares.hpp"
+#include "../Renderer.hpp"
+#include "../Optimizer.hpp"
 
 // Interesting hyperparams to us:
 // Number of points;
@@ -30,15 +30,15 @@
 /// (free nrg, smoothness)              - thickness fixed on N values: N plots
 /// (free nrg, gray area / perimeter)   - smoothness fixed on N values: N x N plots
 
-const int NUM_POINTS = 200;
-const int NUM_GENS = 6500;
-const int NUM_SMOOTH = 10;
+const int NUM_POINTS = 10;
+const int NUM_GENS = 100;
+const int NUM_SMOOTH = 3;
 
-const int numTests = 20;
+const int numTests = 1;
 const int numFixed = 3;
 const int numParams = 2;
 
-const int smoothVar = 8;
+const int smoothVar = 2;
 const double thicknessVar = 0.1;
 const double RADIUS = 0.75;
 const double THICKNESS = 0.05;
@@ -62,45 +62,68 @@ int main(int argc, char** args) {
     ThickSurface_t nghbr;
 
     SurfaceData_t hull; // To hold the "exposed" surface and eventually calculate foldedness
-    
+
     ofstream output;
     ofstream output_t;
     ifstream input; // File holding simulation parameters
     input.open("input.txt");
     std::string inputReader;
-    
+
     InitSaParams params;
     getline(input, inputReader);
     params.radius           = atof(inputReader.c_str());
+    std::cout << params.radius << std::endl;
     getline(input, inputReader);
     params.thickness        = atof(inputReader.c_str());
+    std::cout << params.thickness << std::endl;
+
     getline(input, inputReader);
     params.scale            = atof(inputReader.c_str());
+    std::cout << params.scale << std::endl;
+
     getline(input, inputReader);
     params.smooth           = atoi(inputReader.c_str());
+    std::cout << params.smooth << std::endl;
+
     getline(input, inputReader);
     params.diffMul          = atof(inputReader.c_str());
+    std::cout << params.diffMul << std::endl;
+
     getline(input, inputReader);
     params.diffPow          = atof(inputReader.c_str());
+    std::cout << params.diffPow << std::endl;
+
     getline(input, inputReader);
     params.areaMul          = atof(inputReader.c_str());
+    std::cout << params.areaMul << std::endl;
+
     getline(input, inputReader);
     params.areaPow          = atof(inputReader.c_str());
     getline(input, inputReader);
+    std::cout << params.areaPow << std::endl;
+
     params.multiProb        = atof(inputReader.c_str());
     getline(input, inputReader);
+    std::cout << params.multiProb << std::endl;
+
     params.forceOffsetRange = atof(inputReader.c_str());
+    std::cout << params.forceOffsetRange << std::endl;
+
     getline(input, inputReader);
     params.temperature      = atof(inputReader.c_str());
+    std::cout << params.temperature << std::endl;
+
     getline(input, inputReader);
     params.compression      = atof(inputReader.c_str());
-    
+    std::cout << params.compression << std::endl;
+
+
     bool multiTests = false;
-    
+
     vector<ThickSurface_t> myThickSurfaces(numTests * numFixed * numParams);
     vector<Optimizer*> optimizers(numTests * numFixed * numParams);
-    
-    
+
+
     std::vector<point_t> is;    // container to hold intersections
     /*
     InitSaParams params;
@@ -120,28 +143,28 @@ int main(int argc, char** args) {
     init_optimizers(NULL, optimizers, NULL, myThickSurfaces, params, true, is, &innerCircle);
 
     Interfacer::generate_circle(innerCircle, RADIUS * 0.45, 0.13, NUM_POINTS, is);
-    
-    
+
+
     // Testing variable thickness, fixed smoothness
- 
-    FTGLPixmapFont fonti("/Library/Fonts/Arial.ttf");      // Load .ttf file to memory
-    
+
+    FTGLPixmapFont fonti("/usr/share/fonts/truetype/ancient-scripts/Symbola_hint.ttf");      // Load .ttf file to memory
+
     point_t mousePos;                                      // Mouse position for (minimal) input handling
-    
+
     Renderer        myRenderer; // Renderer instance (so it can store some loop-related stuff transparently)
     int init =      myRenderer.initWindow();    // glfw window wrapper
     // -----------------------------------------
-    
-    
+
+
     // Error-handling calls:
     // -----------------------------------------
     myRenderer.handle(init);                // Window initialization handling
     if(fonti.Error()) exit(EXIT_FAILURE);   // Font loading handling
     // -----------------------------------------
-    
+
     double Ae = 0;
     double At = 0;
-    
+
     // Rendering loop below:
     // -----------------------------------------
     int count = 0; int currentThick = 0;
@@ -154,11 +177,11 @@ int main(int argc, char** args) {
     {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-      //  glMatrixMode(GL_PROJECTION);
-      //  glLoadIdentity();
-      //  glOrtho(0.0, 0, 0, 0.0, -1.0, 1.0);
-      //  glMatrixMode(GL_MODELVIEW);
-      //  glLoadIdentity();
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0.0, 0, 0, 0.0, -1.0, 1.0);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
 
         if (!pause && count < NUM_GENS)
         {
@@ -167,7 +190,7 @@ int main(int argc, char** args) {
             optimizers[currentThick]->step_sa();
             count++;
         }
-        
+
         else if (count >= NUM_GENS)
         {
             Interfacer::generate_hull(hull, optimizers[currentThick]->org->outer);
@@ -181,7 +204,7 @@ int main(int argc, char** args) {
             count++;
             myRenderer.render_surface(hull, triple_t (0.6, 0.6, 1.0));
         }
-        
+
         // Compile these later into a hyperparam struct. We want:
         char gen[16];   // Gen number
         char nrg[16];   // free energy (outer area + (diffMul * stretch ^ diffPow))
@@ -201,7 +224,7 @@ int main(int argc, char** args) {
         std::sprintf(prm, "prm %.7f", optimizers[currentThick]->perimeter);
         std::sprintf(thk, "thk %.7f", (optimizers[currentThick]->org->thickness)[0]);
         std::sprintf(smt, "smt %d", optimizers[currentThick]->smooth);
-     
+
      /*   std::sprintf(gen, "gen %d", count);
         std::sprintf(nrg, "nrg %.7f", opt.energy);
         std::sprintf(wht, "wht %.7f", opt.white);
@@ -211,7 +234,7 @@ int main(int argc, char** args) {
         std::sprintf(thk, "thk %.7f", opt.org->thickness);
         std::sprintf(smt, "smt %d", opt.smooth);
       */
-        
+
         output_t << gen << endl;
         output_t << nrg << endl;
         output_t << wht << endl;
@@ -242,8 +265,8 @@ int main(int argc, char** args) {
             if (currentThick >= optimizers.size())
                 break;
         }
-        
-  
+
+
         myRenderer.render_text(fonti, gen, point_t(-1, 0.76), 34);
         myRenderer.render_text(fonti, nrg, point_t(-1, 0.71), 34);
         myRenderer.render_text(fonti, wht, point_t(-1, 0.66), 34);
@@ -268,21 +291,21 @@ int main(int argc, char** args) {
     //    myRenderer.render_surface(nghbr.outer, triple_t (0.0, .5, 1.0));
      //   myRenderer.render_surface(nghbr.inner, triple_t (0.7, 0.9, 0.0));
     //    myRenderer.render_surface(nghbr.bridges, triple_t (0.3, 0.3, 0.9));
-        
-        
+
+
     //    myRenderer.render_intersections(is);
-        
+
         // ----------------------------------------------------
         // Input processing and Conditional rendering below:
         // ----------------------------------------------------
         if (slowMo)
             if (pause == false) pause = true;
-        
+
         glfwGetCursorPos(myRenderer.window, &mousePos.x, &mousePos.y);
         mousePos.x = mousePos.x * (2.0 / myRenderer.wWidth) - 1;
         mousePos.y = myRenderer.wHeight - mousePos.y;
         mousePos.y = mousePos.y * (2.0 / myRenderer.wHeight) - 1;
-        
+
         int space_state = glfwGetKey(myRenderer.window, GLFW_KEY_SPACE);
         int j_state = glfwGetKey(myRenderer.window, GLFW_KEY_J);
         if (space_state == GLFW_PRESS)
@@ -306,7 +329,7 @@ int main(int argc, char** args) {
         {
             wasDown = false;
         }
-        
+
         // Press J key to enter slow-mo mode; one iteration at a time
         if (j_state == GLFW_PRESS)
         {
@@ -320,31 +343,31 @@ int main(int argc, char** args) {
         }
         else
             jWasDown = false;
-        
+
         // ----------------------------------------------------
         // ----------------------------------------------------
         // ----------------------------------------------------
 
-        /*
-        for (ListDigraph::NodeIt no(opt.org->outer.graph); no != INVALID; ++no)
+
+        for (ListDigraph::NodeIt no(optimizers[currentThick]->org->outer.graph); no != INVALID; ++no)
         {
             int rendering = 0;
-            if (dist(mousePos, (*opt.org->outer.coords)[ no ]) < 0.05 && rendering < 1)
+            if (dist(mousePos, (*optimizers[currentThick]->org->outer.coords)[ no ]) < 0.05 && rendering < 1)
             {
                 rendering++;
                 char nodeinfo[32];
                 sprintf(nodeinfo, "%d: %.3f,%.3f",
-                        opt.org->outer.graph.id(no),
-                        (*opt.org->outer.coords)[no].x,
-                        (*opt.org->outer.coords)[no].y);
-                myRenderer.render_node(no, opt.org->outer, triple_t (1.0, 0.0, 1.0));
-                myRenderer.render_text(fonti, nodeinfo, (*opt.org->outer.coords)[no] + point_t(0.05, 0.05), 18);
-                
-                myRenderer.render_node(opt.org->inner.graph.nodeFromId(opt.org->outer.correspondence[opt.org->outer.graph.id(no)]), opt.org->inner, triple_t (0.7, 0.7, 0.3));
-                
+                        optimizers[currentThick]->org->outer.graph.id(no),
+                        (*optimizers[currentThick]->org->outer.coords)[no].x,
+                        (*optimizers[currentThick]->org->outer.coords)[no].y);
+                myRenderer.render_node(no, optimizers[currentThick]->org->outer, triple_t (1.0, 0.0, 1.0));
+                myRenderer.render_text(fonti, nodeinfo, (*optimizers[currentThick]->org->outer.coords)[no] + point_t(0.05, 0.05), 18);
+
+                myRenderer.render_node(optimizers[currentThick]->org->inner.graph.nodeFromId(optimizers[currentThick]->org->outer.correspondence[optimizers[currentThick]->org->outer.graph.id(no)]), optimizers[currentThick]->org->inner, triple_t (0.7, 0.7, 0.3));
+
             }
         }
-        */
+
         glfwSwapBuffers(myRenderer.window);
         glfwPollEvents();
     }
@@ -352,7 +375,7 @@ int main(int argc, char** args) {
     output_t.close();
     glfwTerminate();
     exit(EXIT_SUCCESS);
-   
+
     return 0;
 }
 
@@ -373,7 +396,7 @@ void init_optimizers(Optimizer *opt,        std::vector<Optimizer*> &opts,
                          params.multiProb, params.forceOffsetRange, params.temperature, params.compression);
         opts[i]->innerCircle = innerCircle;
      //   opts[i]->init_SA(0.1, NUM_SMOOTH, 1, 2); // Why does increasing Pow decrease pS?
-        
+
         Interfacer::generate_circle(thicks[i+numTests], params.radius, thicknessVar * (i + 1), NUM_POINTS, is);
         opts[i+numTests] = new Optimizer(thicks[i+numTests]);
         opts[i+numTests]->init_SA(params.scale, NUM_SMOOTH + smoothVar,
@@ -383,7 +406,7 @@ void init_optimizers(Optimizer *opt,        std::vector<Optimizer*> &opts,
         opts[i+numTests]->innerCircle = innerCircle;
 
     //    opts[i+numTests]->init_SA(0.1, NUM_SMOOTH + smoothVar, 1, 2); // Why does increasing Pow decrease pS?
-        
+
         Interfacer::generate_circle(thicks[i+2*numTests], params.radius, thicknessVar * (i + 1), NUM_POINTS, is);
         opts[i+2*numTests] = new Optimizer(thicks[i+2*numTests]);
         opts[i+2*numTests]->init_SA(params.scale, NUM_SMOOTH + 2*smoothVar,
@@ -394,7 +417,7 @@ void init_optimizers(Optimizer *opt,        std::vector<Optimizer*> &opts,
 
     //    opts[i+2*numTests]->init_SA(0.1, NUM_SMOOTH + 2*smoothVar, 1, 2); // Why does increasing Pow decrease pS?
     }
-    
+
     // Testing variable smoothness, fixed thickness
     for (int i = numTests * numFixed; i < numTests * (numFixed + 1); i++)
     {
@@ -407,7 +430,7 @@ void init_optimizers(Optimizer *opt,        std::vector<Optimizer*> &opts,
                          params.temperature, params.compression);
         opts[i]->innerCircle = innerCircle;
     //   opts[i]->init_SA(0.1, NUM_SMOOTH - 2 + i - (numTests * numFixed), 1, 2); // Why does increasing Pow decrease pS?
-        
+
         Interfacer::generate_circle(thicks[i+numTests], params.radius, 0.15, NUM_POINTS, is);
         opts[i+numTests] = new Optimizer(thicks[i+numTests]);
         opts[i+numTests]->init_SA(params.scale, NUM_SMOOTH - 2 + i - (numTests * numFixed),
@@ -417,7 +440,7 @@ void init_optimizers(Optimizer *opt,        std::vector<Optimizer*> &opts,
         opts[i+numTests]->innerCircle = innerCircle;
 
      //   opts[i+numTests]->init_SA(0.1, NUM_SMOOTH - 2 + i - (numTests * numFixed), 1, 2); // Why does increasing Pow decrease pS?
-        
+
         Interfacer::generate_circle(thicks[i+2*numTests], params.radius, 0.25, NUM_POINTS, is);
         opts[i+2*numTests] = new Optimizer(thicks[i+2*numTests]);
         opts[i+2*numTests]->init_SA(params.scale, NUM_SMOOTH - 2 + i - (numTests * numFixed),
@@ -428,7 +451,7 @@ void init_optimizers(Optimizer *opt,        std::vector<Optimizer*> &opts,
 
      //   opts[i+2*numTests]->init_SA(0.1, NUM_SMOOTH - 2 + i - (numTests * numFixed), 1, 2); // Why does increasing Pow decrease pS?
     }
-    
+
 }
 
 /*
@@ -444,13 +467,13 @@ void init_optimizers(Optimizer *opt,        std::vector<Optimizer*> &opts,
  const double rhoe = 0.70;    // probability that offspring inherit an allele from elite parent
  const unsigned K = 3;        // number of independent populations
  const unsigned MAXT = 1;    // number of threads for parallel decoding
- 
+
  SurfaceDecoder decoder;            // initialize the decoder
- 
+
  const long unsigned rngSeed = 0;    // seed to the random number generator
  MTRand rng(rngSeed);                // initialize the random number generator
- 
- 
+
+
  decoder.org = &myThickSurf;
  Optimizer opt(myThickSurf, rng, decoder);
  opt.init_GA(p, pe, pm, rhoe, K, MAXT, 100, 2, 800);

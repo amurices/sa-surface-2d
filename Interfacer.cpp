@@ -23,28 +23,28 @@ void Interfacer::generate_hull(SurfaceData_t &surf, SurfaceData_t &points)
 		surf.nEdges = 0;
 		surf.graph.clear();
 	}
-	
-	
-	
+
+
+
 	std::vector<point_t> hullpts;
 	std::vector<point_t> is;
 	std::vector<point_t> toHull;
-	
+
 	for (int i = 0; i < points.nNodes; i++)
 	{
 		toHull.push_back((*points.coords)[points.graph.nodeFromId(i)]);
 	}
-	
+
 	hullpts = convex_hull(toHull, is);
 	// Adicionamos um nó ao grafo, e as suas coordenadas ao mapa
 	SNode fnode = surf.graph.addNode();
 	SNode prevToMap = fnode;
 	SNode currToMap;
-	
+
 	surf.nNodes++;
 	( *(surf.coords) )[prevToMap] = point_t(hullpts[0].x, hullpts[0].y);
 	//	std::cout << "Node we're adding: " << (*surf.coords)[prevToMap] << std::endl;
-	
+
 	for (size_t i = 1; i < hullpts.size(); i++)
 	{
 		// Adicionamos um nó ao grafo, e as suas coordenadas ao mapa
@@ -56,9 +56,9 @@ void Interfacer::generate_hull(SurfaceData_t &surf, SurfaceData_t &points)
 		surf.nEdges++;
 		prevToMap = currToMap;
 	}
-	
+
 	//	std::cout << "Rn we have " << surf.nNodes << " nodes\n";
-	
+
 	surf.graph.addArc(prevToMap, fnode);
 	surf.nEdges++;
 	prevToMap = currToMap;
@@ -68,26 +68,26 @@ void Interfacer::generate_hull(SurfaceData_t &surf, SurfaceData_t &points)
 void Interfacer::generate_outer_s(SurfaceData_t &surf, double perim, int pts, std::vector<point_t> &is){
 	std::vector<point_t> pointsCluster;
 	std::vector<point_t> pointsSurface;
-	
+
 	for (size_t i = 0; i < pts; i++)
 	{
 		double randX = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) - 0.5;
 		double randY = static_cast<double>( rand() )/ static_cast<double> (RAND_MAX) - 0.5;
-		
+
 		// Digamos que o cluster de pontos seja organizado numa área de metade do perímetro
 		randX *= 0.5 * perim; randY *= 0.5 * perim;
-		
+
 		// Empurramos cada ponto do cluster a um vetor
 		pointsCluster.push_back(point_t(randX, randY));
 	}
 
 	pointsSurface = convex_hull(pointsCluster, is);
-	
+
 	// Adicionamos um nó ao grafo, e as suas coordenadas ao mapa
 	SNode fnode = surf.graph.addNode();
 	SNode prevToMap = fnode;
 	SNode currToMap;
-	
+
 	surf.nNodes++;
 	( *(surf.coords) )[prevToMap] = point_t(pointsSurface[0].x, pointsSurface[0].y);
 //	std::cout << "Node we're adding: " << (*surf.coords)[prevToMap] << std::endl;
@@ -103,14 +103,14 @@ void Interfacer::generate_outer_s(SurfaceData_t &surf, double perim, int pts, st
 		surf.nEdges++;
 		prevToMap = currToMap;
 	}
-	
+
 //	std::cout << "Rn we have " << surf.nNodes << " nodes\n";
-	
+
 	surf.graph.addArc(prevToMap, fnode);
 	surf.nEdges++;
 	prevToMap = currToMap;
-	
-	
+
+
 }
 
 void Interfacer::generate_inner_s(SurfaceData_t &inner, SurfaceData_t &surf, std::vector<double> &thickness)
@@ -121,63 +121,63 @@ void Interfacer::generate_inner_s(SurfaceData_t &inner, SurfaceData_t &surf, std
 		inner.nEdges = 0;
 		inner.graph.clear();
 	}
-	
-	
+
+
 	SNode	prev, next, last;
 	point_t	pPrev, pNext, pCurr, vd;
 
 	SNode fnode		= surf.graph.nodeFromId(0);				// fnode = P0
-	
+
 	ListDigraph::InArcIt	inCurrI(surf.graph, fnode);		// get Pn
 	ListDigraph::OutArcIt	outCurrI(surf.graph, fnode);	// and P1
-	
+
 	prev = surf.graph.source(inCurrI);		// cont ^
 	next = surf.graph.target(outCurrI);		// cont ^
-	
+
 	pNext = (*surf.coords)[next];			// get coordinates Pn
 	pPrev = (*surf.coords)[prev];			// and P0
 
 
 	vd = find_direction_vector(pPrev, pNext, (*surf.coords)[fnode], MEDIAN_ANGLE);	// Pega direção
 	vd *= thickness[0];
-	
-	
+
+
 	SNode finode = inner.graph.addNode();	// Add node à inner; guarda a referencia ao primeiro no
 	SNode innerCurrToMap = finode;			// Primeiro no agora é o atual
 	inner.nNodes++;							// incrementa no. de nós
 	(*inner.coords)[innerCurrToMap] = (*surf.coords)[fnode] - vd;	// seta coordenadas
 	SNode innerPrevToMap = innerCurrToMap;							// prev agora é o atual
-	
+
 	inner.correspondence[inner.graph.id(finode)] = surf.graph.id(fnode);		// Set
 	surf.correspondence[surf.graph.id(fnode)] = inner.graph.id(finode);		// Correspondences
-	
+
 	SNode curr; int count = 0;
 	for (curr = next; curr != fnode; curr = next)
 	{
 		ListDigraph::OutArcIt	outCurr(surf.graph, curr);
 		ListDigraph::InArcIt	inCurr(surf.graph, curr);
-	
+
 		next = surf.graph.target(outCurr);
 		prev = surf.graph.source(inCurr);
-		
+
 		pNext = (*surf.coords)[next];
 		pPrev = (*surf.coords)[prev];
-		
+
 		vd = find_direction_vector(pPrev, pNext, (*surf.coords)[curr], MEDIAN_ANGLE);
 		vd *= thickness[surf.graph.id(curr)];
-		
+
 		innerCurrToMap = inner.graph.addNode();
 		inner.nNodes++;
 		(*inner.coords)[innerCurrToMap] = (*surf.coords)[curr] - vd;
-		
+
 		inner.correspondence[inner.graph.id(innerCurrToMap)] = surf.graph.id(curr);		// Set
 		surf.correspondence[surf.graph.id(curr)] = inner.graph.id(innerCurrToMap);		// Correspondences
-		
+
 		inner.graph.addArc(innerPrevToMap, innerCurrToMap);
 		inner.nEdges++;
 		innerPrevToMap = innerCurrToMap;
 	}
-	
+
 	inner.graph.addArc(innerPrevToMap, finode);
 	inner.nEdges++;
 }
@@ -186,51 +186,51 @@ void Interfacer::update_inner_s(SurfaceData_t &inner,  SurfaceData_t &surf, std:
 {
 	SNode	prev, next, last;
 	point_t	pPrev, pNext, pCurr, vd;
-	
+
 	SNode fnode		= surf.graph.nodeFromId(0);				// fnode = P0
-	
+
 	ListDigraph::InArcIt	inCurrI(surf.graph, fnode);		// get Pn
 	ListDigraph::OutArcIt	outCurrI(surf.graph, fnode);	// and P1
-	
+
 	prev = surf.graph.source(inCurrI);		// cont ^
 	next = surf.graph.target(outCurrI);		// cont ^
-	
+
 	pNext = (*surf.coords)[next];			// get coordinates Pn
 	pPrev = (*surf.coords)[prev];			// and P0
-	
-	
+
+
 	vd = find_direction_vector(pPrev, pNext, (*surf.coords)[fnode], MEDIAN_ANGLE);	// Pega direção
 	vd *= thickness[0];									// First node's thickness
-	
-	
+
+
 	SNode finode = inner.graph.nodeFromId(surf.correspondence[0]); // Updating
 	SNode innerCurrToMap = finode;			// Primeiro no agora é o atual
 	(*inner.coords)[innerCurrToMap] = (*surf.coords)[fnode] - vd;	// seta coordenadas
 	SNode innerPrevToMap = innerCurrToMap;							// prev agora é o atual
-	
+
 	SNode curr; int count = 0;
 	for (curr = next; curr != fnode; curr = next)
 	{
 		ListDigraph::OutArcIt	outCurr(surf.graph, curr);
 		ListDigraph::InArcIt	inCurr(surf.graph, curr);
-		
+
 		next = surf.graph.target(outCurr);
 		prev = surf.graph.source(inCurr);
-		
+
 		pNext = (*surf.coords)[next];
 		pPrev = (*surf.coords)[prev];
-		
+
 		vd = find_direction_vector(pPrev, pNext, (*surf.coords)[curr], MEDIAN_ANGLE);
 		vd *= thickness[surf.graph.id(curr)];
-		
-		
+
+
 		std::cout << "Correspondence in inner(" << inner.graph.id(innerCurrToMap) << "): " <<inner.correspondence[inner.graph.id(innerCurrToMap)] << std::endl;
-		
+
 		std::cout << "Correspondence in outer(" << surf.graph.id(curr) << "): " << surf.correspondence[surf.graph.id(curr)] << std::endl << std::endl;
-		
+
 		inner.correspondence[inner.graph.id(innerCurrToMap)] = surf.graph.id(curr);		// Set
 		surf.correspondence[surf.graph.id(curr)] = inner.graph.id(innerCurrToMap);		// Correspondences
-		
+
 		innerCurrToMap = inner.graph.nodeFromId(surf.correspondence[surf.graph.id(curr)]);
 		(*inner.coords)[innerCurrToMap] = (*surf.coords)[curr] - vd;
 		innerPrevToMap = innerCurrToMap;
@@ -242,19 +242,19 @@ void Interfacer::update_inner_node(SurfaceData_t &inner,  SurfaceData_t &surf, d
 	SNode updatedOuterNode	= surf.graph.nodeFromId(index);
 	int corrInnerIndex		= surf.correspondence[index];
 	SNode corrInnerNode		= inner.graph.nodeFromId(corrInnerIndex);	// innerNode = corrs[index]
-	
+
 	ListDigraph::InArcIt	inCurrI(surf.graph, updatedOuterNode);	// get P(index - 1) and P(index + 1)
 	ListDigraph::OutArcIt	outCurrI(surf.graph, updatedOuterNode);	// ^ neighbors of correspondent
-	
+
 	SNode prev = surf.graph.source(inCurrI);		// Get neighbor nodes
 	SNode next = surf.graph.target(outCurrI);		// ^
-	
+
 	point_t pNext = (*surf.coords)[next];			// Get coordinates of neighbor nodes
 	point_t pPrev = (*surf.coords)[prev];			// ^
-	
+
 	point_t vd = find_direction_vector(pPrev, pNext, (*surf.coords)[updatedOuterNode], MEDIAN_ANGLE);	// Get direction
 	vd *= thicks;									// After normalized, mult. by thickness of that point
-	
+
 	(*inner.coords)[corrInnerNode] = (*surf.coords)[updatedOuterNode] - vd; // Actually update this one node
 }
 
@@ -264,10 +264,10 @@ void Interfacer::generate_circle(ThickSurface_t &ts, double radius, double thick
 	SNode fnode = ts.outer.graph.addNode();
 	SNode prevToMap = fnode;
 	SNode currToMap;
-	
+
 	ts.outer.nNodes++;
 	( *(ts.outer.coords) )[prevToMap] = point_t(radius, 0);
-	
+
 	for (size_t i = 1; i < pts; i++)
 	{
 		// Do (1) again, at the point resolution provided (number of pts)
@@ -278,13 +278,11 @@ void Interfacer::generate_circle(ThickSurface_t &ts, double radius, double thick
 		ts.outer.nEdges++;
 		prevToMap = currToMap;
 	}
-	
-		std::cout << "Rn we have " << ts.outer.nNodes << " nodes\n";
-	
+		
 	ts.outer.graph.addArc(prevToMap, fnode);
 	ts.outer.nEdges++;
 	prevToMap = currToMap;
-	
+
 	ts.thickness.resize(pts);
 	std::fill(ts.thickness.begin(), ts.thickness.end(), thick_ratio * radius); // placeholder
 	generate_inner_s(ts.inner, ts.outer, ts.thickness);
@@ -308,7 +306,7 @@ void Interfacer::generate_bridges(ThickSurface_t &ts)
 
 		ts.bridges.graph.addArc(curr, pair);
 		ts.bridges.nEdges++;
-		
+
 		(*ts.bridges.coords)[curr] = (*ts.outer.coords)[no];
 		int innerId = ts.outer.correspondence[ts.outer.graph.id(no)];
 		(*ts.bridges.coords)[pair] = (*ts.inner.coords)[ ts.outer.graph.nodeFromId(innerId) ];
@@ -322,11 +320,11 @@ void Interfacer::update_bridges(ThickSurface_t &ts)
 	++pair;
 	for (ListDigraph::NodeIt no(ts.outer.graph); no != INVALID; ++no)
 	{
-		
+
 		(*ts.bridges.coords)[curr] = (*ts.outer.coords)[no];
 		int innerId = ts.outer.correspondence[ts.outer.graph.id(no)];
 		(*ts.bridges.coords)[pair] = (*ts.inner.coords)[ ts.outer.graph.nodeFromId(innerId) ];
-		
+
 		++curr; ++curr;
 		++pair; ++pair;
 	}
@@ -340,11 +338,11 @@ void Interfacer::get_from_matlab(SurfaceData_t &surf, const char* matFile)
 	//don't forget to close file with Mat_Close(matfp);
 	Mat_Close(matfp);
 	*/
-	
+
 	/* Commenting this out after cleansing our libraries linked. MatIO was amongst the purged.
 	mat_t		*thisMat;
 	matvar_t	*matvar;
-	
+
 	thisMat = Mat_Open(matFile, MAT_ACC_RDONLY);
 	if ( NULL == thisMat ) {
 		printf("Error opening MAT file %s\n", matFile);
@@ -364,5 +362,3 @@ void Interfacer::get_from_ttf(FTGLPixmapFont *fonti, const char* ttfFile)
 	if(fonti->Error())
 		exit(EXIT_FAILURE);
 }
-
-
