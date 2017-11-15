@@ -207,7 +207,6 @@ void Optimizer::neighbor(ThickSurface_t &original, ThickSurface_t &n)
         double thicknessDiff = n.thickness[randomIndex]; // Useful for the smoothness routine
         n.thickness[randomIndex] *= (distPdir > distMdir ? compression : 1/compression);
         thicknessDiff -= n.thickness[randomIndex];
-        std::cout << "comp: " << compression << ", n.thickness[" << randomIndex << "] set to " << n.thickness[randomIndex] << std::endl;
         // Routine to smooth out neighbour's relationship to current state
         // --------------
         SNode prev, next; int u = smooth; int prevIndex, nextIndex;

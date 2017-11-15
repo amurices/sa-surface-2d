@@ -30,7 +30,7 @@
 /// (free nrg, smoothness)              - thickness fixed on N values: N plots
 /// (free nrg, gray area / perimeter)   - smoothness fixed on N values: N x N plots
 
-const int NUM_POINTS = 200;
+const int NUM_POINTS = 330;
 const int NUM_GENS = 6500;
 const int NUM_SMOOTH = 10;
 
@@ -154,11 +154,11 @@ int main(int argc, char** args) {
     {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-      //  glMatrixMode(GL_PROJECTION);
-      //  glLoadIdentity();
-      //  glOrtho(0.0, 0, 0, 0.0, -1.0, 1.0);
-      //  glMatrixMode(GL_MODELVIEW);
-      //  glLoadIdentity();
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0.0, 0, 0, 0.0, -1.0, 1.0);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
 
         if (!pause && count < NUM_GENS)
         {

@@ -75,11 +75,11 @@ inline Population::~Population() {
 }
 
 inline unsigned Population::getN() const {
-    return population[0].size();
+    return (unsigned)population[0].size();
 }
 
 inline unsigned Population::getP() const {
-    return population.size();
+    return (unsigned)population.size();
 }
 
 inline double Population::getBestFitness() const {

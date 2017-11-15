@@ -278,9 +278,7 @@ void Interfacer::generate_circle(ThickSurface_t &ts, double radius, double thick
 		ts.outer.nEdges++;
 		prevToMap = currToMap;
 	}
-	
-		std::cout << "Rn we have " << ts.outer.nNodes << " nodes\n";
-	
+		
 	ts.outer.graph.addArc(prevToMap, fnode);
 	ts.outer.nEdges++;
 	prevToMap = currToMap;
