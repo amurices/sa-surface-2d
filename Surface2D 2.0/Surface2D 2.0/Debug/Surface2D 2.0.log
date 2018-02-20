@@ -1,0 +1,3 @@
+﻿  Optimizer.cxx
+c:\users\deco\documents\buildings\surface2d 2.0\surface2d 2.0\optimizer.h(21): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  Surface2D 2.0.vcxproj -> C:\Users\Deco\Documents\Buildings\Surface2D 2.0\Debug\Surface2D 2.0.exe
