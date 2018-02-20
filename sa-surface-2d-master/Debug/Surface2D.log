@@ -1,0 +1,28 @@
+﻿  Renderer.cpp
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(130): warning C4005: 'APIENTRY': macro redefinition
+  C:\Users\Deco\Documents\Buildings\GLFWbuilt\include\GLFW/glfw3.h(98): note: see previous definition of 'APIENTRY'
+Renderer.cpp(98): warning C4244: 'argument': conversion from 'const double' to 'GLfloat', possible loss of data
+Renderer.cpp(99): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(101): warning C4244: 'argument': conversion from 'const double' to 'GLfloat', possible loss of data
+Renderer.cpp(102): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(104): warning C4244: 'argument': conversion from 'const double' to 'GLfloat', possible loss of data
+Renderer.cpp(105): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(120): warning C4244: 'argument': conversion from 'const double' to 'GLfloat', possible loss of data
+Renderer.cpp(121): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(123): warning C4244: 'argument': conversion from 'const double' to 'GLfloat', possible loss of data
+Renderer.cpp(124): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(134): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(137): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(140): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(143): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(178): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+Renderer.cpp(178): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(181): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(192): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(192): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+Renderer.cpp(195): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(214): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(217): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(221): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+Renderer.cpp(224): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+  Surface2D.vcxproj -> C:\Users\Deco\Documents\Buildings\sa-surface-2d-master\Debug\Surface2D.exe

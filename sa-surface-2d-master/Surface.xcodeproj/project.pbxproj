@@ -1,0 +1,396 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4C28FE571FACCD7400539228 /* libftgl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C9EDCED1E7FF2BC00551A66 /* libftgl.a */; };
+		4C28FE581FACCF4E00539228 /* libGLEW.2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA22A561E1B421B00AD258A /* libGLEW.2.0.0.dylib */; };
+		4C3321061EE8B0F500E657A2 /* Optimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CF835371EB0F81D00F69F23 /* Optimizer.cpp */; };
+		4C3321081EE8B1D700E657A2 /* Population.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C3321071EE8B1D700E657A2 /* Population.cpp */; };
+		4C5DFBB21E70C0AA00A405A6 /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C5DFBB01E70C0AA00A405A6 /* Renderer.cpp */; };
+		4C640CE81E6CA74500DEB3F5 /* Geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C640CE61E6CA74500DEB3F5 /* Geometry.cpp */; };
+		4C65EF881E2D99590077373A /* Auxiliares.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C65EF861E2D99590077373A /* Auxiliares.cpp */; };
+		4CA22A401E1B222300AD258A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CA22A3F1E1B222300AD258A /* main.cpp */; };
+		4CA22A521E1B239500AD258A /* Interfacer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CA22A501E1B239500AD258A /* Interfacer.cpp */; };
+		4CA22A551E1B418F00AD258A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA22A541E1B418F00AD258A /* OpenGL.framework */; };
+		4CA22A591E1B454700AD258A /* libglfw.3.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CA22A581E1B454700AD258A /* libglfw.3.2.dylib */; };
+		4CAC16431E4D891200896248 /* libemon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CAC16421E4D891200896248 /* libemon.a */; };
+		4CBD36401E9026BE000F2388 /* SurfaceDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CBD363E1E9026BE000F2388 /* SurfaceDecoder.cpp */; };
+		4CC4E3F91E7F3BA700672939 /* freetype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4CC4E3F81E7F3BA700672939 /* freetype.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4CA22A3A1E1B222300AD258A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		4C1CFE341E4690B800122E15 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = SOURCE_ROOT; };
+		4C3321021EE746AF00E657A2 /* libCGAL.12.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.12.0.0.dylib; path = ../../../../usr/local/Cellar/cgal/4.9.1/lib/libCGAL.12.0.0.dylib; sourceTree = "<group>"; };
+		4C3321071EE8B1D700E657A2 /* Population.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Population.cpp; path = Outsiders/brkga/Population.cpp; sourceTree = "<group>"; };
+		4C3321091EE8B26400E657A2 /* BRKGA.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BRKGA.cpp; path = Outsiders/brkga/BRKGA.cpp; sourceTree = "<group>"; };
+		4C5DFBB01E70C0AA00A405A6 /* Renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Renderer.cpp; sourceTree = SOURCE_ROOT; };
+		4C5DFBB11E70C0AA00A405A6 /* Renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = SOURCE_ROOT; };
+		4C6216AC1F9CF496004753A9 /* libhdf5.101.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libhdf5.101.dylib; path = ../../../../usr/local/Cellar/hdf5/1.10.1_2/lib/libhdf5.101.dylib; sourceTree = "<group>"; };
+		4C640CE61E6CA74500DEB3F5 /* Geometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Geometry.cpp; sourceTree = SOURCE_ROOT; };
+		4C640CE71E6CA74500DEB3F5 /* Geometry.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Geometry.hpp; sourceTree = SOURCE_ROOT; };
+		4C65EF841E2D91790077373A /* libga.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libga.a; path = ../../../../usr/local/Cellar/galib/247/lib/libga.a; sourceTree = "<group>"; };
+		4C65EF861E2D99590077373A /* Auxiliares.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Auxiliares.cpp; sourceTree = SOURCE_ROOT; };
+		4C65EF871E2D99590077373A /* Auxiliares.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Auxiliares.hpp; sourceTree = SOURCE_ROOT; };
+		4C685BB01E7392B100D08A8D /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		4C9EDCED1E7FF2BC00551A66 /* libftgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libftgl.a; path = "../../../../usr/local/Cellar/ftgl/2.1.3-rc5/lib/libftgl.a"; sourceTree = "<group>"; };
+		4CA22A3C1E1B222300AD258A /* Surface */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Surface; sourceTree = BUILT_PRODUCTS_DIR; };
+		4CA22A3F1E1B222300AD258A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		4CA22A501E1B239500AD258A /* Interfacer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Interfacer.cpp; sourceTree = SOURCE_ROOT; usesTabs = 1; };
+		4CA22A511E1B239500AD258A /* Interfacer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Interfacer.hpp; sourceTree = SOURCE_ROOT; };
+		4CA22A541E1B418F00AD258A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		4CA22A561E1B421B00AD258A /* libGLEW.2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.2.0.0.dylib; path = ../../../../usr/local/lib/libGLEW.2.0.0.dylib; sourceTree = "<group>"; };
+		4CA22A581E1B454700AD258A /* libglfw.3.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.2.dylib; path = ../../../../usr/local/Cellar/glfw/3.2.1/lib/libglfw.3.2.dylib; sourceTree = "<group>"; };
+		4CAC16421E4D891200896248 /* libemon.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libemon.a; path = ../../../../usr/local/lib/libemon.a; sourceTree = "<group>"; };
+		4CBD36371E8C586D000F2388 /* freetype.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = freetype.hpp; path = Outsiders/freetype.hpp; sourceTree = "<group>"; };
+		4CBD36391E8C58BB000F2388 /* BRKGA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BRKGA.h; path = Outsiders/brkga/BRKGA.h; sourceTree = "<group>"; };
+		4CBD363A1E8C58BB000F2388 /* samplecode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = samplecode.cpp; path = Outsiders/brkga/samplecode.cpp; sourceTree = "<group>"; };
+		4CBD363B1E8C58BB000F2388 /* Population.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Population.h; path = Outsiders/brkga/Population.h; sourceTree = "<group>"; };
+		4CBD363C1E8C58BB000F2388 /* MTRand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MTRand.h; path = Outsiders/brkga/MTRand.h; sourceTree = "<group>"; };
+		4CBD363E1E9026BE000F2388 /* SurfaceDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SurfaceDecoder.cpp; sourceTree = SOURCE_ROOT; };
+		4CBD363F1E9026BE000F2388 /* SurfaceDecoder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SurfaceDecoder.hpp; sourceTree = SOURCE_ROOT; };
+		4CC4E3ED1E7E174B00672939 /* libmatio.la */ = {isa = PBXFileReference; lastKnownFileType = text; name = libmatio.la; path = "../matio-1.5.10/src/libmatio.la"; sourceTree = "<group>"; };
+		4CC4E3F01E7E1A1A00672939 /* libmatio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmatio.a; path = ../../../../usr/local/lib/libmatio.a; sourceTree = "<group>"; };
+		4CC4E3F31E7F361600672939 /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = ../../../../usr/local/lib/libfreetype.a; sourceTree = "<group>"; };
+		4CC4E3F61E7F3B5400672939 /* prettyprint.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = prettyprint.hpp; path = Outsiders/prettyprint.hpp; sourceTree = "<group>"; };
+		4CC4E3F81E7F3BA700672939 /* freetype.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = freetype.cpp; path = Outsiders/freetype.cpp; sourceTree = "<group>"; };
+		4CF835371EB0F81D00F69F23 /* Optimizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Optimizer.cpp; sourceTree = SOURCE_ROOT; };
+		4CF835381EB0F81D00F69F23 /* Optimizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Optimizer.hpp; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4CA22A391E1B222300AD258A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4C28FE581FACCF4E00539228 /* libGLEW.2.0.0.dylib in Frameworks */,
+				4C28FE571FACCD7400539228 /* libftgl.a in Frameworks */,
+				4CAC16431E4D891200896248 /* libemon.a in Frameworks */,
+				4CA22A591E1B454700AD258A /* libglfw.3.2.dylib in Frameworks */,
+				4CA22A551E1B418F00AD258A /* OpenGL.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4CA22A331E1B222200AD258A = {
+			isa = PBXGroup;
+			children = (
+				4CC4E3F51E7F3ACF00672939 /* Outsiders */,
+				4CA22A3E1E1B222300AD258A /* Surface */,
+				4CA22A531E1B418F00AD258A /* Frameworks */,
+				4CA22A3D1E1B222300AD258A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4CA22A3D1E1B222300AD258A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4CA22A3C1E1B222300AD258A /* Surface */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4CA22A3E1E1B222300AD258A /* Surface */ = {
+			isa = PBXGroup;
+			children = (
+				4C1CFE341E4690B800122E15 /* defs.h */,
+				4CA22A3F1E1B222300AD258A /* main.cpp */,
+				4CA22A501E1B239500AD258A /* Interfacer.cpp */,
+				4CA22A511E1B239500AD258A /* Interfacer.hpp */,
+				4C65EF861E2D99590077373A /* Auxiliares.cpp */,
+				4C65EF871E2D99590077373A /* Auxiliares.hpp */,
+				4C640CE61E6CA74500DEB3F5 /* Geometry.cpp */,
+				4C640CE71E6CA74500DEB3F5 /* Geometry.hpp */,
+				4C5DFBB01E70C0AA00A405A6 /* Renderer.cpp */,
+				4C5DFBB11E70C0AA00A405A6 /* Renderer.hpp */,
+				4CBD363E1E9026BE000F2388 /* SurfaceDecoder.cpp */,
+				4CBD363F1E9026BE000F2388 /* SurfaceDecoder.hpp */,
+				4CF835371EB0F81D00F69F23 /* Optimizer.cpp */,
+				4CF835381EB0F81D00F69F23 /* Optimizer.hpp */,
+			);
+			path = Surface;
+			sourceTree = "<group>";
+		};
+		4CA22A531E1B418F00AD258A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4C6216AC1F9CF496004753A9 /* libhdf5.101.dylib */,
+				4C3321021EE746AF00E657A2 /* libCGAL.12.0.0.dylib */,
+				4C9EDCED1E7FF2BC00551A66 /* libftgl.a */,
+				4CC4E3F31E7F361600672939 /* libfreetype.a */,
+				4CC4E3F01E7E1A1A00672939 /* libmatio.a */,
+				4CC4E3ED1E7E174B00672939 /* libmatio.la */,
+				4C685BB01E7392B100D08A8D /* GLUT.framework */,
+				4CAC16421E4D891200896248 /* libemon.a */,
+				4C65EF841E2D91790077373A /* libga.a */,
+				4CA22A581E1B454700AD258A /* libglfw.3.2.dylib */,
+				4CA22A561E1B421B00AD258A /* libGLEW.2.0.0.dylib */,
+				4CA22A541E1B418F00AD258A /* OpenGL.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4CC4E3F51E7F3ACF00672939 /* Outsiders */ = {
+			isa = PBXGroup;
+			children = (
+				4CBD36391E8C58BB000F2388 /* BRKGA.h */,
+				4C3321091EE8B26400E657A2 /* BRKGA.cpp */,
+				4CBD363A1E8C58BB000F2388 /* samplecode.cpp */,
+				4CBD363B1E8C58BB000F2388 /* Population.h */,
+				4C3321071EE8B1D700E657A2 /* Population.cpp */,
+				4CBD363C1E8C58BB000F2388 /* MTRand.h */,
+				4CBD36371E8C586D000F2388 /* freetype.hpp */,
+				4CC4E3F61E7F3B5400672939 /* prettyprint.hpp */,
+				4CC4E3F81E7F3BA700672939 /* freetype.cpp */,
+			);
+			name = Outsiders;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4CA22A3B1E1B222300AD258A /* Surface */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4CA22A431E1B222300AD258A /* Build configuration list for PBXNativeTarget "Surface" */;
+			buildPhases = (
+				4CA22A381E1B222300AD258A /* Sources */,
+				4CA22A391E1B222300AD258A /* Frameworks */,
+				4CA22A3A1E1B222300AD258A /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Surface;
+			productName = Surface;
+			productReference = 4CA22A3C1E1B222300AD258A /* Surface */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4CA22A341E1B222200AD258A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0820;
+				ORGANIZATIONNAME = "André Muricy";
+				TargetAttributes = {
+					4CA22A3B1E1B222300AD258A = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 4CA22A371E1B222200AD258A /* Build configuration list for PBXProject "Surface" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 4CA22A331E1B222200AD258A;
+			productRefGroup = 4CA22A3D1E1B222300AD258A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4CA22A3B1E1B222300AD258A /* Surface */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4CA22A381E1B222300AD258A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4C3321061EE8B0F500E657A2 /* Optimizer.cpp in Sources */,
+				4CA22A401E1B222300AD258A /* main.cpp in Sources */,
+				4CBD36401E9026BE000F2388 /* SurfaceDecoder.cpp in Sources */,
+				4C3321081EE8B1D700E657A2 /* Population.cpp in Sources */,
+				4C5DFBB21E70C0AA00A405A6 /* Renderer.cpp in Sources */,
+				4C640CE81E6CA74500DEB3F5 /* Geometry.cpp in Sources */,
+				4CC4E3F91E7F3BA700672939 /* freetype.cpp in Sources */,
+				4C65EF881E2D99590077373A /* Auxiliares.cpp in Sources */,
+				4CA22A521E1B239500AD258A /* Interfacer.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4CA22A411E1B222300AD258A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4CA22A421E1B222300AD258A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4CA22A441E1B222300AD258A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LIBRARY = "compiler-default";
+				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib/,
+					/usr/local/Cellar/glfw/3.2.1/lib,
+					/usr/local/Cellar/galib/247/lib,
+					"\"$(SRCROOT)/../matio-1.5.10/src\"",
+					"/usr/local/Cellar/ftgl/2.1.3-rc5/lib",
+					/usr/local/Cellar/cgal/4.9.1/lib,
+					/usr/local/Cellar/hdf5/1.10.1_2/lib,
+				);
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				OTHER_LDFLAGS = "-v";
+				OTHER_LIBTOOLFLAGS = "-v";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4CA22A451E1B222300AD258A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LIBRARY = "compiler-default";
+				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib/,
+					/usr/local/Cellar/glfw/3.2.1/lib,
+					/usr/local/Cellar/galib/247/lib,
+					"\"$(SRCROOT)/../matio-1.5.10/src\"",
+					"/usr/local/Cellar/ftgl/2.1.3-rc5/lib",
+					/usr/local/Cellar/cgal/4.9.1/lib,
+					/usr/local/Cellar/hdf5/1.10.1_2/lib,
+				);
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				OTHER_LDFLAGS = "-v";
+				OTHER_LIBTOOLFLAGS = "-v";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4CA22A371E1B222200AD258A /* Build configuration list for PBXProject "Surface" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4CA22A411E1B222300AD258A /* Debug */,
+				4CA22A421E1B222300AD258A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4CA22A431E1B222300AD258A /* Build configuration list for PBXNativeTarget "Surface" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4CA22A441E1B222300AD258A /* Debug */,
+				4CA22A451E1B222300AD258A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4CA22A341E1B222200AD258A /* Project object */;
+}
