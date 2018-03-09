@@ -17,6 +17,52 @@ using namespace lemon;
 const double TOLERANCE = 0.00000001;
 const double PI = 3.14159265358979323846;
 
+/*** TODO list:
+	
+	1. DONE (in Salvador) -- Have a memory-safe graph representation of surfaces. 
+		1.1 DONE (in Salvador) -- Implement operator overloads: =, == for simple surface (_2DSurface
+		1.2 DONE (in Salvador) -- Implement operator overloads or copying functions for thick surface (ThickSurface)
+
+	2. ALMOST DONE -- Build a modular, safe, and easy to use API for graphically representing surfaces.
+		2.1 DONE (in Salvador) -- Have functions for drawing individual nodes.
+		2.2 DONE (in Salvador) -- Have function for drawing entire simple surfaces.
+		2.3 DONE (in Salvador) -- Encapsulate everything in a Renderer class.
+		2.4 NOT DONE -- Have functions for drawing fonts
+		2.5 NOT DONE -- Implement a generic type RenderObject that includes metadata for different structures that need to be drawn.
+		2.6 NOT DONE -- Implement basic I/O (to pause and trigger slow-mo mode)
+
+	3. Have an implementation of Simulated Annealing.
+		3.1 NOT DONE -- Implement a probability function.
+		3.2 PARTIALLY DONE; FIND BETTER MATHEMATICAL ALTERNATIVES -- Implement a neighbor function. MOVE ON; COME BACK TO IT. DO THE REST OF SA.
+		3.3 NOT DONE -- Implement a temperature function.
+		3.4 NOT DONE -- Implement the most wide-encompassing parametrization:
+			- Radius
+			- Thickness
+			- Scale
+			- Smoothness
+			- Difference between A0 and An multiplier
+			- Difference between A0 and An power
+			- White matter multiplier
+			- White matter power
+			- Multiple node addition probability
+			- Maximum compression/expansion
+			- Temperature
+			- Compression factor
+			- MAYBE outer/inner shapes that cannot intersect the surface?
+		3.5 NOT DONE -- Implement a model of tension at individual points. Perhaps an additional vector in ThickSurface that tracks
+						how much that point has been compressed or stretched.
+
+	4. Have a system to dynamically manipulate the simulation mid-execution.
+		4.1 NOT DONE -- Implement node addition/removal. This will be especially difficult due to the way smoothness is implemented.
+		4.2 NOT DONE -- Implement simulation reset.
+		4.3 NOT DONE -- Implement multiple (parametrizable) simulation runs (for example, running with 1000 different parametrizations)
+		4.4 NOT DONE -- Implement intelligent simulation output. Either output data to files, or showcase them on the screen.
+
+	5. Finally, implement a GUI that handles whatever I/O (4) implements.
+
+	6. Maybe find a solution to the fact that findDirectionVector produces intersections way too often. Collision resolution algorithms, perhaps?
+***/
+
 
 /* Some type definitions.
  *

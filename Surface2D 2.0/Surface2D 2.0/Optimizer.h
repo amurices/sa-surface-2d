@@ -18,14 +18,14 @@ public:
 	// a.1) Hyperparameters - They alter the simulation's behavior
 	double  scale = 1.0;       // Index that will adjust some hyperparameters of evolution
 	double  a0 = 1.0;          // Area of the initial (relaxed) state
-	int     smooth = 1.0;      // Whether neighbors should be calculated using smoothing depressions or not
+	int     smooth = 15;      // Whether neighbors should be calculated using smoothing depressions or not
 	double  diffPow = 1.0;     // Power to raise difference btwn A0 and AS
 	double  diffMul = 1.0;     // Scalar ^
 	double  areaPow = 1.0;     // Analogous to
 	double  areaMul = 1.0;     // previous two
-	double  multiProb = 1.0;   // Probability of forcing another vertex after the first one
+	double  multiProb = 0.0;   // Probability of forcing another vertex after the first one
 	double  tempProb = 1.0;    // How much weight does temperature hold
-	double  forceOffsetRange = 1.0; // How much can points be shifted every iteration
+	double  forceOffsetRange = 0.066; // How much can points be shifted every iteration
 	double  compression = 1.0; // How much should cortex be compressed by force
 
 	// a.2) References - What the simulation needs to see to run correctly
@@ -48,10 +48,28 @@ public:
 		double areaPow = 1, double areaMul = 1,
 		double multiProb = 0, double forceOffsetRange = 0.066,
 		double tempProb = 0, double compression = 1);
-	void step_sa();
-	double probability(ThickSurface &s);
+	void step_sa(ThickSurface &state, double temperature, double a0);
+
+
+	ThickSurface*	findNeighbor(ThickSurface &org);
+
+	/* Given a state S, that when relaxed has energy a0, calculates its internal energy.
+	 *
+	 * @param s the state of which the internal energy will be calculated.
+	 * @param a0 the area of the initial (relaxed) state of the system.
+	 */
+	double			findEnergy(const ThickSurface &s, double a0);
+
+	/* Given temperature T and energy values of state S, neighbor N, returns the probability (between 0 and 1) of moving from S to N.
+	 *
+	 * @param s the current state of the simulated annealing.
+	 * @param n some neighbor of s.
+	 * @param t the current temperature of the system.
+	 */
+	double			findProbability(double eS, double eN, double t);
+
 	double temperature();
-	ThickSurface* findNeighbor(ThickSurface &org);
+
 	void evolve_sa(int kMax, bool time = true);
 
 

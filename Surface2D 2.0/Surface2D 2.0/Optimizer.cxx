@@ -12,11 +12,12 @@ Optimizer::~Optimizer()
 }
 
 
-// TODO: ADD CHANGED NODES TO SET AND UPDATE INNER SURFACE
+// Done. But it's behaving weirdly. Find out why!
 ThickSurface* Optimizer::findNeighbor(ThickSurface &org)
 {
 	ThickSurface* newNeighbor = new ThickSurface(org);
 	std::vector<int> randomIndexes;
+	std::set<SNode> changedNodes;
 
 	// First, choose indices that will be modified by random neighbor search
 	double coinFlip = 0.0;
@@ -63,51 +64,63 @@ ThickSurface* Optimizer::findNeighbor(ThickSurface &org)
 
 		// Routine to smooth out neighbour's relationship to current state
 		// --------------
-		SNode prev, next; int u = smooth; int prevIndex, nextIndex;
-		prev = next = randomNode;
-		for (int c = 1; c < u; c++)
-		{
-			prev = newNeighbor->outer->graph->source(ListDigraph::InArcIt(*newNeighbor->outer->graph, prev));
-			next = newNeighbor->outer->graph->target(ListDigraph::OutArcIt(*newNeighbor->outer->graph, next));
-			prevIndex = newNeighbor->outer->graph->id(prev);
-			nextIndex = newNeighbor->outer->graph->id(next);
-
-			float ratio = (float)(u - c) / (u);
-			(*newNeighbor->outer->coords)[prev].x += dir.x * ratio;
-			(*newNeighbor->outer->coords)[prev].y += dir.y * ratio;
-			newNeighbor->thicknesses[prevIndex] -= thicknessDiff * ratio;
-			(*newNeighbor->outer->coords)[next].x += dir.x * ratio;
-			(*newNeighbor->outer->coords)[next].y += dir.y * ratio;
-			newNeighbor->thicknesses[nextIndex] -= thicknessDiff * ratio;
-
-		}
+		newNeighbor->outer->smoothAdjacentNodes(randomNode, dir, this->smooth, changedNodes, &MathGeometry::linearSmooth);
 	}
+	newNeighbor->updateInnerSurface(changedNodes);
+
 	return newNeighbor;
 }
 
-
-void Optimizer::step_sa()
+double Optimizer::findEnergy(const ThickSurface &s, double a0)
 {
-/*	ThickSurface* neighbor = findNeighbor(*state);
-	double part1N, part2N, part1S, part2S;
-	double probN = probability(nghbr, a0, part1N, part2N);
-	double probS = probability(*state, a0, part1S, part2S); // Our accessible scope always gets
-															// its parameters from S if we run probability() on S after we do it on N
-	if (probN < probS)
+	double res;
+
+	double whiteMatterArea, whiteMatterPerimeter;
+	double grayMatterArea, grayMatterPerimeter;
+
+	// White matter area is just the inner surface's area
+	whiteMatterArea = s.inner->findSurfaceAreaAndPerimeter(whiteMatterPerimeter);
+	// Gray matter area is the difference between the outer surface and the inner surface
+	grayMatterArea = s.outer->findSurfaceAreaAndPerimeter(grayMatterPerimeter) - whiteMatterArea;
+	// Area must be non-negative
+	grayMatterArea = MathGeometry::absol(grayMatterArea);
+
+	// Difference between initial and current gray matter area.
+	double grayMatterStretch = MathGeometry::absol(a0 - grayMatterArea);
+
+	double p1, p2;
+	p1 = pow(whiteMatterArea, this->areaPow);
+	p2 = pow(grayMatterStretch + 1, this->diffPow); // Stretch is the difference; therefore p2 is raised to the right power here
+									  // We add 1 before raising to ensure the growth is not sublinear from the get-go
+
+	// Simplified energy equation of 2D closed surface
+	res = areaMul * p1 + diffMul * p2;
+	return res;
+}
+
+double Optimizer::findProbability(double eS, double eN, double t)
+{
+	if (eN < eS)
+		return 1;
+
+	else
+		return exp((eS - eN) / t);
+}
+
+void Optimizer::step_sa(ThickSurface &state, double temperature, double a0)
+{
+	ThickSurface* neighbor = findNeighbor(state);
+
+	double eS = findEnergy(state, a0);
+	double eN = findEnergy(*neighbor, a0);
+
+	double prob = findProbability(eS, eN, temperature);
+	std::cout << "prob: " << prob << std::endl;
+	double coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+
+	if (coinFlip < prob)
 	{
-		copy_thick_surface(nghbr, *state);
-		copy_thick_surface(nghbr, *org);
+		state = *neighbor;
+		delete neighbor;
 	}
-	else if (probN < 10)
-	{
-		double randProb = static_cast<double>(rand()) / static_cast<double> (RAND_MAX);
-		double diffNS = absol(probN - probS);
-		double prob = (1.0 / diffNS < 1.0 ? 1.0 / diffNS : 1.0) * ((double)maxT - (double)gen) / (double)maxT * tempProb;
-		//     std::cout << "\n\nPROB: " << prob << "\n\n";
-		if (prob > randProb)
-		{
-			copy_thick_surface(nghbr, *state);
-			copy_thick_surface(nghbr, *org);
-		}
-	}*/
 }

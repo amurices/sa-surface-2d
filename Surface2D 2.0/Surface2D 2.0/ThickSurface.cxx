@@ -32,6 +32,11 @@ ThickSurface::~ThickSurface()
 	this->thicknesses.clear();
 }
 
+void ThickSurface::updateInnerSurface(const std::set <SNode> &changedNodes)
+{
+	this->inner->updateInnerSurface(*this->outer, changedNodes, this->thicknesses);
+}
+
 void ThickSurface::generateRandomThicknesses(int pts, double upperPercentOfRadius, double lowerPercentOfRadius)
 {
 	// If thicknesses was already populated

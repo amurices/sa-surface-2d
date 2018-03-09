@@ -33,13 +33,13 @@
     <ClInclude Include="ThickSurface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Geometry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Optimizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MathGeometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -56,9 +56,6 @@
     <ClCompile Include="Optimizer.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Geometry.cxx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="_2DSurface.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,6 +63,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MathGeometry.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

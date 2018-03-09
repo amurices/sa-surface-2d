@@ -61,6 +61,7 @@ _2DSurface::~_2DSurface()
 	delete this->coords;
 }
 
+
 void _2DSurface::generateCircularSurface(double radius, int pts, point_t center)
 {
 	// (1) Add one node to the graph,
@@ -85,6 +86,35 @@ void _2DSurface::generateCircularSurface(double radius, int pts, point_t center)
 	prevToMap = currToMap;
 }
 
+void _2DSurface::smoothAdjacentNodes(SNode changedNode, point_t changedDifference, int smoothness, std::set<SNode> &changedSet, double (*func)(double u, double c))
+{
+	SNode prev, next; int u = smoothness;
+	prev = next = changedNode;
+	changedSet.insert(changedNode);
+
+	for (int c = 1; c <= u; c++)
+	{
+		prev = this->graph->source(ListDigraph::InArcIt(*this->graph, prev));
+		next = this->graph->target(ListDigraph::OutArcIt(*this->graph, next));
+
+		// Previous and next nodes are also going to be altered as a matter of where they are in relation to their inner correspondents
+		changedSet.insert(prev);
+		changedSet.insert(next);
+
+		double ratio = (*func)(u, c);
+		(*this->coords)[prev].x += changedDifference.x * ratio;
+		(*this->coords)[prev].y += changedDifference.y * ratio;
+		(*this->coords)[next].x += changedDifference.x * ratio;
+		(*this->coords)[next].y += changedDifference.y * ratio;
+	}
+	// The single node at the end and beginning of a set of changed smoothed nodes are also altered
+	prev = this->graph->source(ListDigraph::InArcIt(*this->graph, prev));
+	next = this->graph->target(ListDigraph::OutArcIt(*this->graph, next));
+
+	changedSet.insert(prev);
+	changedSet.insert(next);
+}
+
 void _2DSurface::generateInnerSurface(_2DSurface &outerSurf, const std::vector<double> &thicknesses)
 {
 	SNode	prev, next, last;
@@ -102,7 +132,7 @@ void _2DSurface::generateInnerSurface(_2DSurface &outerSurf, const std::vector<d
 	pNext = (*outerSurf.coords)[next];			// get coordinates Pn
 	pPrev = (*outerSurf.coords)[prev];			// and P0
 
-	vd = Geometry::findDirectionVector(pPrev, pNext, (*outerSurf.coords)[fnode], Geometry::MEDIAN_ANGLE);	// Get directional vector btwn inner & outer
+	vd = MathGeometry::findDirectionVector(pPrev, pNext, (*outerSurf.coords)[fnode], MathGeometry::MEDIAN_ANGLE);	// Get directional vector btwn inner & outer
 	vd *= thicknesses[0];													// Directional vector returned by findDirectionVector is unitary
 
 	SNode finode = this->graph->addNode();	// Add node to this surface;
@@ -129,7 +159,7 @@ void _2DSurface::generateInnerSurface(_2DSurface &outerSurf, const std::vector<d
 		pNext = (*outerSurf.coords)[next];
 		pPrev = (*outerSurf.coords)[prev];
 
-		vd = Geometry::findDirectionVector(pPrev, pNext, (*outerSurf.coords)[curr], Geometry::MEDIAN_ANGLE);
+		vd = MathGeometry::findDirectionVector(pPrev, pNext, (*outerSurf.coords)[curr], MathGeometry::MEDIAN_ANGLE);
 		vd *= thicknesses[outerSurf.graph->id(curr)];
 
 		innerCurrToMap = this->graph->addNode();
@@ -150,8 +180,11 @@ void _2DSurface::generateInnerSurface(_2DSurface &outerSurf, const std::vector<d
 
 void _2DSurface::updateInnerSurface(_2DSurface &outerSurf, const std::set<SNode> &changedNodes, const std::vector<double> &thicknesses)
 {
+	int count = 0;
+
 	for (auto it = changedNodes.begin(); it != changedNodes.end(); it++)
 	{
+		count++;
 		SNode	prev, next, last;
 		point_t	pPrev, pNext, pCurr, vd;
 
@@ -168,12 +201,50 @@ void _2DSurface::updateInnerSurface(_2DSurface &outerSurf, const std::set<SNode>
 		pNext = (*outerSurf.coords)[next];			// get coordinates Pn
 		pPrev = (*outerSurf.coords)[prev];			// and P0
 
-		vd = Geometry::findDirectionVector(pPrev, pNext, (*outerSurf.coords)[fnode], Geometry::MEDIAN_ANGLE);	// Get directional vector btwn inner & outer
+		vd = MathGeometry::findDirectionVector(pPrev, pNext, (*outerSurf.coords)[fnode], MathGeometry::MEDIAN_ANGLE);	// Get directional vector btwn inner & outer
 		vd *= thicknesses[outerSurf.graph->id(fnode)];							// Directional vector returned by findDirectionVector is unitary
 
-		SNode finode = this->graph->nodeFromId(outerSurf.correspondence[fnodeId]);	// Add node to this surface;
+		// TODO: The following depends on the node IDs of inner and outer surfaces to ALWAYS REMAIN THE SAME.
+		// Since IDs are calculated at the moment they're added to a graph, this shouldn't be an issue, since we always
+		// traverse the surfaces in the same order (and will do the same when adding nodes). Still, it's worth noting.
+
+		SNode finode = this->graph->nodeFromId(fnodeId);							// Add node to this surface;
 		SNode innerCurrToMap = finode;												// Current node to map is first node
 		(*this->coords)[innerCurrToMap] = (*outerSurf.coords)[fnode] - vd;			// set coordinates of inner node
 	}
 
+}
+
+double _2DSurface::findSurfaceAreaAndPerimeter(double &perim)
+{
+	double area = 0;
+	perim = 0;
+
+	SNode fnode, prev, next, no;
+	fnode	= this->graph->nodeFromId(0);
+	no		= fnode;
+	do
+	{
+		ListDigraph::InArcIt inCurrI(*this->graph, no);
+		ListDigraph::OutArcIt outCurrI(*this->graph, no);
+
+		prev = this->graph->source(inCurrI);
+		next = this->graph->target(outCurrI);
+
+		// Perimeter calculation: -----------------------------------------------------
+		point_t perimVector = (*this->coords)[no] - (*this->coords)[prev];
+		double perimVectorNorm = MathGeometry::findNorm(perimVector);
+		perim += perimVectorNorm;
+		// End of perimeter calculation -----------------------------------------------
+
+		area += (*this->coords)[no].x * ((*this->coords)[next].y - (*this->coords)[prev].y);
+		no = next;
+	} while (no != fnode);
+
+	area /= 2;
+
+	if (area < 0)
+		area = 0;
+
+	return area;
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "defs.h"
-#include "Geometry.h"
+#include "MathGeometry.h"
 
 class _2DSurface
 {
@@ -45,6 +45,25 @@ public:
 	 */
 	void updateInnerSurface(_2DSurface &outerSurf, const std::set<SNode> &changedNodes, const std::vector<double> &thicknesses);
 
+	/* 
+	 * Given a node, draws nodes next to it toward the direction it was pushed/pulled.
+	 *
+	 * @param changedNode the node in this surface around which the others are organized.
+	 * @param changedDifference the vector corresponding to the difference between changedNode's initial position and its current.
+	 * @param smoothness the amount of nodes that should be smoothed out in either direction.
+	 * @param func which function should simulate the compression or expansion of the surface at individual points. 
+	 */
+	void smoothAdjacentNodes(SNode changedNode, point_t changedDifference, int smoothness, std::set<SNode> &changedSet, double(*func)(double u, double c));
+
+	/* 
+	 *  Wraps around a geometrical function to return the area of the surface's points.
+	 */
+	double findSurfaceAreaAndPerimeter(double &perim);
+
+	/* Default constructor.
+
+	 * Does nothing except allocate memory and set standard values to 0.
+	 */
 	_2DSurface();
 
 	/* Copy constructor.
