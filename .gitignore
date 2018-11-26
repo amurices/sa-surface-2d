@@ -1,0 +1,9 @@
+# Build files
+*.o
+*.exe
+*.obj
+Debug
+
+# log/generated files
+*.log
+*xcode*
