@@ -12,9 +12,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Auxiliares.hpp"
-#include "BRKGA.h"
-#include "MTRand.h"
-#include "SurfaceDecoder.hpp"
 
 
 class Optimizer{
@@ -26,23 +23,23 @@ public:
     int gen;
     int maxT = 6500;
     // GA attributes -----
-    SurfaceDecoder  *dec;                            // Reference to decoder
-    MTRand          *rng;                            // Reference to RNG object
-    BRKGA< SurfaceDecoder, MTRand > *algorithm;      // heap-allocated evolver
+ //   SurfaceDecoder  *dec;                            // Reference to decoder
+ //   MTRand          *rng;                            // Reference to RNG object
+ //   BRKGA< SurfaceDecoder, MTRand > *algorithm;      // heap-allocated evolver
     std::vector<double> bestSolution;                // Where best solution is stored
-    
+
     unsigned X_INTVL;       // exchange best individuals at every X_INTVL generations
     unsigned X_NUMBER;      // exchange top X_NUMBER best
     unsigned MAX_GENS;      // run for MAX_GENS generations
-    
+
     // GA functions ------
-    Optimizer(ThickSurface_t &org, MTRand &rng, SurfaceDecoder &dec); //  ga constructor
-    void init_GA(const unsigned ps, const double ep, const double mp, const double rhoe, const unsigned K, const unsigned MAXT, const unsigned x_intvl, const unsigned x_number, const unsigned max_gens);
-    void step_ga();
-    void evolve_ga(bool time = true);
-    void update_surface_ga(std::vector<double> &sol);
-    void find_intersections(std::vector<point_t> &is);
-    
+    // Optimizer(ThickSurface_t &org, MTRand &rng, SurfaceDecoder &dec); //  ga constructor
+    // void init_GA(const unsigned ps, const double ep, const double mp, const double rhoe, const unsigned K, const unsigned MAXT, const unsigned x_intvl, const unsigned x_number, const unsigned max_gens);
+    // void step_ga();
+    // void evolve_ga(bool time = true);
+    // void update_surface_ga(std::vector<double> &sol);
+     void find_intersections(std::vector<point_t> &is);
+
     // -------------------
     // SA attributes a) To actually function ------
     // a.1) Hyperparameters - They alter the simulation's behavior
@@ -68,7 +65,7 @@ public:
     double stretch;      // Stretch factor for any solution (diffMul * diff btwn grays ^ diffPow)
     double perimeter;    // Perimeter of any given solution (sum of all vector lengths)
     double energy;       // And fitness of solution ofc.
-    
+
     // SA functions ------
     Optimizer(ThickSurface_t &org); //met constructor
     void init_SA(double scale = 1, int smooth = 0,
