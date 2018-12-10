@@ -56,7 +56,7 @@ void ThickSurface::generateCircularThickSurface(double radius, int pts, bool ran
 		this->generateRandomThicknesses(pts, ub, lb);
 	// If not, throw an exception.
 	else if (thicknesses.empty()) {
-		 throw std::exception("Warning: Thicknesses vector not initialized\n");
+		 throw std::exception();
 	}
 	this->outer = new _2DSurface();
 	this->outer->generateCircularSurface(radius, pts, center);
