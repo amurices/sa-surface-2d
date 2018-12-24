@@ -14,7 +14,7 @@ point_t Geometry::findDirectionVector(const point_t &a, const point_t &b, const 
 		// Vd = P(n+1) - P(n-1)
 		directionOffset = a - b;
 
-		// variável auxiliar invX
+		// variï¿½vel auxiliar invX
 		double invX = directionOffset.x;
 
 		// Vd = (-Vd.y ,Vd.x)
@@ -25,7 +25,6 @@ point_t Geometry::findDirectionVector(const point_t &a, const point_t &b, const 
 		double offsetNorm = findNorm(directionOffset);
 		directionOffset.x /= offsetNorm;
 		directionOffset.y /= offsetNorm;
-
 	}
 
 	else if (Type == MEDIAN)
@@ -33,18 +32,17 @@ point_t Geometry::findDirectionVector(const point_t &a, const point_t &b, const 
 		// Vd = P(n+1) - P(n-1)
 		point_t dO = a - b;
 
-		// variável auxiliar invX
+		// variï¿½vel auxiliar invX
 		double invX = dO.x;
 
 		// Vd = (-Vd.y ,Vd.x)
 		dO.x = -dO.y;
 		dO.y = invX;
 
-		// Vd = Vd / Norm(Vd) (vetor retornado é unitário)
+		// Vd = Vd / Norm(Vd) (vetor retornado ï¿½ unitï¿½rio)
 		double oN = findNorm(dO);
 		dO.x /= oN;
 		dO.y /= oN;
-
 
 		// Shift a and b to the origin
 		point_t aShift = a - c;
@@ -60,27 +58,24 @@ point_t Geometry::findDirectionVector(const point_t &a, const point_t &b, const 
 
 		if (findNorm(dO - directionOffset) > findNorm(dO + directionOffset))
 			directionOffset = directionOffset * (-1);
-
 	}
-
 
 	else if (Type == MEDIAN_ANGLE)
 	{
 		// Vd = P(n+1) - P(n-1)
 		point_t dO = a - b;
 
-		// variável auxiliar invX
+		// variï¿½vel auxiliar invX
 		double invX = dO.x;
 
 		// Vd = (-Vd.y ,Vd.x)
 		dO.x = -dO.y;
 		dO.y = invX;
 
-		// Vd = Vd / Norm(Vd) (vetor retornado é unitário)
+		// Vd = Vd / Norm(Vd) (vetor retornado ï¿½ unitï¿½rio)
 		double oN = findNorm(dO);
 		dO.x /= oN;
 		dO.y /= oN;
-
 
 		// Shift a and b to the origin
 		point_t aShift = a - c;
@@ -103,9 +98,7 @@ point_t Geometry::findDirectionVector(const point_t &a, const point_t &b, const 
 
 		if (findNorm(dO - directionOffset) > findNorm(dO + directionOffset))
 			directionOffset = directionOffset * (-1);
-
 	}
 
 	return directionOffset;
-
 }

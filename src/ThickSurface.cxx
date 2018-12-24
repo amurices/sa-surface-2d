@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ThickSurface.h"
 
-
 ThickSurface::ThickSurface()
 {
 }
@@ -13,7 +12,7 @@ ThickSurface::ThickSurface(const ThickSurface &copied)
 	this->thicknesses = copied.thicknesses;
 }
 
-void ThickSurface::operator =(const ThickSurface &p) 
+void ThickSurface::operator=(const ThickSurface &p)
 {
 	delete this->outer;
 	delete this->inner;
@@ -32,7 +31,7 @@ ThickSurface::~ThickSurface()
 	this->thicknesses.clear();
 }
 
-void ThickSurface::updateInnerSurface(const std::set <SNode> &changedNodes)
+void ThickSurface::updateInnerSurface(const std::set<SNode> &changedNodes)
 {
 	this->inner->updateInnerSurface(*this->outer, changedNodes, this->thicknesses);
 }
@@ -41,8 +40,9 @@ void ThickSurface::generateRandomThicknesses(int pts, double upperPercentOfRadiu
 {
 	// If thicknesses was already populated
 	this->thicknesses.clear();
-	for (int i = 0; i < pts; i++) {
-		double toPush = (double)rand() / RAND_MAX; 
+	for (int i = 0; i < pts; i++)
+	{
+		double toPush = (double)rand() / RAND_MAX;
 		toPush *= upperPercentOfRadius - lowerPercentOfRadius;
 		toPush += lowerPercentOfRadius;
 		this->thicknesses.push_back(toPush);
@@ -55,13 +55,13 @@ void ThickSurface::generateCircularThickSurface(double radius, int pts, bool ran
 	if (randomThicknesses)
 		this->generateRandomThicknesses(pts, ub, lb);
 	// If not, throw an exception.
-	else if (thicknesses.empty()) {
-		 throw std::exception();
+	else if (thicknesses.empty())
+	{
+		throw std::exception();
 	}
 	this->outer = new _2DSurface();
 	this->outer->generateCircularSurface(radius, pts, center);
 
 	this->inner = new _2DSurface();
 	this->inner->generateInnerSurface(*this->outer, this->thicknesses);
-
 }

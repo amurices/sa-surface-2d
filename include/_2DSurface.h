@@ -4,12 +4,12 @@
 
 class _2DSurface
 {
-public:
+  public:
 	// NOTE: Memory management has be done explicitly and perfectly when handling objects
 	// directly through pointers. However, this makes for much cleaner code.
 
 	// NodeMap mapping coordinates (type point_t) to SNodes
-	Coords_t    *coords;
+	Coords_t *coords;
 
 	// Lemon::ListDigraph contains all nodes and the directed connections between them.
 	ListDigraph *graph;
@@ -53,7 +53,7 @@ public:
 	 * @param smoothness the amount of nodes that should be smoothed out in either direction.
 	 * @param func which function should simulate the compression or expansion of the surface at individual points. 
 	 */
-	void smoothAdjacentNodes(SNode changedNode, point_t changedDifference, int smoothness, std::set<SNode> &changedSet, double(*func)(double u, double c));
+	void smoothAdjacentNodes(SNode changedNode, point_t changedDifference, int smoothness, std::set<SNode> &changedSet, double (*func)(double u, double c));
 
 	/* 
 	 *  Wraps around a geometrical function to return the area of the surface's points.
@@ -80,4 +80,3 @@ public:
 	 */
 	~_2DSurface();
 };
-

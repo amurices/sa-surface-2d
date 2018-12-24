@@ -4,7 +4,7 @@
 
 class ThickSurface
 {
-public:
+  public:
 	// Reference to the outside of the surface
 	_2DSurface *outer;
 	// Reference to the inner part of the surface
@@ -38,7 +38,7 @@ public:
 	 *
 	 * @param changedNodes a unique set (no repeated elements) of nodes in the outer surface that need their correspondents updated.
 	 */
-	void updateInnerSurface(const std::set <SNode> &changedNodes);
+	void updateInnerSurface(const std::set<SNode> &changedNodes);
 
 	/* 
 	 * Default constructor. Does nothing except allocate memory and set standard values to 0.
@@ -59,6 +59,5 @@ public:
 	~ThickSurface();
 
 	// Destroys this thick surface's substructures, then reconstructs them by calling their copy constructors on &p.
-	void operator =(const ThickSurface &p);
+	void operator=(const ThickSurface &p);
 };
-

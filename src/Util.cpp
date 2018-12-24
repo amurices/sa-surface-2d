@@ -7,14 +7,13 @@ double Util::dist(point_t p1, point_t p2)
 	return sqrt(norm.first * norm.first + norm.second * norm.second);
 }
 
-
 bool Util::ltTolerance(double a, double b, double tol)
 {
 	return (a < (b - tol));
 }
 bool Util::gtTolerance(double a, double b, double tol)
 {
-	return (a >(b + tol));
+	return (a > (b + tol));
 }
 
 bool Util::eqTolerance(double a, double b, double tol)
@@ -28,4 +27,3 @@ double Util::absol(double x)
 		return -x;
 	return x;
 }
-

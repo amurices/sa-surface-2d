@@ -1,16 +1,16 @@
 #include "stdafx.h"
 #include "Renderer.hxx"
 
-
-Renderer::Renderer(){
+Renderer::Renderer()
+{
 }
 
-
-Renderer::~Renderer(){
+Renderer::~Renderer()
+{
 }
 
-
-int Renderer::initWindow() {
+int Renderer::initWindow()
+{
 	if (!glfwInit())
 	{
 		return -1;
@@ -30,7 +30,8 @@ int Renderer::initWindow() {
 	return 1;
 }
 
-void Renderer::preLoopGL() {
+void Renderer::preLoopGL()
+{
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
@@ -38,17 +39,18 @@ void Renderer::preLoopGL() {
 	glOrtho(0.0, 0, 0, 0.0, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-
 }
 
-void Renderer::postLoopGL(){
+void Renderer::postLoopGL()
+{
 	glfwSwapBuffers(this->window);
 	glfwPollEvents();
 }
 
-
-void Renderer::handle(int code) {
-	switch (code) {
+void Renderer::handle(int code)
+{
+	switch (code)
+	{
 	case -1:
 		glfwTerminate();
 		exit(EXIT_FAILURE);
@@ -67,7 +69,6 @@ void Renderer::render_axes()
 	glColor3f(0.5f, 0.5f, .5f);
 	glVertex2f(0, -1);
 
-
 	glColor3f(0.5f, 0.5f, .5f);
 	glVertex2f(1, 0);
 
@@ -78,7 +79,7 @@ void Renderer::render_axes()
 	for (double marker = -1.0; marker < 1.0; marker += 0.1)
 	{
 		char stringForm[10];
-	//	sprintf(stringForm, "%.1f", marker);
+		//	sprintf(stringForm, "%.1f", marker);
 		// Small lines are drawn at the marker's position
 		glBegin(GL_LINES);
 
@@ -92,9 +93,9 @@ void Renderer::render_axes()
 		// Y-axis:
 		if (marker <= 0.01 && marker >= -0.01) // We can skip the Y axis if it's the origin
 		{
-			glEnd();  // But before we do that, we have to glEnd()
-		//	glEnable(GL_BLEND);
-		//	render_text(font, stringForm, point_t(marker, -0.02), 13); // and render our current text iteration ofc
+			glEnd(); // But before we do that, we have to glEnd()
+					 //	glEnable(GL_BLEND);
+					 //	render_text(font, stringForm, point_t(marker, -0.02), 13); // and render our current text iteration ofc
 			continue;
 		}
 		glColor3f(0.5f, 0.5f, .5f);
@@ -105,13 +106,10 @@ void Renderer::render_axes()
 		glEnd();
 
 		glEnable(GL_BLEND);
-	//	render_text(font, stringForm, point_t(marker, -0.02), 13);
-	//	render_text(font, stringForm, point_t(0.0, marker - 0.003), 13);
-
+		//	render_text(font, stringForm, point_t(marker, -0.02), 13);
+		//	render_text(font, stringForm, point_t(0.0, marker - 0.003), 13);
 	}
-
 }
-
 
 void Renderer::render_surface(const _2DSurface &surf, const triple_t color, bool nodes)
 {
@@ -151,6 +149,4 @@ void Renderer::render_surface(const _2DSurface &surf, const triple_t color, bool
 			glEnd();
 		}
 	}
-	
-
 }

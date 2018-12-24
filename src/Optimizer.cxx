@@ -1,32 +1,29 @@
 #include "stdafx.h"
 #include "Optimizer.h"
 
-
 Optimizer::Optimizer()
 {
 }
-
 
 Optimizer::~Optimizer()
 {
 }
 
-
 // Done. But it's behaving weirdly. Find out why!
-ThickSurface* Optimizer::findNeighbor(ThickSurface &org)
+ThickSurface *Optimizer::findNeighbor(ThickSurface &org)
 {
-	ThickSurface* newNeighbor = new ThickSurface(org);
+	ThickSurface *newNeighbor = new ThickSurface(org);
 	std::vector<int> randomIndexes;
 	std::set<SNode> changedNodes;
 
 	// First, choose indices that will be modified by random neighbor search
 	double coinFlip = 0.0;
-	do { // do {} while guarantees that at least one node is modified
+	do
+	{ // do {} while guarantees that at least one node is modified
 		int randomIndex = rand() % newNeighbor->outer->nNodes;
 		randomIndexes.push_back(randomIndex);
 		coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
 	} while (coinFlip < this->multiProb);
-
 
 	for (size_t i = 0; i < randomIndexes.size(); i++)
 	{
@@ -37,8 +34,8 @@ ThickSurface* Optimizer::findNeighbor(ThickSurface &org)
 
 		// Choose a random offset, bounded by optimizer params
 		double offsetX, offsetY;
-		offsetX = static_cast<double>(rand()) / static_cast<double> (RAND_MAX) * forceOffsetRange - (forceOffsetRange / 2);
-		offsetY = static_cast<double>(rand()) / static_cast<double> (RAND_MAX) * forceOffsetRange - (forceOffsetRange / 2);
+		offsetX = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * forceOffsetRange - (forceOffsetRange / 2);
+		offsetY = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * forceOffsetRange - (forceOffsetRange / 2);
 		point_t dir(offsetX, offsetY);
 
 		point_t pdir = (*newNeighbor->outer->coords)[randomNode] + dir;
@@ -91,7 +88,7 @@ double Optimizer::findEnergy(const ThickSurface &s, double a0)
 	double p1, p2;
 	p1 = pow(whiteMatterArea, this->areaPow);
 	p2 = pow(grayMatterStretch + 1, this->diffPow); // Stretch is the difference; therefore p2 is raised to the right power here
-									  // We add 1 before raising to ensure the growth is not sublinear from the get-go
+													// We add 1 before raising to ensure the growth is not sublinear from the get-go
 
 	// Simplified energy equation of 2D closed surface
 	res = areaMul * p1 + diffMul * p2;
@@ -109,7 +106,7 @@ double Optimizer::findProbability(double eS, double eN, double t)
 
 void Optimizer::step_sa(ThickSurface &state, double temperature, double a0)
 {
-	ThickSurface* neighbor = findNeighbor(state);
+	ThickSurface *neighbor = findNeighbor(state);
 
 	double eS = findEnergy(state, a0);
 	double eN = findEnergy(*neighbor, a0);
