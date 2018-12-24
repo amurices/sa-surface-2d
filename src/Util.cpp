@@ -1,5 +1,5 @@
-#include "stdafx.h"
-#include "Util.h"
+#include "stdafx.hpp"
+#include "Util.hpp"
 
 double Util::dist(point_t p1, point_t p2)
 {

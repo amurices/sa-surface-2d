@@ -5,7 +5,7 @@
 #include <string>
 
 #include "defs.hpp"
-#include "GLFW/glfw3.hpp"
+#include "GLFW/glfw3.h"
 #include "_2DSurface.hpp"
 
 // #include <lemon/list_graph.h>

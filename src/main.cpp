@@ -1,10 +1,10 @@
 // Surface2D 2.0.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
-#include "Renderer.hxx"
-#include "Optimizer.h"
-#include "ThickSurface.h"
+#include "stdafx.hpp"
+#include "Renderer.hpp"
+#include "Optimizer.hpp"
+#include "ThickSurface.hpp"
 
 int main()
 {

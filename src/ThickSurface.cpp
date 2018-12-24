@@ -1,5 +1,5 @@
-#include "stdafx.h"
-#include "ThickSurface.h"
+#include "stdafx.hpp"
+#include "ThickSurface.hpp"
 
 ThickSurface::ThickSurface()
 {
