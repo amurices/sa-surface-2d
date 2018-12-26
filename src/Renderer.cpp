@@ -116,14 +116,20 @@ void Renderer::render_surface(const _2DSurface &surf, const triple_t color, bool
 	// Rasterise edges as lines
 	glBegin(GL_LINES);
 	int count = 0;
-	for (ListDigraph::ArcIt e(*surf.graph); e != INVALID; ++e)
+	for (size_t i = 0; i < surf.parts.size(); i++)
 	{
-		count++;
-		glColor3f(color._1, color._2, color._3);
-		glVertex2f((*surf.coords)[surf.graph->source(e)].x, (*surf.coords)[surf.graph->source(e)].y);
+		for (auto e = surf.parts[i].begin(); e != surf.parts[i].end(); e++)
+		{
+			// TODO HAHAHAHAHA SHIT
+			triple_t newColor(color._1, color._2, color._3);
+			newColor += triple_t(0.15, 0.15, 0.15) * (double)i;
 
-		glColor3f(color._1, color._2, color._3);
-		glVertex2f((*surf.coords)[surf.graph->target(e)].x, (*surf.coords)[surf.graph->target(e)].y);
+			glColor3f(newColor._1, newColor._2, newColor._3);
+			glVertex2f((*surf.coords)[surf.graph->source(*e)].x, (*surf.coords)[surf.graph->source(*e)].y);
+
+			glColor3f(newColor._1, newColor._2, newColor._3);
+			glVertex2f((*surf.coords)[surf.graph->target(*e)].x, (*surf.coords)[surf.graph->target(*e)].y);
+		}
 	}
 	glEnd();
 

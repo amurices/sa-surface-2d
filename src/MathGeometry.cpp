@@ -25,6 +25,19 @@ double MathGeometry::inverseSmooth(double u, double c)
 	return 1 / (c + 1);
 }
 
+int MathGeometry::findPartitionNumber(point_t p, int numHorzPartitions, int numVertPartitions)
+{
+#if defined(__APPLE__)
+	p += point_t(1.0, 1.0);
+	int partNumber = ((int)(p.y * numVertPartitions / 2.0) * numHorzPartitions + (int)(p.x * numHorzPartitions / 2.0));
+	partNumber = partNumber < 0 ? 0 : partNumber; // can't be like this. what if the outofboundness happens strictly vertically or horizontally?
+	partNumber = partNumber >= numHorzPartitions * numVertPartitions ? numHorzPartitions * numVertPartitions - 1 : partNumber;
+	return partNumber;
+#else
+	return 0;
+#endif
+}
+
 point_t MathGeometry::findDirectionVector(const point_t &a, const point_t &b, const point_t &c, direction_t Type)
 {
 	// TODO: All three types of direction vector are limited; there's always intersections.. On larger scale simulations, it's rarely an issue,

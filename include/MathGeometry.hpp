@@ -20,6 +20,7 @@ enum direction_t
 double absol(double x);
 double findNorm(const point_t &a);
 point_t findDirectionVector(const point_t &a, const point_t &b, const point_t &c, direction_t Type = MEDIAN_ANGLE);
+int findPartitionNumber(point_t p, int numHorzPartitions, int numVertPartitions);
 double sineSmooth(double u, double c);
 double linearSmooth(double u, double c);
 double inverseSmooth(double u, double c);

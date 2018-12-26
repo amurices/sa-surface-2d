@@ -6,7 +6,7 @@
 #include "Optimizer.hpp"
 #include "ThickSurface.hpp"
 
-int main()
+int main(int argc, char **argv)
 {
 	// Declarations and instantiations:
 	// -----------------------------------------
@@ -21,7 +21,7 @@ int main()
 	// -----------------------------------------
 
 	ThickSurface mySurface;
-	mySurface.generateCircularThickSurface(1, 300, true, 0.15, 0.15);
+	mySurface.generateCircularThickSurface(1, 300, true, 0.15, 0.15, point_t(0.0, 0.0));
 	double perim, a0 = mySurface.outer->findSurfaceAreaAndPerimeter(perim) - mySurface.inner->findSurfaceAreaAndPerimeter(perim);
 
 	ThickSurface *theNeighbor = &mySurface;
@@ -32,6 +32,7 @@ int main()
 	Optimizer myOpt;
 	// Loop is testing copying, deleting, and modification
 	double temperature = 100;
+
 	while (!glfwWindowShouldClose(myRenderer.window))
 	{
 
@@ -47,14 +48,14 @@ int main()
 
 		if (ticks < 6)
 		{
-			myRenderer.render_surface(*mySurface.outer, triple_t(0.55, 0.85, 0.85), false);
-			myRenderer.render_surface(*mySurface.inner, triple_t(0.55, 0.85, 0.85), false);
+			myRenderer.render_surface(*mySurface.outer, triple_t(0.1, 0.2, 0.3), false);
+			myRenderer.render_surface(*mySurface.inner, triple_t(0.1, 0.2, 0.45), false);
 		}
-		else if (ticks < 12)
-		{
-			myRenderer.render_surface(*theNeighbor->outer, triple_t(0.75, 0.75, 0.5), false);
-			myRenderer.render_surface(*theNeighbor->inner, triple_t(0.75, 0.75, 0.5), false);
-		}
+		// else if (ticks < 12)
+		// {
+		// 	myRenderer.render_surface(*theNeighbor->outer, triple_t(0.75, 0.75, 0.5), false);
+		// 	myRenderer.render_surface(*theNeighbor->inner, triple_t(0.75, 0.75, 0.5), false);
+		// }
 		else
 		{
 			ticks = 0;

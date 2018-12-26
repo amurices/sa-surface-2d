@@ -80,6 +80,37 @@ typedef struct triple_t
 		_2 = g;
 		_3 = b;
 	}
+
+	triple_t operator*(const double &a) const
+	{
+		return triple_t(_1 * a, _2 * a, _3 * a);
+	}
+
+	void operator*=(const double &a)
+	{
+		_1 *= a;
+		_2 *= a;
+		_3 *= a;
+	}
+
+	triple_t operator+(const double &a) const
+	{
+		return triple_t(_1 + a, _2 + a, _3 + a);
+	}
+
+	void operator+=(const double &a)
+	{
+		_1 += a;
+		_2 += a;
+		_3 += a;
+	}
+
+	void operator+=(const triple_t &a)
+	{
+		_1 += a._1;
+		_2 += a._2;
+		_3 += a._3;
+	}
 } triple_t;
 
 typedef struct point_t
@@ -180,8 +211,9 @@ typedef struct InitSaParams
 	double compression;
 } InitSaParams;
 
-typedef ListDigraph::NodeMap<point_t> Coords_t; // _t for type
-typedef ListDigraph::Node SNode;				// S for surface
+typedef ListDigraph::NodeMap<point_t> Coords_t;				  // _t for type
+typedef std::vector<std::set<ListDigraph::Arc>> Partitions_t; // _t for type
+typedef ListDigraph::Node SNode;							  // S for surface
 
 /* 
  * Some pretty-printing operator overloads.

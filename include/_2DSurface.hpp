@@ -5,19 +5,29 @@
 class _2DSurface
 {
   public:
-	// NOTE: Memory management has be done explicitly and perfectly when handling objects
+	// NOTE: Memory management has to be done explicitly and perfectly when handling objects
 	// directly through pointers. However, this makes for much cleaner code.
 
-	// NodeMap mapping coordinates (type point_t) to SNodes
+	// NodeMap mapping SNodes to points in space
 	Coords_t *coords;
+
+	// ArcMap mapping Arcs to a partition integer
+	Partitions_t parts;
 
 	// Lemon::ListDigraph contains all nodes and the directed connections between them.
 	ListDigraph *graph;
 
+	// TODO: Rethink structure of Node datum. Maybe have a collection of nodes associated with the graph.
+	// the graph would just operate on the "backend" then.
 	std::map<int, int> correspondence;
 
 	int nEdges;
 	int nNodes;
+
+	/*
+	Iterates over the graph's nodes, adding each Arc to the partition of its 
+	*/
+	void establishPartitions(int numHorzPartitions, int numVertPartitions);
 
 	/* 
 	 * Generates a number of points around a center, arranged in a circular manner.

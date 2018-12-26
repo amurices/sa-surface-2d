@@ -31,7 +31,9 @@ class ThickSurface
 	 * @param lb the lower limit of random thickness, in terms of % of outer radius.
 	 * @param center where, in OpenGL coordinates, does the surface's center lie. 
 	 */
-	void generateCircularThickSurface(double radius, int pts, bool randomThicknesses = true, double ub = 0.2, double lb = 0.0, point_t center = point_t(0.0, 0.0));
+	void generateCircularThickSurface(double radius, int pts, bool randomThicknesses = true,
+									  double ub = 0.2, double lb = 0.0, point_t center = point_t(0.0, 0.0),
+									  int horzPartsNumber = 2, int vertPartsNumber = 2);
 
 	/*
 	 * Given a set of changed nodes in the outer surface, updates the inner surface.

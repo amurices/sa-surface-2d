@@ -59,6 +59,31 @@ _2DSurface::~_2DSurface()
 	delete this->coords;
 }
 
+void _2DSurface::establishPartitions(int numHorzPartitions, int numVertPartitions)
+{
+	// Clear each set in the vector, then clear the vector
+	for (size_t i = 0; i < this->parts.size(); i++)
+	{
+		this->parts[i].clear();
+	}
+	this->parts.clear();
+	this->parts.resize(numHorzPartitions * numVertPartitions);
+
+	SNode arcSource, arcTarget;
+	for (ListDigraph::ArcIt it(*this->graph); it != INVALID; ++it)
+	{
+		arcSource = this->graph->source(it);
+		arcTarget = this->graph->target(it);
+
+		int srcPart = MathGeometry::findPartitionNumber((*this->coords)[arcSource], numHorzPartitions, numVertPartitions);
+		int tgtPart = MathGeometry::findPartitionNumber((*this->coords)[arcTarget], numHorzPartitions, numVertPartitions);
+
+		// After finding the partition for each of this arc's endpoints, add the arc to the set indexed by that part number.
+		this->parts[srcPart].insert(it);
+		this->parts[tgtPart].insert(it);
+	}
+}
+
 void _2DSurface::generateCircularSurface(double radius, int pts, point_t center)
 {
 	// (1) Add one node to the graph,
@@ -66,6 +91,8 @@ void _2DSurface::generateCircularSurface(double radius, int pts, point_t center)
 	this->nNodes++;
 	SNode prevToMap = fnode;
 	SNode currToMap;
+	// partitions[0] will contain each arc's source partition, [0] its target
+	int partitions[2];
 	//  and its coordinates to the map
 	(*(this->coords))[prevToMap] = point_t(radius, 0) + center;
 

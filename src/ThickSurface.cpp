@@ -8,7 +8,9 @@ ThickSurface::ThickSurface()
 ThickSurface::ThickSurface(const ThickSurface &copied)
 {
 	this->outer = new _2DSurface(*copied.outer);
+	this->outer->establishPartitions(2, 2);
 	this->inner = new _2DSurface(*copied.inner);
+	this->inner->establishPartitions(2, 2);
 	this->thicknesses = copied.thicknesses;
 }
 
@@ -17,9 +19,11 @@ void ThickSurface::operator=(const ThickSurface &p)
 	delete this->outer;
 	delete this->inner;
 	this->thicknesses.clear();
-
+	// TODO: What the fuck is this lmao
 	this->outer = new _2DSurface(*p.outer);
+	this->outer->establishPartitions(3, 3);
 	this->inner = new _2DSurface(*p.inner);
+	this->inner->establishPartitions(3, 3);
 	this->thicknesses = p.thicknesses;
 }
 
@@ -49,7 +53,7 @@ void ThickSurface::generateRandomThicknesses(int pts, double upperPercentOfRadiu
 	}
 }
 
-void ThickSurface::generateCircularThickSurface(double radius, int pts, bool randomThicknesses, double ub, double lb, point_t center)
+void ThickSurface::generateCircularThickSurface(double radius, int pts, bool randomThicknesses, double ub, double lb, point_t center, int horzPartsNumber, int vertPartsNumber)
 {
 	// If this boolean variable is not set, we'll assume thicknesses to have been set elsewhere
 	if (randomThicknesses)
@@ -61,7 +65,9 @@ void ThickSurface::generateCircularThickSurface(double radius, int pts, bool ran
 	}
 	this->outer = new _2DSurface();
 	this->outer->generateCircularSurface(radius, pts, center);
+	this->outer->establishPartitions(horzPartsNumber, vertPartsNumber);
 
 	this->inner = new _2DSurface();
 	this->inner->generateInnerSurface(*this->outer, this->thicknesses);
+	this->inner->establishPartitions(horzPartsNumber, vertPartsNumber);
 }
