@@ -43,7 +43,28 @@ void Renderer::preLoopGL()
 
 void Renderer::postLoopGL()
 {
+#ifdef __APPLE__
+	static short int swap = 0;
+	if (swap >= 2)
+	{
+		glfwSwapBuffers(this->window);
+		swap = 0;
+	}
+	swap++;
+
+	static short int macMoved = 0;
+
+	if (macMoved < 10)
+	{
+
+		int x, y;
+		glfwGetWindowPos(this->window, &x, &y);
+		glfwSetWindowPos(this->window, ++x, y);
+		macMoved++;
+	}
+#else
 	glfwSwapBuffers(this->window);
+#endif
 	glfwPollEvents();
 }
 
@@ -113,6 +134,12 @@ void Renderer::render_axes()
 
 void Renderer::render_surface(const _2DSurface &surf, const triple_t color, bool nodes)
 {
+	static std::vector<triple_t> randomColors;
+	if (randomColors.empty())
+	{
+		Util::randColors(randomColors, (int)surf.parts.size());
+	}
+
 	// Rasterise edges as lines
 	glBegin(GL_LINES);
 	int count = 0;
@@ -120,14 +147,10 @@ void Renderer::render_surface(const _2DSurface &surf, const triple_t color, bool
 	{
 		for (auto e = surf.parts[i].begin(); e != surf.parts[i].end(); e++)
 		{
-			// TODO HAHAHAHAHA SHIT
-			triple_t newColor(color._1, color._2, color._3);
-			newColor += triple_t(0.15, 0.15, 0.15) * (double)i;
-
-			glColor3f(newColor._1, newColor._2, newColor._3);
+			glColor3f(randomColors[i]._1, randomColors[i]._2, randomColors[i]._3);
 			glVertex2f((*surf.coords)[surf.graph->source(*e)].x, (*surf.coords)[surf.graph->source(*e)].y);
 
-			glColor3f(newColor._1, newColor._2, newColor._3);
+			glColor3f(randomColors[i]._1, randomColors[i]._2, randomColors[i]._3);
 			glVertex2f((*surf.coords)[surf.graph->target(*e)].x, (*surf.coords)[surf.graph->target(*e)].y);
 		}
 	}

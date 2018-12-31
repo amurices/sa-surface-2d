@@ -30,7 +30,7 @@ int MathGeometry::findPartitionNumber(point_t p, int numHorzPartitions, int numV
 #if defined(__APPLE__)
 	p += point_t(1.0, 1.0);
 	int partNumber = ((int)(p.y * numVertPartitions / 2.0) * numHorzPartitions + (int)(p.x * numHorzPartitions / 2.0));
-	partNumber = partNumber < 0 ? 0 : partNumber; // can't be like this. what if the outofboundness happens strictly vertically or horizontally?
+	partNumber = partNumber < 0 ? 0 : partNumber; // TODO: This isn't ideal. Strictly vertical or horizontal out-of-boundness could be an issue
 	partNumber = partNumber >= numHorzPartitions * numVertPartitions ? numHorzPartitions * numVertPartitions - 1 : partNumber;
 	return partNumber;
 #else

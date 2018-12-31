@@ -10,4 +10,8 @@ bool eqTolerance(double a, double b, double tol);
 
 double absol(double x);
 
+double getRandomRange(double lower, double upper);
+
+void randColors(std::vector<triple_t> &colors, int numColors);
+
 }; // namespace Util

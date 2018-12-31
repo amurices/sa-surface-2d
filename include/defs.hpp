@@ -12,6 +12,9 @@
 #include <exception>
 #include <lemon/list_graph.h>
 
+#ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION
+#endif
 using namespace lemon;
 
 const double TOLERANCE = 0.00000001;

@@ -27,3 +27,17 @@ double Util::absol(double x)
 		return -x;
 	return x;
 }
+
+double Util::getRandomRange(double lower, double upper)
+{
+	return lower + (upper - lower) * (double)rand() / RAND_MAX;
+}
+
+void Util::randColors(std::vector<triple_t> &colors, int numColors)
+{
+	colors.clear();
+	for (int i = 0; i < numColors; i++)
+	{
+		colors.emplace_back(getRandomRange(0.0, 1.0), getRandomRange(0.0, 1.0), getRandomRange(0.0, 1.0));
+	}
+}

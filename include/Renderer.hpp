@@ -5,6 +5,7 @@
 #include <string>
 
 #include "defs.hpp"
+#include "Util.hpp"
 #include "GLFW/glfw3.h"
 #include "_2DSurface.hpp"
 

@@ -112,7 +112,6 @@ void Optimizer::step_sa(ThickSurface &state, double temperature, double a0)
 	double eN = findEnergy(*neighbor, a0);
 
 	double prob = findProbability(eS, eN, temperature);
-	std::cout << "prob: " << prob << std::endl;
 	double coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
 
 	if (coinFlip < prob)
