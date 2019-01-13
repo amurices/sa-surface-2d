@@ -64,6 +64,7 @@ class _2DSurface
 	 * @param func which function should simulate the compression or expansion of the surface at individual points. 
 	 */
 	void smoothAdjacentNodes(SNode changedNode, point_t changedDifference, int smoothness, std::set<SNode> &changedSet, double (*func)(double u, double c));
+	void smoothAdjacentNodesV2(SNode changedNode, point_t changedDifference, int smoothness, std::set<NodeChange_t> *changedSet, double (*func)(double u, double c));
 
 	/* 
 	 *  Wraps around a geometrical function to return the area of the surface's points.

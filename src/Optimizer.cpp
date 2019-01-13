@@ -9,7 +9,6 @@ Optimizer::~Optimizer()
 {
 }
 
-// Done. But it's behaving weirdly. Find out why!
 ThickSurface *Optimizer::findNeighbor(ThickSurface &org)
 {
 	ThickSurface *newNeighbor = new ThickSurface(org);
@@ -68,22 +67,22 @@ ThickSurface *Optimizer::findNeighbor(ThickSurface &org)
 	return newNeighbor;
 }
 
-void Optimizer::applyChanges(ThickSurface &thickSurface, std::set<Change_t> &changes)
+void Optimizer::applyChanges(ThickSurface &thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges)
 {
 }
 
-ThickSurface *Optimizer::findNeighborV2(ThickSurface &org)
+void Optimizer::findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighborChanges, std::set<ThicknessChange_t> *neighborThicknessChanges)
 {
-	ThickSurface *newNeighbor = new ThickSurface(org);
 	std::vector<int> randomIndexes;
-	// Use a set of changes
-	std::set<Change_t> changes;
+	// Use a set of changes for node and thickness changes
+	std::set<NodeChange_t> changes;
+	std::set<ThicknessChange_t> thicknessChanges;
 
 	// First, choose indices that will be modified by random neighbor search
 	double coinFlip = 0.0;
 	do
 	{ // do {} while guarantees that at least one node is modified
-		int randomIndex = rand() % newNeighbor->outer->nNodes;
+		int randomIndex = rand() % org.outer->nNodes;
 		randomIndexes.push_back(randomIndex);
 		coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
 	} while (coinFlip < this->multiProb);
@@ -93,7 +92,7 @@ ThickSurface *Optimizer::findNeighborV2(ThickSurface &org)
 		int randomIndex = randomIndexes[i];
 
 		SNode randomNode = org.outer->graph->nodeFromId(randomIndex);
-		SNode randomInnerNode = org.inner->graph->nodeFromId(newNeighbor->outer->correspondence[randomIndex]);
+		SNode randomInnerNode = org.inner->graph->nodeFromId(org.outer->correspondence[randomIndex]);
 
 		// Choose a random offset, bounded by optimizer params
 		double offsetX, offsetY;
@@ -101,12 +100,11 @@ ThickSurface *Optimizer::findNeighborV2(ThickSurface &org)
 		offsetY = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * forceOffsetRange - (forceOffsetRange / 2);
 		point_t dir(offsetX, offsetY);
 
-		point_t pdir = (*newNeighbor->outer->coords)[randomNode] + dir;
-		point_t mdir = (*newNeighbor->outer->coords)[randomNode] - dir;
+		point_t pdir = (*org.outer->coords)[randomNode] + dir;
+		point_t mdir = (*org.outer->coords)[randomNode] - dir;
 
-		changes.insert(Change_t(randomNode, pdir, randomInnerNode));
-
-		// TODO: Encapsulate within applyChanges: vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+		// Collect change to outer node's position.
+		neighborChanges->insert(NodeChange_t(randomNode, dir, org.outer->graph));
 
 		// We now have the offset of the neighbor in relation to the current state. If we want to know whether
 		// this particular force has stretched or compressed the surface, which will determine whether we multiply
@@ -120,21 +118,16 @@ ThickSurface *Optimizer::findNeighborV2(ThickSurface &org)
 		double distMdir = Util::dist(mdir, (*org.inner->coords)[randomInnerNode]);
 
 		// If the distance to the inner node is now larger, then the surface will be stretched, otherwise itll be compressed
-		double thicknessDiff = newNeighbor->thicknesses[randomIndex]; // Useful for the smoothness routine
-		newNeighbor->thicknesses[randomIndex] *= (distPdir > distMdir ? this->compression : 1 / this->compression);
-		thicknessDiff -= newNeighbor->thicknesses[randomIndex];
+		double thicknessDiff;
+		thicknessDiff = org.thicknesses[randomIndex] * (distPdir > distMdir ? this->compression : 1 / this->compression);
+		thicknessDiff -= org.thicknesses[randomIndex];
 
-		// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		neighborThicknessChanges->insert(ThicknessChange_t(randomIndex, thicknessDiff));
 
 		// TODO: Pass changes to smoothAdjacentNodesV2 so that based on it, it does its thing and adds
 		// the appropriate shit to changes. Add smoothAdjacentNodesV2 prototype so it compiles.
-		newNeighbor->outer->smoothAdjacentNodes(randomNode, dir, this->smooth, changedNodes, &MathGeometry::linearSmooth);
+		org.outer->smoothAdjacentNodesV2(randomNode, dir, this->smooth, neighborChanges, &MathGeometry::linearSmooth);
 	}
-	// TODO: Encapsulate within applyChanges and get it out of here.
-	newNeighbor->updateInnerSurface(changedNodes);
-
-	// TODO: Return changes.
-	return newNeighbor;
 }
 
 double Optimizer::findEnergy(const ThickSurface &s, double a0)

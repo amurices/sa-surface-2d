@@ -231,5 +231,46 @@ inline std::ostream &operator<<(std::ostream &os, line_t const &p)
 			  << "(" << p.p2.x << ", " << p.p2.y << ")";
 }
 
-typedef ListDigraph::NodeMap<point_t> Coords_t; // _t for type
-typedef ListDigraph::Node SNode;				// S for surface
+/* ListDigraph manipulation types. _t suffix means type. */
+
+typedef ListDigraph::NodeMap<point_t> Coords_t;
+typedef ListDigraph::Node SNode; // S for surface
+
+typedef struct ct
+{
+	SNode node;
+	point_t change;
+	ListDigraph *graph;
+
+	ct(SNode node, point_t change, ListDigraph *graph)
+	{
+		this->node = node;
+		this->change = change;
+		this->graph = graph;
+	}
+
+	bool operator<(const struct ct &otherChange) const
+	{
+		return (node < otherChange.node |
+				change < otherChange.change |
+				graph < otherChange.graph);
+	}
+} NodeChange_t;
+
+typedef struct tct
+{
+	int nodeIndex;
+	double change;
+
+	tct(int nodeIndex, double change)
+	{
+		this->nodeIndex = nodeIndex;
+		this->change = change;
+	}
+
+	bool operator<(const struct tct &otherChange) const
+	{
+		return (nodeIndex < otherChange.nodeIndex |
+				change < otherChange.change);
+	}
+} ThicknessChange_t;

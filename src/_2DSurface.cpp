@@ -144,6 +144,32 @@ void _2DSurface::smoothAdjacentNodes(SNode changedNode, point_t changedDifferenc
 	changedSet.insert(next);
 }
 
+void _2DSurface::smoothAdjacentNodesV2(SNode changedNode, point_t changedDifference, int smoothness, std::set<NodeChange_t> *changedSet, double (*func)(double u, double c))
+{
+	SNode prev, next;
+	int u = smoothness;
+	prev = next = changedNode;
+
+	for (int c = 1; c <= u; c++)
+	{
+		prev = this->graph->source(ListDigraph::InArcIt(*this->graph, prev));
+		next = this->graph->target(ListDigraph::OutArcIt(*this->graph, next));
+
+		double ratio = (*func)(u, c);
+		point_t coordsChange(changedDifference.x * ratio, changedDifference.y * ratio);
+
+		// Previous and next nodes are also going to be altered as a matter of where they are in relation to their inner correspondents
+		changedSet->insert(NodeChange_t(prev, coordsChange, this->graph));
+		changedSet->insert(NodeChange_t(next, coordsChange, this->graph));
+	}
+	// The single node at the end and beginning of a set of changed smoothed nodes are also altered (updateInner has to see them)
+	// Don't know if this is necessary, but for the sake of consistency, i'll add the redundant changes.
+	prev = this->graph->source(ListDigraph::InArcIt(*this->graph, prev));
+	next = this->graph->target(ListDigraph::OutArcIt(*this->graph, next));
+	changedSet->insert(NodeChange_t(prev, point_t(0, 0), this->graph));
+	changedSet->insert(NodeChange_t(next, point_t(0, 0), this->graph));
+}
+
 void _2DSurface::generateInnerSurface(_2DSurface &outerSurf, const std::vector<double> &thicknesses)
 {
 	SNode prev, next, last;

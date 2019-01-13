@@ -4,25 +4,6 @@
 #include "Util.hpp"
 #include "_2DSurface.hpp"
 
-typedef struct ct
-{
-	SNode node;
-	point_t change;
-	SNode correspondent;
-
-	Change_t(SNode node, point_t change, SNode correspondent)
-	{
-		this->node = node;
-		this->change = change;
-		this->correspondent = correspondent;
-	}
-
-	bool operator<(const struct ct &otherChange)
-	{
-		return (node < otherChange.node | change < otherChange.change | correspondent < otherChange.correspondent);
-	}
-} Change_t;
-
 class Optimizer
 {
   public:
@@ -70,9 +51,9 @@ class Optimizer
 	void step_sa(ThickSurface &state, double temperature, double a0);
 
 	ThickSurface *findNeighbor(ThickSurface &org);
-	ThickSurface *findNeighborV2(ThickSurface &org);
+	void findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighborChanges, std::set<ThicknessChange_t> *neighborThicknessChanges);
 
-	void applyChanges(ThickSurface &thickSurface, std::set<Change_t> &changes);
+	void applyChanges(ThickSurface &thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges);
 
 	/* Given a state S, that when relaxed has energy a0, calculates its internal energy.
 	 *
