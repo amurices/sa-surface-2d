@@ -41,6 +41,7 @@ class ThickSurface
 	 * @param changedNodes a unique set (no repeated elements) of nodes in the outer surface that need their correspondents updated.
 	 */
 	void updateInnerSurface(const std::set<SNode> &changedNodes);
+	void updateInnerSurfaceV2(const std::set<SNode> &changedNodes);
 
 	/* 
 	 * Default constructor. Does nothing except allocate memory and set standard values to 0.

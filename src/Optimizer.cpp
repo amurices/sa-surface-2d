@@ -69,6 +69,9 @@ ThickSurface *Optimizer::findNeighbor(ThickSurface &org)
 
 void Optimizer::applyChanges(ThickSurface &thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges)
 {
+	// TODO: Apply changes has to see what updateInnerSurfaceV2 has done. So the call to updateInnerSurfaceV2 should be done inside here,
+	// with the changes being simply added to changes and thicknessChanges. Then after a call to applyChanges has been made, all the changes
+	// are done AND will be visible within the sets, which means they can be reversed.
 }
 
 void Optimizer::findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighborChanges, std::set<ThicknessChange_t> *neighborThicknessChanges)

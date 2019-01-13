@@ -54,6 +54,7 @@ class _2DSurface
 	 * @param thicknesses vector of "thicknesses" (distance between inner and outer nodes at multiple indices).
 	 */
 	void updateInnerSurface(_2DSurface &outerSurf, const std::set<SNode> &changedNodes, const std::vector<double> &thicknesses);
+	void updateInnerSurfaceV2(_2DSurface &outerSurf, const std::set<SNode> &changedNodes, const std::vector<double> &thicknesses);
 
 	/* 
 	 * Given a node, draws nodes next to it toward the direction it was pushed/pulled.

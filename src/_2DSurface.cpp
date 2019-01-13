@@ -237,6 +237,42 @@ void _2DSurface::updateInnerSurface(_2DSurface &outerSurf, const std::set<SNode>
 {
 	int count = 0;
 
+	// TODO: Adapt so it adds the nodes to changes made.
+	for (auto it = changedNodes.begin(); it != changedNodes.end(); it++)
+	{
+		count++;
+		SNode prev, next, last;
+		point_t pPrev, pNext, pCurr, vd;
+
+		// Changed nodes have their correspondents updated one at a time
+		SNode fnode = *it;
+		int fnodeId = outerSurf.graph->id(fnode);
+
+		ListDigraph::InArcIt inCurrI(*outerSurf.graph, fnode);   // get Pn
+		ListDigraph::OutArcIt outCurrI(*outerSurf.graph, fnode); // and P1
+
+		prev = outerSurf.graph->source(inCurrI);  // cont ^
+		next = outerSurf.graph->target(outCurrI); // cont ^
+
+		pNext = (*outerSurf.coords)[next]; // get coordinates Pn
+		pPrev = (*outerSurf.coords)[prev]; // and P0
+
+		vd = MathGeometry::findDirectionVector(pPrev, pNext, (*outerSurf.coords)[fnode], MathGeometry::MEDIAN_ANGLE); // Get directional vector btwn inner & outer
+		vd *= thicknesses[outerSurf.graph->id(fnode)];																  // Directional vector returned by findDirectionVector is unitary
+
+		// TODO: The following depends on the node IDs of inner and outer surfaces to ALWAYS REMAIN THE SAME.
+		// Since IDs are calculated at the moment they're added to a graph, this shouldn't be an issue, since we always
+		// traverse the surfaces in the same order (and will do the same when adding nodes). Still, it's worth noting.
+
+		SNode finode = this->graph->nodeFromId(fnodeId);				   // Add node to this surface;
+		SNode innerCurrToMap = finode;									   // Current node to map is first node
+		(*this->coords)[innerCurrToMap] = (*outerSurf.coords)[fnode] - vd; // set coordinates of inner node
+	}
+}
+void _2DSurface::updateInnerSurfaceV2(_2DSurface &outerSurf, const std::set<SNode> &changedNodes, const std::vector<double> &thicknesses)
+{
+	int count = 0;
+
 	for (auto it = changedNodes.begin(); it != changedNodes.end(); it++)
 	{
 		count++;
