@@ -269,7 +269,8 @@ void _2DSurface::updateInnerSurface(_2DSurface &outerSurf, const std::set<SNode>
 		(*this->coords)[innerCurrToMap] = (*outerSurf.coords)[fnode] - vd; // set coordinates of inner node
 	}
 }
-void _2DSurface::updateInnerSurfaceV2(_2DSurface &outerSurf, const std::set<SNode> &changedNodes, const std::vector<double> &thicknesses)
+void _2DSurface::updateInnerSurfaceV2(_2DSurface &outerSurf, const std::set<SNode> &changedNodes, const std::vector<double> &thicknesses,
+									  std::set<NodeChange_t> *nodeChanges, std::set<ThicknessChange_t> *thicknessChanges)
 {
 	int count = 0;
 
@@ -299,9 +300,14 @@ void _2DSurface::updateInnerSurfaceV2(_2DSurface &outerSurf, const std::set<SNod
 		// Since IDs are calculated at the moment they're added to a graph, this shouldn't be an issue, since we always
 		// traverse the surfaces in the same order (and will do the same when adding nodes). Still, it's worth noting.
 
-		SNode finode = this->graph->nodeFromId(fnodeId);				   // Add node to this surface;
-		SNode innerCurrToMap = finode;									   // Current node to map is first node
-		(*this->coords)[innerCurrToMap] = (*outerSurf.coords)[fnode] - vd; // set coordinates of inner node
+		SNode finode = this->graph->nodeFromId(fnodeId); // Add node to this surface;
+		SNode innerCurrToMap = finode;					 // Current node to map is first node
+		nodeChanges->insert(
+			NodeChange_t(
+				innerCurrToMap,													   // node where the change is applied
+				(*outerSurf.coords)[fnode] - vd - (*this->coords)[innerCurrToMap], // the difference (if we add this node's coords we'll get it back)
+				this->graph));													   // inner node's graph
+		(*this->coords)[innerCurrToMap] = (*outerSurf.coords)[fnode] - vd;		   // set coordinates of inner node
 	}
 }
 

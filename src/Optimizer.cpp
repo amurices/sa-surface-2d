@@ -72,6 +72,20 @@ void Optimizer::applyChanges(ThickSurface &thickSurface, std::set<NodeChange_t> 
 	// TODO: Apply changes has to see what updateInnerSurfaceV2 has done. So the call to updateInnerSurfaceV2 should be done inside here,
 	// with the changes being simply added to changes and thicknessChanges. Then after a call to applyChanges has been made, all the changes
 	// are done AND will be visible within the sets, which means they can be reversed.
+	for (auto it = changes.begin(); it != changes.end(); it++)
+	{
+		if (it->graph == thickSurface.outer->graph)
+		{
+			(*thickSurface.outer->coords)[it->node] += it->change;
+		}
+	}
+
+	for (auto it = thicknessChanges.begin(); it != thicknessChanges.end(); it++)
+	{
+		thickSurface.thicknesses[it->nodeIndex] += it->change;
+	}
+	std::set<SNode> changedIDK;
+	thickSurface.updateInnerSurfaceV2(changedIDK, &changes, &thicknessChanges);
 }
 
 void Optimizer::findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighborChanges, std::set<ThicknessChange_t> *neighborThicknessChanges)
@@ -173,6 +187,13 @@ void Optimizer::step_sa(ThickSurface &state, double temperature, double a0)
 {
 	// TODO: Use changes here.
 	ThickSurface *neighbor = findNeighbor(state);
+
+	ThickSurface *neighborV2 = new ThickSurface(state);
+	std::set<NodeChange_t> neighborChanges;
+	std::set<ThicknessChange_t> thicknessChanges;
+	printf("LMao. yea RIGHT\n");
+	findNeighborV2(*neighborV2, &neighborChanges, &thicknessChanges);
+	printf("Fuk u bithc\n");
 
 	// TODO: findEnergies (a0, state, changes, &eS, &eN);
 	double eS = findEnergy(state, a0);
