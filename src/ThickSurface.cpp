@@ -39,12 +39,10 @@ void ThickSurface::updateInnerSurface(const std::set<SNode> &changedNodes)
 {
 	this->inner->updateInnerSurface(*this->outer, changedNodes, this->thicknesses);
 }
-void ThickSurface::updateInnerSurfaceV2(const std::set<SNode> &changedNodes,
-										std::set<NodeChange_t> *nodeChanges,
-										std::set<ThicknessChange_t> *thicknessChanges)
+void ThickSurface::updateInnerSurfaceV2(std::set<NodeChange_t> *nodeChanges)
 {
 	// TODO: Pass changes so updateInnerSurface can add what it does to the thick surface.
-	this->inner->updateInnerSurfaceV2(*this->outer, changedNodes, this->thicknesses, nodeChanges, thicknessChanges);
+	this->inner->updateInnerSurfaceV2(*this->outer, this->thicknesses, nodeChanges);
 }
 
 void ThickSurface::generateRandomThicknesses(int pts, double upperPercentOfRadius, double lowerPercentOfRadius)

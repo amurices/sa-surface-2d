@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 		if (ticks == 0)
 		{
 			temperature -= 1.0;
-			myOpt.step_sa(mySurface, temperature, a0);
+			myOpt.step_saV2(mySurface, temperature, a0);
 		}
 
 		ticks++;

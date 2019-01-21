@@ -269,19 +269,17 @@ void _2DSurface::updateInnerSurface(_2DSurface &outerSurf, const std::set<SNode>
 		(*this->coords)[innerCurrToMap] = (*outerSurf.coords)[fnode] - vd; // set coordinates of inner node
 	}
 }
-void _2DSurface::updateInnerSurfaceV2(_2DSurface &outerSurf, const std::set<SNode> &changedNodes, const std::vector<double> &thicknesses,
-									  std::set<NodeChange_t> *nodeChanges, std::set<ThicknessChange_t> *thicknessChanges)
+void _2DSurface::updateInnerSurfaceV2(_2DSurface &outerSurf, std::vector<double> &thicknesses, std::set<NodeChange_t> *nodeChanges)
 {
-	int count = 0;
+	std::set<NodeChange_t> additions;
 
-	for (auto it = changedNodes.begin(); it != changedNodes.end(); it++)
+	for (auto it = (*nodeChanges).begin(); it != (*nodeChanges).end(); it++)
 	{
-		count++;
 		SNode prev, next, last;
 		point_t pPrev, pNext, pCurr, vd;
 
 		// Changed nodes have their correspondents updated one at a time
-		SNode fnode = *it;
+		SNode fnode = (*it).node;
 		int fnodeId = outerSurf.graph->id(fnode);
 
 		ListDigraph::InArcIt inCurrI(*outerSurf.graph, fnode);   // get Pn
@@ -296,18 +294,20 @@ void _2DSurface::updateInnerSurfaceV2(_2DSurface &outerSurf, const std::set<SNod
 		vd = MathGeometry::findDirectionVector(pPrev, pNext, (*outerSurf.coords)[fnode], MathGeometry::MEDIAN_ANGLE); // Get directional vector btwn inner & outer
 		vd *= thicknesses[outerSurf.graph->id(fnode)];																  // Directional vector returned by findDirectionVector is unitary
 
-		// TODO: The following depends on the node IDs of inner and outer surfaces to ALWAYS REMAIN THE SAME.
-		// Since IDs are calculated at the moment they're added to a graph, this shouldn't be an issue, since we always
-		// traverse the surfaces in the same order (and will do the same when adding nodes). Still, it's worth noting.
-
+		// TODO: THIS IS SHIT.
 		SNode finode = this->graph->nodeFromId(fnodeId); // Add node to this surface;
 		SNode innerCurrToMap = finode;					 // Current node to map is first node
-		nodeChanges->insert(
+		additions.insert(
 			NodeChange_t(
 				innerCurrToMap,													   // node where the change is applied
 				(*outerSurf.coords)[fnode] - vd - (*this->coords)[innerCurrToMap], // the difference (if we add this node's coords we'll get it back)
 				this->graph));													   // inner node's graph
 		(*this->coords)[innerCurrToMap] = (*outerSurf.coords)[fnode] - vd;		   // set coordinates of inner node
+	}
+	// std::set_union(additions.begin(), additions.end(), nodeChanges->begin(), nodeChanges->end(), nodeChanges->begin());
+	for (auto it = additions.begin(); it != additions.end(); it++)
+	{
+		nodeChanges->insert(*it);
 	}
 }
 

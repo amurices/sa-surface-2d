@@ -143,6 +143,12 @@ typedef struct point_t
 	{
 		return point_t(p.x + x, p.y + y);
 	}
+	void operator=(const point_t &p)
+	{
+		x = p.x;
+		y = p.y;
+	}
+
 	void operator+=(const point_t &p)
 	{
 		x += p.x;
@@ -249,6 +255,13 @@ typedef struct ct
 		this->graph = graph;
 	}
 
+	void operator=(const struct ct &otherChange)
+	{
+		this->node = otherChange.node;
+		this->change = otherChange.change;
+		this->graph = otherChange.graph;
+	}
+
 	bool operator<(const struct ct &otherChange) const
 	{
 		return (node < otherChange.node |
@@ -266,6 +279,12 @@ typedef struct tct
 	{
 		this->nodeIndex = nodeIndex;
 		this->change = change;
+	}
+
+	void operator=(const struct tct &otherChange)
+	{
+		nodeIndex = otherChange.nodeIndex;
+		change = otherChange.change;
 	}
 
 	bool operator<(const struct tct &otherChange) const

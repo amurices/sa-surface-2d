@@ -85,7 +85,30 @@ void Optimizer::applyChanges(ThickSurface &thickSurface, std::set<NodeChange_t> 
 		thickSurface.thicknesses[it->nodeIndex] += it->change;
 	}
 	std::set<SNode> changedIDK;
-	thickSurface.updateInnerSurfaceV2(changedIDK, &changes, &thicknessChanges);
+	thickSurface.updateInnerSurfaceV2(&changes);
+}
+
+void Optimizer::revertChanges(ThickSurface &thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges)
+{
+	// TODO: Apply changes has to see what updateInnerSurfaceV2 has done. So the call to updateInnerSurfaceV2 should be done inside here,
+	// with the changes being simply added to changes and thicknessChanges. Then after a call to applyChanges has been made, all the changes
+	// are done AND will be visible within the sets, which means they can be reversed.
+	for (auto it = changes.begin(); it != changes.end(); it++)
+	{
+		if (it->graph == thickSurface.outer->graph)
+		{
+			(*thickSurface.outer->coords)[it->node] -= it->change;
+		}
+		else if (it->graph == thickSurface.inner->graph)
+		{
+			(*thickSurface.inner->coords)[it->node] -= it->change;
+		}
+	}
+
+	for (auto it = thicknessChanges.begin(); it != thicknessChanges.end(); it++)
+	{
+		thickSurface.thicknesses[it->nodeIndex] -= it->change;
+	}
 }
 
 void Optimizer::findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighborChanges, std::set<ThicknessChange_t> *neighborThicknessChanges)
@@ -198,6 +221,8 @@ void Optimizer::step_sa(ThickSurface &state, double temperature, double a0)
 	// TODO: findEnergies (a0, state, changes, &eS, &eN);
 	double eS = findEnergy(state, a0);
 	double eN = findEnergy(*neighbor, a0);
+	double eNv2 = findEnergy(*neighborV2, a0);
+	printf("Energies: S: %.4f\tN: %.4f\t", eS, eN);
 
 	// Will not change.
 	double prob = findProbability(eS, eN, temperature);
@@ -210,4 +235,27 @@ void Optimizer::step_sa(ThickSurface &state, double temperature, double a0)
 		delete neighbor;
 	}
 	// TODO: Else{ revert changes }
+}
+
+void Optimizer::step_saV2(ThickSurface &state, double temperature, double a0)
+{
+	std::set<NodeChange_t> neighborChanges;
+	std::set<ThicknessChange_t> thicknessChanges;
+
+	findNeighborV2(state, &neighborChanges, &thicknessChanges);
+	double eS = findEnergy(state, a0);
+	applyChanges(state, neighborChanges, thicknessChanges);
+	double eN = findEnergy(state, a0);
+
+	printf("Energies: S: %.4f\tN: %.4f\t", eS, eN);
+
+	double prob = findProbability(eS, eN, temperature);
+	double coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+
+	if (coinFlip >= prob)
+	{
+		revertChanges(state, neighborChanges, thicknessChanges);
+		printf("Rev: %.4f", findEnergy(state, a0));
+	}
+	printf("\n");
 }
