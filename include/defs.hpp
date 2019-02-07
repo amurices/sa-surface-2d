@@ -71,7 +71,7 @@ const double PI = 3.14159265358979323846;
  * Types utilized have operators overloaded when relevant, and when defined by
  * our program, they come with the suffix "_t".
  */
-typedef struct triple_t
+struct triple_t
 {
 	double _1;
 	double _2;
@@ -114,9 +114,9 @@ typedef struct triple_t
 		_2 += a._2;
 		_3 += a._3;
 	}
-} triple_t;
+};
 
-typedef struct point_t
+struct point_t
 {
 	double x;
 	double y;
@@ -176,9 +176,16 @@ typedef struct point_t
 		y *= a;
 	}
 
-} point_t;
-
-typedef struct line_t
+};
+// CGAL typedefs
+/*
+typedef CGAL::Quotient<CGAL::MP_Float>      NT;
+typedef CGAL::Cartesian<NT>                 Kernel;
+typedef Kernel::Point_2                     point_cg;
+typedef CGAL::Arr_segment_traits_2<Kernel>  traits_cg;
+typedef traits_cg::Curve_2                  lines_cg;
+*/
+struct line_t
 {
 	point_t p1;
 	point_t p2;
@@ -200,7 +207,7 @@ typedef struct line_t
 	line_t()
 	{
 	}
-} line_t;
+};
 
 typedef struct InitSaParams
 {

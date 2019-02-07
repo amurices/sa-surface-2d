@@ -25,6 +25,48 @@ double MathGeometry::inverseSmooth(double u, double c)
 	return 1 / (c + 1);
 }
 
+static struct point_t* centroid;
+// Return polar angle of p with respect to origin o
+double to_angle(const struct point_t *p, const struct point_t *o) {
+    return atan2(p->y - o->y, p->x - o->x);
+}
+void find_centroid(struct point_t *c, struct point_t *pts, int n_pts) {
+    double x = 0, y = 0;
+    for (int i = 0; i < n_pts; i++) {
+        x += pts[i].x;
+        y += pts[i].y;
+    }
+    c->x = x / n_pts;
+    c->y = y / n_pts;
+}
+int by_polar_angle(const void *va, const void *vb) {
+    double theta_a = to_angle((point_t*)va, centroid);
+    double theta_b = to_angle((point_t*)vb, centroid);
+    return theta_a < theta_b ? -1 : theta_a > theta_b ? 1 : 0;
+}
+void sort_by_polar_angle(struct point_t *pts, int n_pts) {
+    find_centroid(centroid, pts, n_pts);
+    qsort(pts, n_pts, sizeof pts[0], by_polar_angle);
+}
+double find_norm(const point_t &a)
+{
+    return sqrt(a.x * a.x + a.y * a.y);
+}
+
+// ---------------------------------------------
+// 2D cross product of OA and OB vectors, i.e. z-component of their 3D cross product.
+// Returns a positive value, if OAB makes a counter-clockwise turn,
+// negative for clockwise turn, and zero if the point_ts are collinear.
+double cross(const point_t &A, const point_t &B, const point_t &O = point_t(0, 0))
+{
+    return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
+}
+
+double _2Dcross(const point_t &v, const point_t &w)
+{
+    return v.x * w.y - v.y * w.x;
+}
+
 int MathGeometry::findPartitionNumber(point_t p, int numHorzPartitions, int numVertPartitions)
 {
 #if defined(__APPLE__)
