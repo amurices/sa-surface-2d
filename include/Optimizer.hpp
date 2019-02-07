@@ -49,7 +49,7 @@ class Optimizer
 				 double multiProb = 0, double forceOffsetRange = 0.066,
 				 double tempProb = 0, double compression = 1);
 	void step_sa(ThickSurface &state, double temperature, double a0);
-	void step_saV2(ThickSurface &state, double temperature, double a0);
+	void step_saV2(ThickSurface &state, double *temperature, double a0);
 
 	ThickSurface *findNeighbor(ThickSurface &org);
 	void findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighborChanges, std::set<ThicknessChange_t> *neighborThicknessChanges);
@@ -71,8 +71,6 @@ class Optimizer
 	 * @param t the current temperature of the system.
 	 */
 	double findProbability(double eS, double eN, double t);
-
-	double temperature();
 
 	void evolve_sa(int kMax, bool time = true);
 

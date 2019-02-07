@@ -40,8 +40,7 @@ int main(int argc, char **argv)
 		myRenderer.render_axes(); // Swap this for a RenderObject list
 		if (ticks == 0)
 		{
-			temperature -= 1.0;
-			myOpt.step_saV2(mySurface, temperature, a0);
+			myOpt.step_saV2(mySurface, &temperature, a0);
 		}
 
 		ticks++;

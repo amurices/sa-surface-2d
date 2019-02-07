@@ -237,7 +237,7 @@ void Optimizer::step_sa(ThickSurface &state, double temperature, double a0)
 	// TODO: Else{ revert changes }
 }
 
-void Optimizer::step_saV2(ThickSurface &state, double temperature, double a0)
+void Optimizer::step_saV2(ThickSurface &state, double *temperature, double a0)
 {
 	std::set<NodeChange_t> neighborChanges;
 	std::set<ThicknessChange_t> thicknessChanges;
@@ -247,15 +247,14 @@ void Optimizer::step_saV2(ThickSurface &state, double temperature, double a0)
 	applyChanges(state, neighborChanges, thicknessChanges);
 	double eN = findEnergy(state, a0);
 
-	printf("Energies: S: %.4f\tN: %.4f\t", eS, eN);
-
-	double prob = findProbability(eS, eN, temperature);
+	printf("Energies: S: %.4f\tN: %.4f", eS, eN);
+	double prob = findProbability(eS, eN, *temperature);
 	double coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
 
 	if (coinFlip >= prob)
 	{
 		revertChanges(state, neighborChanges, thicknessChanges);
-		printf("Rev: %.4f", findEnergy(state, a0));
 	}
+	*temperature -= 0.01;
 	printf("\n");
 }
