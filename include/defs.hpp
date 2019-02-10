@@ -209,13 +209,14 @@ struct line_t
 	}
 };
 
-typedef struct InitSaParams
+struct InitSaParams
 {
 	// Surface params
 	double radius;
 	double thickness;
 	// Optimizer params
 	double scale;
+	double a0;
 	int smooth;
 	double diffMul;
 	double diffPow;
@@ -225,7 +226,19 @@ typedef struct InitSaParams
 	double forceOffsetRange;
 	double temperature;
 	double compression;
-} InitSaParams;
+
+	InitSaParams(double scale, double a0, int smooth,
+	             double diffMul, double diffPow,
+				 double areaPow, double areaMul,
+				 double multiProb, double forceOffsetRange,
+				 double temperature, double compression) : 
+				 scale{scale}, a0{a0}, smooth{smooth},
+				 diffMul{diffMul}, diffPow{diffPow},
+				 areaPow{areaPow}, areaMul{areaMul},
+				 multiProb{multiProb}, forceOffsetRange{forceOffsetRange},
+				 temperature{temperature}, compression{compression}
+				 {}
+};
 
 typedef ListDigraph::NodeMap<point_t> Coords_t;				  // _t for type
 typedef std::vector<std::set<ListDigraph::Arc>> Partitions_t; // _t for type

@@ -14,4 +14,7 @@ double getRandomRange(double lower, double upper);
 
 void randColors(std::vector<triple_t> &colors, int numColors);
 
+void time_before();
+double time_after();
+
 }; // namespace Util

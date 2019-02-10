@@ -1,5 +1,7 @@
 #include "MathGeometry.hpp"
 
+#include "Util.hpp"
+
 double MathGeometry::absol(double x)
 {
 	return (x > 0 ? x : -x);
@@ -180,4 +182,97 @@ point_t MathGeometry::findDirectionVector(const point_t &a, const point_t &b, co
 	}
 
 	return directionOffset;
+}
+
+// Runs in O(1) time. Computes where the intersection of two linesegments lies
+bool find_lines_intersection(line_t a, line_t b, point_t &where)
+{
+	// First rewrite linesegments a and b in vectorial form
+	point_t p, q;
+	point_t r, s;
+
+	p = a.p1;
+	q = b.p1;
+	r = a.p2 - a.p1;
+	s = b.p2 - b.p1;
+
+	// Now we have: line = q + qv, and any point on the vector is obtainable by p + t*r, for some t
+	// We want a t and u so p + t*pv = q + u*qv. Then t = (q − p) × s / (r × s) and u = (q − p) × r / (r × s)
+	double t, u;
+	double crossRandS = cross(r, s);
+	double crossQminusPandS = cross(q - p, s);
+	double crossQminusPandR = cross(q - p, r);
+
+	// Collinear and parallel possibilities don't matter here. We simply treat them as non-intersections
+	if (crossRandS == 0)
+	{
+		return false;
+	}
+
+	t = crossQminusPandS / crossRandS;
+	u = crossQminusPandR / crossRandS;
+
+	// If both T and U are in [0, 1] interval, then an intersection happens. We adopt an exclusive interval
+	// so that neighbor edges aren't taken to be intersecting.
+	if (Util::gtTolerance(t, 0, TOLERANCE) && Util::ltTolerance(t, 1, TOLERANCE) && Util::gtTolerance(u, 0, TOLERANCE) && Util::ltTolerance(u, 1, TOLERANCE))
+	{
+		where = p + r * t;
+		return true;
+	}
+
+	// If control reaches this point, previous test failed. There is no intersection.
+	return false;
+}
+
+int MathGeometry::find_surface_intersections(const std::vector<_2DSurface *> &xs, std::vector<point_t> &is)
+{
+	Util::time_before();
+	/* std::vector<lines_cg> linePool;
+    
+    // Compute all intersection points.
+    std::list<point_cg>     pts;
+    
+    // This turns into n (constructing input) + n lg n (BentleyOttman)
+    for (size_t i = 0; i < xs.size(); i++)  // For every surface in our input
+    {
+        for (ListDigraph::ArcIt ed(xs[i]->graph); ed != INVALID; ++ed) // We iterate thru its arcs
+        {
+            point_t pt1 = (*xs[i]->coords)[xs[i]->graph->source(ed)]; // And create a pool of all lines
+            point_t pt2 = (*xs[i]->coords)[xs[i]->graph->target(ed)]; // which cannot intersect
+            point_cg pc1(pt1.x, pt2.y);
+            point_cg pc2(pt2.x, pt2.y);
+            linePool.push_back(lines_cg(pc1, pc2));
+        }
+    }
+    
+    CGAL::compute_intersection_points (linePool.begin(), linePool.end(),
+                                       std::back_inserter (pts));
+    std::cout << "Time to find is: " << time_a(timer) << " with CGAL. linePool.size: " << linePool.size() << std::endl;
+    return pts.size();
+    */
+	int count = 0;
+	int linesCounted = 0;
+	for (size_t i = 0; i < xs.size(); i++)
+	{
+		for (ListDigraph::ArcIt ed(*xs[i]->graph); ed != INVALID; ++ed)
+		{
+			for (size_t j = i; j < xs.size(); j++)
+			{
+				for (ListDigraph::ArcIt edi(*xs[j]->graph); edi != INVALID; ++edi)
+				{
+					point_t where;
+
+					line_t ediL((*xs[j]->coords)[xs[j]->graph->source(edi)], (*xs[j]->coords)[xs[j]->graph->target(edi)]);
+					line_t edL((*xs[i]->coords)[xs[i]->graph->source(ed)], (*xs[i]->coords)[xs[i]->graph->target(ed)]);
+					if (find_lines_intersection(ediL, edL, where))
+					{
+						is.push_back(where);
+						count++;
+					}
+				}
+			}
+		}
+	}
+	std::cout << "Time to find is: " << Util::time_after() << " with brutish" << std::endl;
+	return count;
 }

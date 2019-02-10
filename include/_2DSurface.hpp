@@ -1,6 +1,5 @@
 #pragma once
 #include "defs.hpp"
-#include "MathGeometry.hpp"
 
 class _2DSurface
 {

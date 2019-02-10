@@ -1,6 +1,8 @@
 #include "stdafx.hpp"
 #include "_2DSurface.hpp"
 
+#include "MathGeometry.hpp"
+
 _2DSurface::_2DSurface()
 {
 	this->nEdges = 0;

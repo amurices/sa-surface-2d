@@ -1,5 +1,11 @@
 #include "stdafx.hpp"
 #include "Optimizer.hpp"
+#include "MathGeometry.hpp"
+
+Optimizer::Optimizer(InitSaParams* params)
+{
+	this->params = params;
+}
 
 Optimizer::Optimizer()
 {
@@ -22,7 +28,7 @@ ThickSurface *Optimizer::findNeighbor(ThickSurface &org)
 		int randomIndex = rand() % newNeighbor->outer->nNodes;
 		randomIndexes.push_back(randomIndex);
 		coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
-	} while (coinFlip < this->multiProb);
+	} while (coinFlip < this->params->multiProb);
 
 	for (size_t i = 0; i < randomIndexes.size(); i++)
 	{
@@ -33,8 +39,10 @@ ThickSurface *Optimizer::findNeighbor(ThickSurface &org)
 
 		// Choose a random offset, bounded by optimizer params
 		double offsetX, offsetY;
-		offsetX = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * forceOffsetRange - (forceOffsetRange / 2);
-		offsetY = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * forceOffsetRange - (forceOffsetRange / 2);
+		offsetX = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * this->params->forceOffsetRange - (this->params->forceOffsetRange / 2);
+		offsetY = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * this->params->forceOffsetRange - (this->params->forceOffsetRange / 2);
+		// offsetX = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
+		// offsetY = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
 		point_t dir(offsetX, offsetY);
 
 		point_t pdir = (*newNeighbor->outer->coords)[randomNode] + dir;
@@ -55,12 +63,12 @@ ThickSurface *Optimizer::findNeighbor(ThickSurface &org)
 
 		// If the distance to the inner node is now larger, then the surface will be stretched, otherwise itll be compressed
 		double thicknessDiff = newNeighbor->thicknesses[randomIndex]; // Useful for the smoothness routine
-		newNeighbor->thicknesses[randomIndex] *= (distPdir > distMdir ? this->compression : 1 / this->compression);
+		newNeighbor->thicknesses[randomIndex] *= (distPdir > distMdir ? this->params->compression : 1 / this->params->compression);
 		thicknessDiff -= newNeighbor->thicknesses[randomIndex];
 
 		// Routine to smooth out neighbour's relationship to current state
 		// --------------
-		newNeighbor->outer->smoothAdjacentNodes(randomNode, dir, this->smooth, changedNodes, &MathGeometry::linearSmooth);
+		newNeighbor->outer->smoothAdjacentNodes(randomNode, dir, this->params->smooth, changedNodes, &MathGeometry::linearSmooth);
 	}
 	newNeighbor->updateInnerSurface(changedNodes);
 
@@ -125,7 +133,7 @@ void Optimizer::findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighb
 		int randomIndex = rand() % org.outer->nNodes;
 		randomIndexes.push_back(randomIndex);
 		coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
-	} while (coinFlip < this->multiProb);
+	} while (coinFlip < this->params->multiProb);
 
 	for (size_t i = 0; i < randomIndexes.size(); i++)
 	{
@@ -136,8 +144,10 @@ void Optimizer::findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighb
 
 		// Choose a random offset, bounded by optimizer params
 		double offsetX, offsetY;
-		offsetX = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * forceOffsetRange - (forceOffsetRange / 2);
-		offsetY = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * forceOffsetRange - (forceOffsetRange / 2);
+		offsetX = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * this->params->forceOffsetRange - (this->params->forceOffsetRange / 2);
+		offsetY = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * this->params->forceOffsetRange - (this->params->forceOffsetRange / 2);
+		// offsetX = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
+		// offsetY = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
 		point_t dir(offsetX, offsetY);
 
 		point_t pdir = (*org.outer->coords)[randomNode] + dir;
@@ -159,14 +169,14 @@ void Optimizer::findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighb
 
 		// If the distance to the inner node is now larger, then the surface will be stretched, otherwise itll be compressed
 		double thicknessDiff;
-		thicknessDiff = org.thicknesses[randomIndex] * (distPdir > distMdir ? this->compression : 1 / this->compression);
+		thicknessDiff = org.thicknesses[randomIndex] * (distPdir > distMdir ? this->params->compression : 1 / this->params->compression);
 		thicknessDiff -= org.thicknesses[randomIndex];
 
 		neighborThicknessChanges->insert(ThicknessChange_t(randomIndex, thicknessDiff));
 
 		// TODO: Pass changes to smoothAdjacentNodesV2 so that based on it, it does its thing and adds
 		// the appropriate shit to changes. Add smoothAdjacentNodesV2 prototype so it compiles.
-		org.outer->smoothAdjacentNodesV2(randomNode, dir, this->smooth, neighborChanges, &MathGeometry::linearSmooth);
+		org.outer->smoothAdjacentNodesV2(randomNode, dir, this->params->smooth, neighborChanges, &MathGeometry::linearSmooth);
 	}
 }
 
@@ -188,12 +198,12 @@ double Optimizer::findEnergy(const ThickSurface &s, double a0)
 	double grayMatterStretch = MathGeometry::absol(a0 - grayMatterArea);
 
 	double p1, p2;
-	p1 = pow(whiteMatterArea, this->areaPow);
-	p2 = pow(grayMatterStretch + 1, this->diffPow); // Stretch is the difference; therefore p2 is raised to the right power here
+	p1 = pow(whiteMatterArea, this->params->areaPow);
+	p2 = pow(grayMatterStretch + 1, this->params->diffPow); // Stretch is the difference; therefore p2 is raised to the right power here
 													// We add 1 before raising to ensure the growth is not sublinear from the get-go
 
 	// Simplified energy equation of 2D closed surface
-	res = areaMul * p1 + diffMul * p2;
+	res = params->areaMul * p1 + params->diffMul * p2;
 	return res;
 }
 
@@ -251,6 +261,13 @@ void Optimizer::step_saV2(ThickSurface &state, double *temperature, double a0)
 	double prob = findProbability(eS, eN, *temperature);
 	double coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
 
+	std::vector<_2DSurface*> surfaces;
+	std::vector<point_t> potentialIntersections;
+
+	surfaces.push_back(state.outer);
+    surfaces.push_back(state.inner);	
+	int numInts = MathGeometry::find_surface_intersections(surfaces, potentialIntersections);
+	if (numInts > 0) std::cout << numInts << std::endl;
 	if (coinFlip >= prob)
 	{
 		revertChanges(state, neighborChanges, thicknessChanges);

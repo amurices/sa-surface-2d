@@ -16,18 +16,8 @@ class Optimizer
 	// -------------------
 	// SA attributes a) To actually function ------
 	// a.1) Hyperparameters - They alter the simulation's behavior
-	double scale = 1.0;				 // Index that will adjust some hyperparameters of evolution
-	double a0 = 1.0;				 // Area of the initial (relaxed) state
-	int smooth = 15;				 // Whether neighbors should be calculated using smoothing depressions or not
-	double diffPow = 1.0;			 // Power to raise difference btwn A0 and AS
-	double diffMul = 1.0;			 // Scalar ^
-	double areaPow = 1.0;			 // Analogous to
-	double areaMul = 1.0;			 // previous two
-	double multiProb = 0.0;			 // Probability of forcing another vertex after the first one
-	double tempProb = 1.0;			 // How much weight does temperature hold
-	double forceOffsetRange = 0.066; // How much can points be shifted every iteration
-	double compression = 1.0;		 // How much should cortex be compressed by force
-
+	InitSaParams* params;
+	
 	// a.2) References - What the simulation needs to see to run correctly
 	ThickSurface *ln;	// Last neighbour calculated; useful for mid-evolution rendering
 	ThickSurface *state; // Local variables evolved state,
@@ -75,5 +65,6 @@ class Optimizer
 	void evolve_sa(int kMax, bool time = true);
 
 	Optimizer();
+	Optimizer(InitSaParams* params);
 	~Optimizer();
 };

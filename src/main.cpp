@@ -22,14 +22,28 @@ int main(int argc, char **argv)
 
 	ThickSurface mySurface;
 	mySurface.generateCircularThickSurface(1, 300, true, 0.15, 0.15, point_t(0.0, 0.0));
-	double perim, a0 = mySurface.outer->findSurfaceAreaAndPerimeter(perim) - mySurface.inner->findSurfaceAreaAndPerimeter(perim);
-
+	double perim;
 	ThickSurface *theNeighbor = &mySurface;
 
 	std::set<SNode> changed;
 	mySurface.inner->updateInnerSurface(*mySurface.outer, changed, mySurface.thicknesses);
 	int ticks = 0;
 	Optimizer myOpt;
+
+	double scale = 1.0;				 // Index that will adjust some hyperparameters of evolution
+	double a0 = mySurface.outer->findSurfaceAreaAndPerimeter(perim) - mySurface.inner->findSurfaceAreaAndPerimeter(perim);
+	int smooth = 15;				 // Whether neighbors should be calculated using smoothing depressions or not
+	double diffPow = 1.0;			 // Power to raise difference btwn A0 and AS
+	double diffMul = 1.0;			 // Scalar ^
+	double areaPow = 1.0;			 // Analogous to
+	double areaMul = 1.0;			 // previous two
+	double multiProb = 0.0;			 // Probability of forcing another vertex after the first one
+	double tempProb = 1.0;			 // How much weight does temperature hold
+	double forceOffsetRange = 0.0066; // How much can points be shifted every iteration
+	double compression = 1.0;		 // How much should cortex be compressed by force
+	InitSaParams theseParams(scale, a0, smooth, diffPow, diffMul, areaPow, areaMul, multiProb, tempProb, forceOffsetRange, compression);
+	myOpt.params = &theseParams;
+
 	// Loop is testing copying, deleting, and modification
 	double temperature = 100;
 
@@ -50,11 +64,6 @@ int main(int argc, char **argv)
 			myRenderer.render_surface(*mySurface.outer, triple_t(0.1, 0.2, 0.3), false);
 			myRenderer.render_surface(*mySurface.inner, triple_t(0.1, 0.2, 0.45), false);
 		}
-		// else if (ticks < 12)
-		// {
-		// 	myRenderer.render_surface(*theNeighbor->outer, triple_t(0.75, 0.75, 0.5), false);
-		// 	myRenderer.render_surface(*theNeighbor->inner, triple_t(0.75, 0.75, 0.5), false);
-		// }
 		else
 		{
 			ticks = 0;
