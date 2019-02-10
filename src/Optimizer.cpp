@@ -39,10 +39,8 @@ ThickSurface *Optimizer::findNeighbor(ThickSurface &org)
 
 		// Choose a random offset, bounded by optimizer params
 		double offsetX, offsetY;
-		offsetX = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * this->params->forceOffsetRange - (this->params->forceOffsetRange / 2);
-		offsetY = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * this->params->forceOffsetRange - (this->params->forceOffsetRange / 2);
-		// offsetX = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
-		// offsetY = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
+		offsetX = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
+		offsetY = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
 		point_t dir(offsetX, offsetY);
 
 		point_t pdir = (*newNeighbor->outer->coords)[randomNode] + dir;
@@ -144,10 +142,9 @@ void Optimizer::findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighb
 
 		// Choose a random offset, bounded by optimizer params
 		double offsetX, offsetY;
-		offsetX = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * this->params->forceOffsetRange - (this->params->forceOffsetRange / 2);
-		offsetY = static_cast<double>(rand()) / static_cast<double>(RAND_MAX) * this->params->forceOffsetRange - (this->params->forceOffsetRange / 2);
-		// offsetX = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
-		// offsetY = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
+		offsetX = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
+		offsetY = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
+		
 		point_t dir(offsetX, offsetY);
 
 		point_t pdir = (*org.outer->coords)[randomNode] + dir;
@@ -173,7 +170,7 @@ void Optimizer::findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighb
 		thicknessDiff -= org.thicknesses[randomIndex];
 
 		neighborThicknessChanges->insert(ThicknessChange_t(randomIndex, thicknessDiff));
-
+		org.smoothAdjacentThicknesses(thicknessDiff, this->params->smooth, randomNode, neighborThicknessChanges, &MathGeometry::linearSmooth);
 		// TODO: Pass changes to smoothAdjacentNodesV2 so that based on it, it does its thing and adds
 		// the appropriate shit to changes. Add smoothAdjacentNodesV2 prototype so it compiles.
 		org.outer->smoothAdjacentNodesV2(randomNode, dir, this->params->smooth, neighborChanges, &MathGeometry::linearSmooth);
@@ -224,15 +221,12 @@ void Optimizer::step_sa(ThickSurface &state, double temperature, double a0)
 	ThickSurface *neighborV2 = new ThickSurface(state);
 	std::set<NodeChange_t> neighborChanges;
 	std::set<ThicknessChange_t> thicknessChanges;
-	printf("LMao. yea RIGHT\n");
 	findNeighborV2(*neighborV2, &neighborChanges, &thicknessChanges);
-	printf("Fuk u bithc\n");
 
 	// TODO: findEnergies (a0, state, changes, &eS, &eN);
 	double eS = findEnergy(state, a0);
 	double eN = findEnergy(*neighbor, a0);
 	double eNv2 = findEnergy(*neighborV2, a0);
-	printf("Energies: S: %.4f\tN: %.4f\t", eS, eN);
 
 	// Will not change.
 	double prob = findProbability(eS, eN, temperature);
@@ -257,7 +251,7 @@ void Optimizer::step_saV2(ThickSurface &state, double *temperature, double a0)
 	applyChanges(state, neighborChanges, thicknessChanges);
 	double eN = findEnergy(state, a0);
 
-	printf("Energies: S: %.4f\tN: %.4f", eS, eN);
+	//printf("Energies: S: %.4f\tN: %.4f\n", eS, eN);
 	double prob = findProbability(eS, eN, *temperature);
 	double coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
 
@@ -266,12 +260,14 @@ void Optimizer::step_saV2(ThickSurface &state, double *temperature, double a0)
 
 	surfaces.push_back(state.outer);
     surfaces.push_back(state.inner);	
-	int numInts = MathGeometry::find_surface_intersections(surfaces, potentialIntersections);
-	if (numInts > 0) std::cout << numInts << std::endl;
+	int numInts = MathGeometry::findSurfaceIntersections(surfaces, potentialIntersections);
+	if (numInts > 0) {
+		prob = 0; // We'll always want to revert changes
+	}
 	if (coinFlip >= prob)
 	{
 		revertChanges(state, neighborChanges, thicknessChanges);
 	}
-	*temperature -= 0.01;
-	printf("\n");
+	// TODO: Pedreirar menos aqui
+	//*temperature -= 0.01;
 }

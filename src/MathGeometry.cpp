@@ -224,7 +224,7 @@ bool find_lines_intersection(line_t a, line_t b, point_t &where)
 	return false;
 }
 
-int MathGeometry::find_surface_intersections(const std::vector<_2DSurface *> &xs, std::vector<point_t> &is)
+int MathGeometry::findSurfaceIntersections(const std::vector<_2DSurface *> &xs, std::vector<point_t> &is)
 {
 	Util::time_before();
 	/* std::vector<lines_cg> linePool;
@@ -273,6 +273,6 @@ int MathGeometry::find_surface_intersections(const std::vector<_2DSurface *> &xs
 			}
 		}
 	}
-	std::cout << "Time to find is: " << Util::time_after() << " with brutish" << std::endl;
+	//std::cout << "Time to find is: " << Util::time_after() << " with brutish" << std::endl;
 	return count;
 }

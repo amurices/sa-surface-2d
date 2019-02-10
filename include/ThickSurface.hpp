@@ -43,6 +43,8 @@ class ThickSurface
 	void updateInnerSurface(const std::set<SNode> &changedNodes);
 	void updateInnerSurfaceV2(std::set<NodeChange_t> *nodeChanges);
 
+	void smoothAdjacentThicknesses(double thicknessDiff, int smoothness, SNode startingIndex, std::set<ThicknessChange_t> *changedSet, double (*func)(double u, double c));
+
 	/* 
 	 * Default constructor. Does nothing except allocate memory and set standard values to 0.
 	 */

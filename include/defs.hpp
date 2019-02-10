@@ -223,21 +223,25 @@ struct InitSaParams
 	double areaPow;
 	double areaMul;
 	double multiProb;
+	double tempProb;
 	double forceOffsetRange;
-	double temperature;
 	double compression;
 
-	InitSaParams(double scale, double a0, int smooth,
-	             double diffMul, double diffPow,
-				 double areaPow, double areaMul,
-				 double multiProb, double forceOffsetRange,
-				 double temperature, double compression) : 
-				 scale{scale}, a0{a0}, smooth{smooth},
-				 diffMul{diffMul}, diffPow{diffPow},
-				 areaPow{areaPow}, areaMul{areaMul},
-				 multiProb{multiProb}, forceOffsetRange{forceOffsetRange},
-				 temperature{temperature}, compression{compression}
-				 {}
+	InitSaParams(double scale, double a0, 
+	             int smooth, double diffMul,
+				 double diffPow, double areaPow,
+				 double areaMul, double multiProb,
+				 double tempProb, double forceOffsetRange,
+				 double compression) : 
+				scale{scale}, a0{a0},
+				smooth{smooth}, diffMul{diffMul}, 
+				diffPow{diffPow}, areaPow{areaPow}, 
+				areaMul{areaMul}, multiProb{multiProb}, 
+				tempProb{tempProb}, forceOffsetRange{forceOffsetRange},
+				compression{compression}
+	            {
+					 printf("Params:\nscale: %.4f\na0: %.4f\nsmooth: %d\ndiffMul: %.4f\ndiffPow: %.4f\nareaPow: %.4f\nareaMul: %.4f\nmultiProb: %.4f\ntempProb: %.4f\nforceOffsetRange: %.4f\ncompression: %.4f\n",scale,a0,smooth,diffMul,diffPow,areaPow,areaMul,multiProb,tempProb,forceOffsetRange,compression);
+				}
 };
 
 typedef ListDigraph::NodeMap<point_t> Coords_t;				  // _t for type

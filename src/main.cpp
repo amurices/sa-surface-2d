@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 	// -----------------------------------------
 
 	ThickSurface mySurface;
-	mySurface.generateCircularThickSurface(1, 300, true, 0.15, 0.15, point_t(0.0, 0.0));
+	mySurface.generateCircularThickSurface(1, 200, true, 0.12, 0.12, point_t(0.0, 0.0));
 	double perim;
 	ThickSurface *theNeighbor = &mySurface;
 
@@ -32,20 +32,20 @@ int main(int argc, char **argv)
 
 	double scale = 1.0;				 // Index that will adjust some hyperparameters of evolution
 	double a0 = mySurface.outer->findSurfaceAreaAndPerimeter(perim) - mySurface.inner->findSurfaceAreaAndPerimeter(perim);
-	int smooth = 15;				 // Whether neighbors should be calculated using smoothing depressions or not
+	int smooth = 10;				 // Whether neighbors should be calculated using smoothing depressions or not
 	double diffPow = 1.0;			 // Power to raise difference btwn A0 and AS
 	double diffMul = 1.0;			 // Scalar ^
 	double areaPow = 1.0;			 // Analogous to
 	double areaMul = 1.0;			 // previous two
 	double multiProb = 0.0;			 // Probability of forcing another vertex after the first one
 	double tempProb = 1.0;			 // How much weight does temperature hold
-	double forceOffsetRange = 0.0066; // How much can points be shifted every iteration
+	double forceOffsetRange = 0.066; // How much can points be shifted every iteration
 	double compression = 1.0;		 // How much should cortex be compressed by force
 	InitSaParams theseParams(scale, a0, smooth, diffPow, diffMul, areaPow, areaMul, multiProb, tempProb, forceOffsetRange, compression);
 	myOpt.params = &theseParams;
 
 	// Loop is testing copying, deleting, and modification
-	double temperature = 100;
+	double temperature = 0;
 
 	while (!glfwWindowShouldClose(myRenderer.window))
 	{
