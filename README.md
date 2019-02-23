@@ -16,6 +16,12 @@ _Libraries_:
 * [CGAL](https://www.cgal.org/) # For the way faster (n lg n) sweep-line algorithm for intersection detection
 * [nanogui](https://github.com/wjakob/nanogui) # For cross-platform GUIs rendered with OpenGL (QT would be overkill)
 
+### Note on Nanogui
+Nanogui is actually a bit of a problematic library to install, as it has lots of dependencies; simply installing it via CMake followed by `make install` isn't enough. The way this project makes use of it is by following these steps:
+1. Install [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page)
+2. Copy the _nanovg_ files from the Nanogui installation `ext` folder to the `include/ext` folder.
+3. 
+
 OpenGL (version string `2.1 INTEL-10.36.19`) should come with Mac OS.
 
 After that, just running `make surface` should be enough to produce an executable.

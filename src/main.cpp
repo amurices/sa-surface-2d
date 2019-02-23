@@ -1,5 +1,6 @@
 // Surface2D 2.0.cpp : Defines the entry point for the console application.
 //
+#include <nanogui/nanogui.h>
 
 #include "stdafx.hpp"
 #include "Renderer.hpp"
