@@ -13,7 +13,9 @@
 #include <lemon/list_graph.h>
 
 #ifdef __APPLE__
+#ifndef GL_SILENCE_DEPRECATION
 #define GL_SILENCE_DEPRECATION
+#endif
 #endif
 using namespace lemon;
 

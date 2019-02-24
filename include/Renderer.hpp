@@ -12,6 +12,22 @@
 // #include <lemon/list_graph.h>
 // #include <FTGL/ftgl.h>
 
+#if defined(NANOGUI_GLAD)
+    #if defined(NANOGUI_SHARED) && !defined(GLAD_GLAPI_EXPORT)
+        #define GLAD_GLAPI_EXPORT
+    #endif
+
+    #include <glad/glad.h>
+#else
+    #if defined(__APPLE__)
+        #define GLFW_INCLUDE_GLCOREARB
+    #else
+        #define GL_GLEXT_PROTOTYPES
+    #endif
+#endif
+
+#include <nanogui/nanogui.h>
+
 /* Renderer class which abstracts away the drawing of elements. */
 class Renderer
 {
@@ -46,7 +62,7 @@ class Renderer
 	* @param color the color with which to draw.
 	* @param nodes optional boolean to determine whether to rasterise nodes or not.
 	*/
-	void render_surface(const _2DSurface &surf, const triple_t color, bool nodes = true);
+	void render_surface(_2DSurface &surf, const triple_t color, bool nodes = true);
 
 	/*
 	void        render_text(FTGLPixmapFont &font, const char* text, point_t pos, int faceSize);
