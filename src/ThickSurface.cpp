@@ -51,22 +51,15 @@ void ThickSurface::smoothAdjacentThicknesses(double thicknessDiff, int smoothnes
 	prev = next = changedNode;
 	for (int c = 1; c <= u; c++)
 	{
-		printf("yo %d\n", c);
-
 		prev = this->outer->graph->source(ListDigraph::InArcIt(*this->outer->graph, prev));
 		next = this->outer->graph->target(ListDigraph::OutArcIt(*this->outer->graph, next));
-
-		printf("yo a\n");
 
 		double ratio = (*func)(u, c);
 		double thicknessChange = thicknessDiff * ratio;
 
 		// Previous and next nodes are also going to be altered as a matter of where they are in relation to their inner correspondents
 		changedSet->insert(ThicknessChange_t(this->outer->graph->id(prev), thicknessChange));
-		printf("yo b\n");
-
 		changedSet->insert(ThicknessChange_t(this->outer->graph->id(next), thicknessChange));
-		printf("yo\n");
 	}
 	// The single node at the end and beginning of a set of changed smoothed nodes are also altered (updateInner has to see them)
 	// Don't know if this is necessary, but for the sake of consistency, i'll add the redundant changes.
