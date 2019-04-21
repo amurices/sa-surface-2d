@@ -7,6 +7,7 @@
 #include "defs.hpp"
 #include "Util.hpp"
 #include "GLFW/glfw3.h"
+#include "OpenGL/gl.h"
 #include "_2DSurface.hpp"
 
 // #include <lemon/list_graph.h>
@@ -62,7 +63,7 @@ class Renderer
 	* @param color the color with which to draw.
 	* @param nodes optional boolean to determine whether to rasterise nodes or not.
 	*/
-	void render_surface(_2DSurface &surf, const triple_t color, bool nodes = true);
+	void render_surface(const _2DSurface &surf, const triple_t color, bool nodes = true);
 
 	/*
 	void        render_text(FTGLPixmapFont &font, const char* text, point_t pos, int faceSize);
