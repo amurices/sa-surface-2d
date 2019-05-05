@@ -1,0 +1,12 @@
+# Build files
+*.o
+*.exe
+*.obj
+Debug
+# temporary build target
+target
+
+# log/generated files
+*.vscode*
+*.log
+*xcode*
