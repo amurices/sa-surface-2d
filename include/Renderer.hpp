@@ -1,13 +1,60 @@
 #pragma once
 
+#define GL_RG                             0x8227
+#define GL_RG_INTEGER                     0x8228
+#define GL_R8                             0x8229
+#define GL_R16                            0x822A
+#define GL_RG8                            0x822B
+#define GL_RG16                           0x822C
+#define GL_R16F                           0x822D
+#define GL_R32F                           0x822E
+#define GL_RG16F                          0x822F
+#define GL_RG32F                          0x8230
+#define GL_R8I                            0x8231
+#define GL_R8UI                           0x8232
+#define GL_R16I                           0x8233
+#define GL_R16UI                          0x8234
+#define GL_R32I                           0x8235
+#define GL_R32UI                          0x8236
+#define GL_RG8I                           0x8237
+#define GL_RG8UI                          0x8238
+#define GL_RG16I                          0x8239
+#define GL_RG16UI                         0x823A
+#define GL_RG32I                          0x823B
+#define GL_RG32UI                         0x823C
+
+#include <nanogui/opengl.h>
+#include <nanogui/glutil.h>
+#include <nanogui/screen.h>
+#include <nanogui/window.h>
+#include <nanogui/layout.h>
+#include <nanogui/label.h>
+#include <nanogui/checkbox.h>
+#include <nanogui/button.h>
+#include <nanogui/toolbutton.h>
+#include <nanogui/popupbutton.h>
+#include <nanogui/combobox.h>
+#include <nanogui/progressbar.h>
+#include <nanogui/entypo.h>
+#include <nanogui/messagedialog.h>
+#include <nanogui/textbox.h>
+#include <nanogui/slider.h>
+#include <nanogui/imagepanel.h>
+#include <nanogui/imageview.h>
+#include <nanogui/vscrollpanel.h>
+#include <nanogui/colorwheel.h>
+#include <nanogui/colorpicker.h>
+#include <nanogui/graph.h>
+#include <nanogui/tabwidget.h>
+#include <iostream>
+#include <string>
+
 #include <stdio.h>
 #include <iostream>
 #include <string>
 
 #include "defs.hpp"
 #include "Util.hpp"
-#include "GLFW/glfw3.h"
-#include "OpenGL/gl.h"
 #include "_2DSurface.hpp"
 
 // #include <lemon/list_graph.h>
@@ -27,50 +74,22 @@
     #endif
 #endif
 
-#include <nanogui/nanogui.h>
-
 /* Renderer class which abstracts away the drawing of elements. */
-class Renderer
+class Renderer : public nanogui::Screen
 {
   public:
-	GLFWwindow *window;
-	int wWidth = 1280;
-	int wHeight = 920;
+    std::vector<nanogui::Window*> windows;
+    std::vector<nanogui::Button*> windowButtons;
+    std::vector<nanogui::Widget*> toolses;
+    std::vector<nanogui::PopupButton*> popupBtns;
+    nanogui::Popup *popup;
+    int wWidth = 1280;
+    int wHeight = 920;
 
-	Renderer();
-	~Renderer();
-	// TODO: Document graphical methods
-	int initWindow();
+    Renderer();
+    virtual void drawContents();
+    ~Renderer();
+  private:
+    nanogui::GLShader mShader;
 
-	/* */
-	void preLoopGL();
-
-	void postLoopGL();
-
-	void handle(int code);
-
-	/* 
-	 * Draws vertical and horizontal axes with step markers.
-
-	 * @param font the FTGL font object which carries the glyphs with which to draw text. 
-	 */
-	void render_axes(/*FTGLPixmapFont &font*/);
-
-	/*
-	* Draws a surface.
-
-	* @param surf the _2DSurface object to rasterise.
-	* @param color the color with which to draw.
-	* @param nodes optional boolean to determine whether to rasterise nodes or not.
-	*/
-	void render_surface(const _2DSurface &surf, const triple_t color, bool nodes = true);
-
-	/*
-	void        render_text(FTGLPixmapFont &font, const char* text, point_t pos, int faceSize);
-
-	void        render_text(FTGLTextureFont &font, const char* text, point_t pos, int faceSize);
-
-	void        render_node(SNode no, const SurfaceData_t &surf, const triple_t color);
-
-	static void render_intersections(std::vector<point_t> intersections); */
 };

@@ -1,4 +1,3 @@
-#include "stdafx.hpp"
 #include "Util.hpp"
 #include "sys/time.h"
 

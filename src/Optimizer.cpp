@@ -1,4 +1,3 @@
-#include "stdafx.hpp"
 #include "Optimizer.hpp"
 #include "MathGeometry.hpp"
 

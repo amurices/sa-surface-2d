@@ -1,181 +1,148 @@
-#include "stdafx.hpp"
 #include "Renderer.hpp"
 
-Renderer::Renderer()
+Renderer::Renderer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "NanoGUI Test")
 {
+    windows.resize(64);
+    windows[0] = new nanogui::Window(this, "Button demo");
+    windows[0]->setPosition(Eigen::Vector2i(15, 15));
+    windows[0]->setLayout(new nanogui::GroupLayout());
+
+    /* No need to store a pointer, the data structure will be automatically
+        freed when the parent window is deleted */
+    new nanogui::Label(windows[0], "Push buttons", "sans-bold");
+    windowButtons.push_back(new nanogui::Button (windows[0], "Plain button"));
+    windowButtons.resize(64);
+    windowButtons[0]->setCallback([] { std::cout << "pushed!" << std::endl; });
+    windowButtons[0]->setTooltip("short tooltip");
+
+    windowButtons[1] = windows[0]->add<nanogui::Button>("Styled", ENTYPO_ICON_ROCKET);
+    windowButtons[1]->setBackgroundColor(nanogui::Color(0, 0, 255, 25));
+    windowButtons[1]->setCallback([] { std::cout << "pushed!" << std::endl; });
+    windowButtons[1]->setTooltip("This button has a fairly long tooltip. It is so long, in "
+            "fact, that the shown text will span several lines.");
+
+    new nanogui::Label(windows[0], "Toggle buttons", "sans-bold");
+    windowButtons[2] = new nanogui::Button(windows[0], "Toggle me");
+    windowButtons[2]->setFlags(nanogui::Button::ToggleButton);
+    windowButtons[2]->setChangeCallback([](bool state) { std::cout << "Toggle button state: " << state << std::endl; });
+
+    new nanogui::Label(windows[0], "Radio buttons", "sans-bold");
+    windowButtons[3] = new nanogui::Button(windows[0], "Radio button 1");
+    windowButtons[3]->setFlags(nanogui::Button::RadioButton);
+
+    windowButtons[4] = new nanogui::Button(windows[0], "Radio button 2");
+    windowButtons[4]->setFlags(nanogui::Button::RadioButton);
+
+    new nanogui::Label(windows[0], "A tool palette", "sans-bold");
+    toolses.resize(64);
+    toolses[0] = new nanogui::Widget(windows[0]);
+    toolses[0]->setLayout(new nanogui::BoxLayout(nanogui::Orientation::Horizontal,
+                                    nanogui::Alignment::Middle, 0, 6));
+
+    windowButtons[5] = new nanogui::ToolButton(toolses[0], ENTYPO_ICON_CLOUD);
+    windowButtons[6] = new nanogui::ToolButton(toolses[0], ENTYPO_ICON_CONTROLLER_FAST_FORWARD);
+    windowButtons[7] = new nanogui::ToolButton(toolses[0], ENTYPO_ICON_COMPASS);
+    windowButtons[8] = new nanogui::ToolButton(toolses[0], ENTYPO_ICON_INSTALL);
+
+    /* Allocating a new popupButton gives out a segmentation fault, fuck knows why :shrug: */
+    popupBtns.resize(64);
+    new nanogui::Label(windows[0], "Popup buttons", "sans-bold");
+    popupBtns[0] = new nanogui::PopupButton(windows[0], "Popup", ENTYPO_ICON_EXPORT);
+    popup = popupBtns[0]->popup();
+    popup->setLayout(new nanogui::GroupLayout());
+    new nanogui::Label(popup, "Arbitrary widgets can be placed here");
+    new nanogui::CheckBox(popup, "A check box");
+    // popup right
+    popupBtns[1] = new nanogui::PopupButton(popup, "Recursive popup", ENTYPO_ICON_FLASH);
+    nanogui::Popup *popupRight = popupBtns[1]->popup();
+    popupRight->setLayout(new nanogui::GroupLayout());
+    new nanogui::CheckBox(popupRight, "Another check box");
+    // popup left
+    popupBtns[2] = new nanogui::PopupButton(popup, "Recursive popup", ENTYPO_ICON_FLASH);
+    popupBtns[2]->setSide(nanogui::Popup::Side::Left);
+    nanogui::Popup *popupLeft = popupBtns[2]->popup();
+    popupLeft->setLayout(new nanogui::GroupLayout()); 
+    new nanogui::CheckBox(popupLeft, "Another check box");
+
+    windows[1] = new nanogui::Window(this, "Basic widgets");
+    windows[1]->setPosition(Eigen::Vector2i(200, 15));
+    windows[1]->setLayout(new nanogui::GroupLayout());
+
+    new nanogui::Label(windows[1], "Message dialog", "sans-bold");
+    toolses[1] = new nanogui::Widget(windows[1]);
+    toolses[1]->setLayout(new nanogui::BoxLayout(nanogui::Orientation::Horizontal,
+                                    nanogui::Alignment::Middle, 0, 6));
+    windowButtons[9] = new nanogui::Button(toolses[1], "Info");
+    windowButtons[9]->setCallback([&] {
+        auto dlg = new nanogui::MessageDialog(this, nanogui::MessageDialog::Type::Information, "Title", "This is an information message");
+        dlg->setCallback([](int result) { std::cout << "Dialog result: " << result << std::endl; });
+    });
+    windowButtons[10] = new nanogui::Button(toolses[1], "Warn");
+    windowButtons[10]->setCallback([&] {
+        auto dlg = new nanogui::MessageDialog(this, nanogui::MessageDialog::Type::Warning, "Title", "This is a warning message");
+        dlg->setCallback([](int result) { std::cout << "Dialog result: " << result << std::endl; });
+    });
+    windowButtons[11] = new nanogui::Button(toolses[1], "Ask");
+    windowButtons[11]->setCallback([&] {
+        auto dlg = new nanogui::MessageDialog(this, nanogui::MessageDialog::Type::Warning, "Title", "This is a question message", "Yes", "No", true);
+        dlg->setCallback([](int result) { std::cout << "Dialog result: " << result << std::endl; });
+    });
+    performLayout();
+
+    mShader.init(
+            /* An identifying name */
+            "a_simple_shader",
+
+            /* Vertex shader */
+            "#version 330\n"
+            "uniform mat4 modelViewProj;\n"
+            "in vec3 position;\n"
+            "void main() {\n"
+            "    gl_Position = modelViewProj * vec4(position, 1.0);\n"
+            "}",
+
+            /* Fragment shader */
+            "#version 330\n"
+            "out vec4 color;\n"
+            "uniform float intensity;\n"
+            "void main() {\n"
+            "    color = vec4(vec3(intensity), 1.0);\n"
+            "}"
+        );
+
+        nanogui::MatrixXu indices(3, 2); /* Draw 2 triangles */
+        indices.col(0) << 0, 1, 2;
+        indices.col(1) << 2, 3, 0;
+
+        nanogui::MatrixXf positions(3, 4);
+        positions.col(0) << -1, -1, 0;
+        positions.col(1) <<  1, -1, 0;
+        positions.col(2) <<  1,  1, 0;
+        positions.col(3) << -1,  1, 0;
+
+        mShader.bind();
+        mShader.uploadIndices(indices);
+        mShader.uploadAttrib("position", positions);
+        mShader.setUniform("intensity", 0.5f);
 }
+
+void Renderer::drawContents() {
+        /* Draw the window contents using OpenGL */
+        mShader.bind();
+
+        nanogui::Matrix4f mvp;
+        mvp.setIdentity();
+        mvp.topLeftCorner<3,3>() = nanogui::Matrix3f(Eigen::AngleAxisf((float) glfwGetTime(),  nanogui::Vector3f::UnitZ())) * 0.25f;
+
+        mvp.row(0) *= (float) mSize.y() / (float) mSize.x();
+
+        mShader.setUniform("modelViewProj", mvp);
+
+        /* Draw 2 triangles starting at index 0 */
+        mShader.drawIndexed(GL_TRIANGLES, 0, 2);
+    }
 
 Renderer::~Renderer()
 {
-}
-
-int Renderer::initWindow()
-{
-	if (!glfwInit())
-	{
-		return -1;
-	}
-
-	window = glfwCreateWindow(wWidth, wHeight, "Surface2D", NULL, NULL);
-
-	if (!window)
-	{
-		return -1;
-	}
-
-	// Glew initialization skipped (I think glfw takes care of that)
-
-	glfwMakeContextCurrent(window);
-
-	return 1;
-}
-
-void Renderer::preLoopGL()
-{
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0.0, 0, 0, 0.0, -1.0, 1.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-}
-
-void Renderer::postLoopGL()
-{
-#ifdef __APPLE__
-	static short int swap = 0;
-	if (swap >= 2)
-	{
-		glfwSwapBuffers(this->window);
-		swap = 0;
-	}
-	swap++;
-
-	static short int macMoved = 0;
-
-	if (macMoved < 10)
-	{
-
-		int x, y;
-		glfwGetWindowPos(this->window, &x, &y);
-		glfwSetWindowPos(this->window, ++x, y);
-		macMoved++;
-	}
-#else
-	glfwSwapBuffers(this->window);
-#endif
-	glfwPollEvents();
-}
-
-void Renderer::handle(int code)
-{
-	switch (code)
-	{
-	case -1:
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	default:
-		return;
-	}
-}
-
-void Renderer::render_axes()
-{
-	glBegin(GL_LINES);
-
-	glColor3f(0.5f, 0.5f, .5f);
-	glVertex2f(0, 1);
-
-	glColor3f(0.5f, 0.5f, .5f);
-	glVertex2f(0, -1);
-
-	glColor3f(0.5f, 0.5f, .5f);
-	glVertex2f(1, 0);
-
-	glColor3f(0.5f, 0.5f, .5f);
-	glVertex2f(-1, 0);
-	glEnd();
-
-	for (double marker = -1.0; marker < 1.0; marker += 0.1)
-	{
-		char stringForm[10];
-		//	sprintf(stringForm, "%.1f", marker);
-		// Small lines are drawn at the marker's position
-		glBegin(GL_LINES);
-
-		// X-axis:
-		glColor3f(0.5f, 0.5f, .5f);
-		glVertex2f(marker, -0.009);
-
-		glColor3f(0.5f, 0.5f, .5f);
-		glVertex2f(marker, 0);
-
-		// Y-axis:
-		if (marker <= 0.01 && marker >= -0.01) // We can skip the Y axis if it's the origin
-		{
-			glEnd(); // But before we do that, we have to glEnd()
-					 //	glEnable(GL_BLEND);
-					 //	render_text(font, stringForm, point_t(marker, -0.02), 13); // and render our current text iteration ofc
-			continue;
-		}
-		glColor3f(0.5f, 0.5f, .5f);
-		glVertex2f(-0.009, marker);
-
-		glColor3f(0.5f, 0.5f, .5f);
-		glVertex2f(0, marker);
-		glEnd();
-
-		glEnable(GL_BLEND);
-		//	render_text(font, stringForm, point_t(marker, -0.02), 13);
-		//	render_text(font, stringForm, point_t(0.0, marker - 0.003), 13);
-	}
-}
-
-void Renderer::render_surface(const _2DSurface &surf, const triple_t color, bool nodes)
-{
-	static std::vector<triple_t> randomColors;
-	if (randomColors.empty())
-	{
-		Util::randColors(randomColors, (int)surf.parts.size());
-	}
-
-	// Rasterise edges as lines
-	glBegin(GL_LINES);
-	int count = 0;
-	for (size_t i = 0; i < surf.parts.size(); i++)
-	{
-		for (auto e = surf.parts[i].begin(); e != surf.parts[i].end(); e++)
-		{
-			glColor3f(randomColors[i]._1, randomColors[i]._2, randomColors[i]._3);
-			glVertex2f((*surf.coords)[surf.graph->source(*e)].x, (*surf.coords)[surf.graph->source(*e)].y);
-
-			glColor3f(randomColors[i]._1, randomColors[i]._2, randomColors[i]._3);
-			glVertex2f((*surf.coords)[surf.graph->target(*e)].x, (*surf.coords)[surf.graph->target(*e)].y);
-		}
-	}
-	glEnd();
-
-	// Rasterise nodes as squares if nodes is true
-	if (nodes)
-	{
-		for (ListDigraph::NodeIt no(*surf.graph); no != INVALID; ++no)
-		{
-			glBegin(GL_TRIANGLE_STRIP); // Performance bonus when compared to Quads (2 triangles = 6 vertices)
-
-			glColor3f(color._1, color._2, color._3);
-			glVertex2f((*surf.coords)[no].x - 0.007f, (*surf.coords)[no].y + 0.007f);
-
-			glColor3f(color._1, color._2, color._3);
-			glVertex2f((*surf.coords)[no].x - 0.007f, (*surf.coords)[no].y - 0.007f);
-
-			glColor3f(color._1, color._2, color._3);
-			glVertex2f((*surf.coords)[no].x + 0.007f, (*surf.coords)[no].y + 0.007f);
-
-			glColor3f(color._1, color._2, color._3);
-			glVertex2f((*surf.coords)[no].x + 0.007f, (*surf.coords)[no].y - 0.007f);
-
-			glEnd();
-		}
-	}
+    mShader.free();
 }

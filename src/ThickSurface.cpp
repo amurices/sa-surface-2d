@@ -1,4 +1,3 @@
-#include "stdafx.hpp"
 #include "ThickSurface.hpp"
 
 ThickSurface::ThickSurface()

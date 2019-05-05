@@ -1,71 +1,17 @@
 // Surface2D 2.0.cpp : Defines the entry point for the console application.
 //
-#include <nanogui/opengl.h>
-#include <nanogui/glutil.h>
-#include <nanogui/screen.h>
-#include <nanogui/window.h>
-#include <nanogui/layout.h>
-#include <nanogui/label.h>
-#include <nanogui/checkbox.h>
-#include <nanogui/button.h>
-#include <nanogui/toolbutton.h>
-#include <nanogui/popupbutton.h>
-#include <nanogui/combobox.h>
-#include <nanogui/progressbar.h>
-#include <nanogui/entypo.h>
-#include <nanogui/messagedialog.h>
-#include <nanogui/textbox.h>
-#include <nanogui/slider.h>
-#include <nanogui/imagepanel.h>
-#include <nanogui/imageview.h>
-#include <nanogui/vscrollpanel.h>
-#include <nanogui/colorwheel.h>
-#include <nanogui/colorpicker.h>
-#include <nanogui/graph.h>
-#include <nanogui/tabwidget.h>
-// Includes for the GLTexture class.
-#include <cstdint>
-#include <memory>
-#include <utility>
+#include <nanogui/nanogui.h>
 
-#if defined(__GNUC__)
-#  pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#endif
-#if defined(_WIN32)
-#  pragma warning(push)
-#  pragma warning(disable: 4457 4456 4005 4312)
-#endif
-
-#define STB_IMAGE_IMPLEMENTATION
-//#include <stb_image.h>
-
-#if defined(_WIN32)
-#  pragma warning(pop)
-#endif
-#if defined(_WIN32)
-#  if defined(APIENTRY)
-#    undef APIENTRY
-#  endif
-#  include <windows.h>
-#endif
-
-#include "stdafx.hpp"
 #include "Renderer.hpp"
 #include "Optimizer.hpp"
 #include "ThickSurface.hpp"
 
 int main(int argc, char **argv)
 {
+	nanogui::init();
 	// Declarations and instantiations:
 	// -----------------------------------------
-	Renderer myRenderer;
-	// -----------------------------------------
-
-	// Initialization and error-handling calls:
-	// -----------------------------------------
-	int init = 0;
-	init |= myRenderer.initWindow(); // init Renderer, a wrapper around glfw and opengl functionality
-	myRenderer.handle(init);		 // Window initialization handling
+	nanogui::ref<Renderer> myRenderer = new Renderer();
 	// -----------------------------------------
 
 	ThickSurface mySurface;
@@ -92,33 +38,19 @@ int main(int argc, char **argv)
 	InitSaParams theseParams(scale, a0, smooth, diffPow, diffMul, areaPow, areaMul, multiProb, tempProb, forceOffsetRange, compression);
 	myOpt.params = &theseParams;
 
+	myRenderer->setVisible(true);
+	myRenderer->drawAll();
+	nanogui::mainloop();
 	// Loop is testing copying, deleting, and modification
 	double temperature = 0;
-
-	while (!glfwWindowShouldClose(myRenderer.window))
+	while (true)
 	{
-
-		myRenderer.preLoopGL();
-		myRenderer.render_axes(); // Swap this for a RenderObject list
+		myRenderer->drawContents();
 		if (ticks == 0)
 		{
 			myOpt.step_saV2(mySurface, &temperature, a0);
 		}
 
-		ticks++;
-
-		if (ticks < 6)
-		{
-			myRenderer.render_surface(*mySurface.outer, triple_t(0.1, 0.2, 0.3), false);
-			myRenderer.render_surface(*mySurface.inner, triple_t(0.1, 0.2, 0.45), false);
-		}
-		else
-		{
-			ticks = 0;
-		}
-		myRenderer.postLoopGL();
 	}
-	glfwTerminate();
-
 	return 0;
 }
