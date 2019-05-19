@@ -55,7 +55,7 @@
 
 #include "defs.hpp"
 #include "Util.hpp"
-#include "_2DSurface.hpp"
+#include "ThickSurface.hpp"
 
 // #include <lemon/list_graph.h>
 // #include <FTGL/ftgl.h>
@@ -83,13 +83,14 @@ class Renderer : public nanogui::Screen
     std::vector<nanogui::Widget*> toolses;
     std::vector<nanogui::PopupButton*> popupBtns;
     nanogui::Popup *popup;
-    int wWidth = 1280;
-    int wHeight = 920;
+    ThickSurface* thickSurface;
+    bool shouldStep = false;
 
     Renderer();
+    void uploadIndices();
+    void uploadSurface();
     virtual void drawContents();
     ~Renderer();
-  private:
     nanogui::GLShader mShader;
 
 };

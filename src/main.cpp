@@ -17,11 +17,7 @@ int main(int argc, char **argv)
 	ThickSurface mySurface;
 	mySurface.generateCircularThickSurface(1, 200, true, 0.12, 0.12, point_t(0.0, 0.0));
 	double perim;
-	ThickSurface *theNeighbor = &mySurface;
 
-	std::set<SNode> changed;
-	mySurface.inner->updateInnerSurface(*mySurface.outer, changed, mySurface.thicknesses);
-	int ticks = 0;
 	Optimizer myOpt;
 
 	double scale = 1.0;				 // Index that will adjust some hyperparameters of evolution
@@ -39,18 +35,25 @@ int main(int argc, char **argv)
 	myOpt.params = &theseParams;
 
 	myRenderer->setVisible(true);
-	myRenderer->drawAll();
-	nanogui::mainloop();
-	// Loop is testing copying, deleting, and modification
+	myRenderer->thickSurface = &mySurface;
 	double temperature = 0;
-	while (true)
-	{
-		myRenderer->drawContents();
-		if (ticks == 0)
-		{
-			myOpt.step_saV2(mySurface, &temperature, a0);
-		}
+	myRenderer->uploadIndices();
+	while (!glfwWindowShouldClose(myRenderer->glfwWindow()))
+    {
+        glClearColor(0,0,0,1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+        myRenderer->drawContents();
+        myRenderer->drawWidgets();
+        myOpt.changed = true;
+		if (myRenderer->shouldStep){
+	        myOpt.step_saV2(mySurface, &temperature, a0);
+		}
+        if (myOpt.changed){
+            myRenderer->uploadSurface();
+        }
+        glfwSwapBuffers(myRenderer->glfwWindow());
+        glfwPollEvents();
 	}
 	return 0;
 }

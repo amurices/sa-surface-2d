@@ -52,7 +52,6 @@ class _2DSurface
 	 * @param changedNodes set of all the nodes whose correspondent inner ones should be updated.
 	 * @param thicknesses vector of "thicknesses" (distance between inner and outer nodes at multiple indices).
 	 */
-	void updateInnerSurface(_2DSurface &outerSurf, const std::set<SNode> &changedNodes, const std::vector<double> &thicknesses);
 	void updateInnerSurfaceV2(_2DSurface &outerSurf, std::vector<double> &thicknesses, std::set<NodeChange_t> *nodeChanges);
 
 	/* 
@@ -63,7 +62,6 @@ class _2DSurface
 	 * @param smoothness the amount of nodes that should be smoothed out in either direction.
 	 * @param func which function should simulate the compression or expansion of the surface at individual points. 
 	 */
-	void smoothAdjacentNodes(SNode changedNode, point_t changedDifference, int smoothness, std::set<SNode> &changedSet, double (*func)(double u, double c));
 	void smoothAdjacentNodesV2(SNode changedNode, point_t changedDifference, int smoothness, std::set<NodeChange_t> *changedSet, double (*func)(double u, double c));
 
 	/* 

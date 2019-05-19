@@ -12,6 +12,7 @@ class Optimizer
 	_2DSurface *outerCircle = NULL; // outer shapes that constrain surface movement
 	int gen;
 	int maxT = 6500;
+	bool changed;
 
 	// -------------------
 	// SA attributes a) To actually function ------
@@ -38,10 +39,8 @@ class Optimizer
 				 double areaPow = 1, double areaMul = 1,
 				 double multiProb = 0, double forceOffsetRange = 0.066,
 				 double tempProb = 0, double compression = 1);
-	void step_sa(ThickSurface &state, double temperature, double a0);
 	void step_saV2(ThickSurface &state, double *temperature, double a0);
 
-	ThickSurface *findNeighbor(ThickSurface &org);
 	void findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighborChanges, std::set<ThicknessChange_t> *neighborThicknessChanges);
 
 	void applyChanges(ThickSurface &thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges);

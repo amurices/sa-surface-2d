@@ -34,10 +34,6 @@ ThickSurface::~ThickSurface()
 	this->thicknesses.clear();
 }
 
-void ThickSurface::updateInnerSurface(const std::set<SNode> &changedNodes)
-{
-	this->inner->updateInnerSurface(*this->outer, changedNodes, this->thicknesses);
-}
 void ThickSurface::updateInnerSurfaceV2(std::set<NodeChange_t> *nodeChanges)
 {
 	// TODO: Pass changes so updateInnerSurface can add what it does to the thick surface.

@@ -115,36 +115,6 @@ void _2DSurface::generateCircularSurface(double radius, int pts, point_t center)
 	prevToMap = currToMap;
 }
 
-void _2DSurface::smoothAdjacentNodes(SNode changedNode, point_t changedDifference, int smoothness, std::set<SNode> &changedSet, double (*func)(double u, double c))
-{
-	SNode prev, next;
-	int u = smoothness;
-	prev = next = changedNode;
-	changedSet.insert(changedNode);
-
-	for (int c = 1; c <= u; c++)
-	{
-		prev = this->graph->source(ListDigraph::InArcIt(*this->graph, prev));
-		next = this->graph->target(ListDigraph::OutArcIt(*this->graph, next));
-
-		// Previous and next nodes are also going to be altered as a matter of where they are in relation to their inner correspondents
-		changedSet.insert(prev);
-		changedSet.insert(next);
-
-		double ratio = (*func)(u, c);
-		(*this->coords)[prev].x += changedDifference.x * ratio;
-		(*this->coords)[prev].y += changedDifference.y * ratio;
-		(*this->coords)[next].x += changedDifference.x * ratio;
-		(*this->coords)[next].y += changedDifference.y * ratio;
-	}
-	// The single node at the end and beginning of a set of changed smoothed nodes are also altered
-	prev = this->graph->source(ListDigraph::InArcIt(*this->graph, prev));
-	next = this->graph->target(ListDigraph::OutArcIt(*this->graph, next));
-
-	changedSet.insert(prev);
-	changedSet.insert(next);
-}
-
 void _2DSurface::smoothAdjacentNodesV2(SNode changedNode, point_t changedDifference, int smoothness, std::set<NodeChange_t> *changedSet, double (*func)(double u, double c))
 {
 	SNode prev, next;
@@ -234,42 +204,6 @@ void _2DSurface::generateInnerSurface(_2DSurface &outerSurf, const std::vector<d
 	this->nEdges++;
 }
 
-void _2DSurface::updateInnerSurface(_2DSurface &outerSurf, const std::set<SNode> &changedNodes, const std::vector<double> &thicknesses)
-{
-	int count = 0;
-
-	// TODO: Adapt so it adds the nodes to changes made.
-	for (auto it = changedNodes.begin(); it != changedNodes.end(); it++)
-	{
-		count++;
-		SNode prev, next, last;
-		point_t pPrev, pNext, pCurr, vd;
-
-		// Changed nodes have their correspondents updated one at a time
-		SNode fnode = *it;
-		int fnodeId = outerSurf.graph->id(fnode);
-
-		ListDigraph::InArcIt inCurrI(*outerSurf.graph, fnode);   // get Pn
-		ListDigraph::OutArcIt outCurrI(*outerSurf.graph, fnode); // and P1
-
-		prev = outerSurf.graph->source(inCurrI);  // cont ^
-		next = outerSurf.graph->target(outCurrI); // cont ^
-
-		pNext = (*outerSurf.coords)[next]; // get coordinates Pn
-		pPrev = (*outerSurf.coords)[prev]; // and P0
-
-		vd = MathGeometry::findDirectionVector(pPrev, pNext, (*outerSurf.coords)[fnode], MathGeometry::MEDIAN_ANGLE); // Get directional vector btwn inner & outer
-		vd *= thicknesses[outerSurf.graph->id(fnode)];																  // Directional vector returned by findDirectionVector is unitary
-
-		// TODO: The following depends on the node IDs of inner and outer surfaces to ALWAYS REMAIN THE SAME.
-		// Since IDs are calculated at the moment they're added to a graph, this shouldn't be an issue, since we always
-		// traverse the surfaces in the same order (and will do the same when adding nodes). Still, it's worth noting.
-
-		SNode finode = this->graph->nodeFromId(fnodeId);				   // Add node to this surface;
-		SNode innerCurrToMap = finode;									   // Current node to map is first node
-		(*this->coords)[innerCurrToMap] = (*outerSurf.coords)[fnode] - vd; // set coordinates of inner node
-	}
-}
 void _2DSurface::updateInnerSurfaceV2(_2DSurface &outerSurf, std::vector<double> &thicknesses, std::set<NodeChange_t> *nodeChanges)
 {
 	std::set<NodeChange_t> additions;

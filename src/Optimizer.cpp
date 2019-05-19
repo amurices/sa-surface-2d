@@ -14,64 +14,6 @@ Optimizer::~Optimizer()
 {
 }
 
-ThickSurface *Optimizer::findNeighbor(ThickSurface &org)
-{
-	ThickSurface *newNeighbor = new ThickSurface(org);
-	std::vector<int> randomIndexes;
-	std::set<SNode> changedNodes;
-
-	// First, choose indices that will be modified by random neighbor search
-	double coinFlip = 0.0;
-	do
-	{ // do {} while guarantees that at least one node is modified
-		int randomIndex = rand() % newNeighbor->outer->nNodes;
-		randomIndexes.push_back(randomIndex);
-		coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
-	} while (coinFlip < this->params->multiProb);
-
-	for (size_t i = 0; i < randomIndexes.size(); i++)
-	{
-		int randomIndex = randomIndexes[i];
-
-		SNode randomNode = newNeighbor->outer->graph->nodeFromId(randomIndex);
-		SNode randomInnerNode = org.inner->graph->nodeFromId(newNeighbor->outer->correspondence[randomIndex]);
-
-		// Choose a random offset, bounded by optimizer params
-		double offsetX, offsetY;
-		offsetX = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
-		offsetY = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
-		point_t dir(offsetX, offsetY);
-
-		point_t pdir = (*newNeighbor->outer->coords)[randomNode] + dir;
-		point_t mdir = (*newNeighbor->outer->coords)[randomNode] - dir;
-
-		(*newNeighbor->outer->coords)[randomNode] = pdir;
-
-		// We now have the offset of the neighbor in relation to the current state. If we want to know whether
-		// this particular force has stretched or compressed the surface, which will determine whether we multiply
-		// thickness by a value greater or less than than 1, we have to know if the offset point in the outer
-		// surface is closer to or further away from the original's corresponding inner point. This would be easily
-		// determined by looking at both polygons' areas, but since we're not in that realm yet (it belongs to the
-		// probability function) we can just compare the distance of the offset point if the offset were in the opposite
-		// direction.
-
-		double distPdir = Util::dist(pdir, (*org.inner->coords)[randomInnerNode]);
-		double distMdir = Util::dist(mdir, (*org.inner->coords)[randomInnerNode]);
-
-		// If the distance to the inner node is now larger, then the surface will be stretched, otherwise itll be compressed
-		double thicknessDiff = newNeighbor->thicknesses[randomIndex]; // Useful for the smoothness routine
-		newNeighbor->thicknesses[randomIndex] *= (distPdir > distMdir ? this->params->compression : 1 / this->params->compression);
-		thicknessDiff -= newNeighbor->thicknesses[randomIndex];
-
-		// Routine to smooth out neighbour's relationship to current state
-		// --------------
-		newNeighbor->outer->smoothAdjacentNodes(randomNode, dir, this->params->smooth, changedNodes, &MathGeometry::linearSmooth);
-	}
-	newNeighbor->updateInnerSurface(changedNodes);
-
-	return newNeighbor;
-}
-
 void Optimizer::applyChanges(ThickSurface &thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges)
 {
 	// TODO: Apply changes has to see what updateInnerSurfaceV2 has done. So the call to updateInnerSurfaceV2 should be done inside here,
@@ -212,34 +154,6 @@ double Optimizer::findProbability(double eS, double eN, double t)
 		return exp((eS - eN) / t);
 }
 
-void Optimizer::step_sa(ThickSurface &state, double temperature, double a0)
-{
-	// TODO: Use changes here.
-	ThickSurface *neighbor = findNeighbor(state);
-
-	ThickSurface *neighborV2 = new ThickSurface(state);
-	std::set<NodeChange_t> neighborChanges;
-	std::set<ThicknessChange_t> thicknessChanges;
-	findNeighborV2(*neighborV2, &neighborChanges, &thicknessChanges);
-
-	// TODO: findEnergies (a0, state, changes, &eS, &eN);
-	double eS = findEnergy(state, a0);
-	double eN = findEnergy(*neighbor, a0);
-	double eNv2 = findEnergy(*neighborV2, a0);
-
-	// Will not change.
-	double prob = findProbability(eS, eN, temperature);
-	double coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
-
-	if (coinFlip < prob)
-	{
-		// TODO: Nothing. We maintain the changes.
-		state = *neighbor;
-		delete neighbor;
-	}
-	// TODO: Else{ revert changes }
-}
-
 void Optimizer::step_saV2(ThickSurface &state, double *temperature, double a0)
 {
 	std::set<NodeChange_t> neighborChanges;
@@ -263,8 +177,10 @@ void Optimizer::step_saV2(ThickSurface &state, double *temperature, double a0)
 	if (numInts > 0) {
 		prob = 0; // We'll always want to revert changes
 	}
+	changed = true;
 	if (coinFlip >= prob)
 	{
+		changed = false;
 		revertChanges(state, neighborChanges, thicknessChanges);
 	}
 	// TODO: Pedreirar menos aqui
