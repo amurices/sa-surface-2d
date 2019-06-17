@@ -40,6 +40,12 @@ void ThickSurface::updateInnerSurfaceV2(std::set<NodeChange_t> *nodeChanges)
 	this->inner->updateInnerSurfaceV2(*this->outer, this->thicknesses, nodeChanges);
 }
 
+void ThickSurface::updateEntireInnerSurface()
+{
+	// TODO: Pass changes so updateInnerSurface can add what it does to the thick surface.
+	this->inner->updateEntireInnerSurface(*this->outer, this->thicknesses);
+}
+
 void ThickSurface::smoothAdjacentThicknesses(double thicknessDiff, int smoothness, SNode changedNode, std::set<ThicknessChange_t> *changedSet, double (*func)(double u, double c)){
 	SNode prev, next;
 	int u = smoothness;

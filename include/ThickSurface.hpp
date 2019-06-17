@@ -40,8 +40,9 @@ class ThickSurface
 	 *
 	 * @param changedNodes a unique set (no repeated elements) of nodes in the outer surface that need their correspondents updated.
 	 */
-	void updateInnerSurface(const std::set<SNode> &changedNodes);
 	void updateInnerSurfaceV2(std::set<NodeChange_t> *nodeChanges);
+
+	void updateEntireInnerSurface();
 
 	void smoothAdjacentThicknesses(double thicknessDiff, int smoothness, SNode startingIndex, std::set<ThicknessChange_t> *changedSet, double (*func)(double u, double c));
 

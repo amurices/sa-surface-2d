@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	// -----------------------------------------
 
 	ThickSurface mySurface;
-	mySurface.generateCircularThickSurface(1, 200, true, 0.12, 0.12, point_t(0.0, 0.0));
+	mySurface.generateCircularThickSurface(1, 20, true, 0.024, 0.024, point_t(0.0, 0.0));
 	double perim;
 
 	Optimizer myOpt;
@@ -36,6 +36,7 @@ int main(int argc, char **argv)
 
 	myRenderer->setVisible(true);
 	myRenderer->thickSurface = &mySurface;
+	myRenderer->optimizer = &myOpt;
 	double temperature = 0;
 	myRenderer->uploadIndices();
 	while (!glfwWindowShouldClose(myRenderer->glfwWindow()))
@@ -49,9 +50,7 @@ int main(int argc, char **argv)
 		if (myRenderer->shouldStep){
 	        myOpt.step_saV2(mySurface, &temperature, a0);
 		}
-        if (myOpt.changed){
-            myRenderer->uploadSurface();
-        }
+        myRenderer->uploadSurface();
         glfwSwapBuffers(myRenderer->glfwWindow());
         glfwPollEvents();
 	}

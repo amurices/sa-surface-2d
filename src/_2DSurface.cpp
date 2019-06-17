@@ -207,7 +207,6 @@ void _2DSurface::generateInnerSurface(_2DSurface &outerSurf, const std::vector<d
 void _2DSurface::updateInnerSurfaceV2(_2DSurface &outerSurf, std::vector<double> &thicknesses, std::set<NodeChange_t> *nodeChanges)
 {
 	std::set<NodeChange_t> additions;
-
 	for (auto it = (*nodeChanges).begin(); it != (*nodeChanges).end(); it++)
 	{
 		SNode prev, next, last;
@@ -243,6 +242,35 @@ void _2DSurface::updateInnerSurfaceV2(_2DSurface &outerSurf, std::vector<double>
 	for (auto it = additions.begin(); it != additions.end(); it++)
 	{
 		nodeChanges->insert(*it);
+	}
+}
+
+void _2DSurface::updateEntireInnerSurface(_2DSurface &outerSurf, const std::vector<double> &thicknesses)
+{
+	for (ListDigraph::NodeIt it(*outerSurf.graph); it != INVALID; ++it)
+	{
+		SNode prev, next, last;
+		point_t pPrev, pNext, pCurr, vd;
+
+		// Changed nodes have their correspondents updated one at a time
+		SNode fnode = it;
+		int fnodeId = outerSurf.graph->id(fnode);
+
+		ListDigraph::InArcIt inCurrI(*outerSurf.graph, fnode);   // get Pn
+		ListDigraph::OutArcIt outCurrI(*outerSurf.graph, fnode); // and P1
+
+		prev = outerSurf.graph->source(inCurrI);  // cont ^
+		next = outerSurf.graph->target(outCurrI); // cont ^
+
+		pNext = (*outerSurf.coords)[next]; // get coordinates Pn
+		pPrev = (*outerSurf.coords)[prev]; // and P0
+
+		vd = MathGeometry::findDirectionVector(pPrev, pNext, (*outerSurf.coords)[fnode], MathGeometry::MEDIAN_ANGLE); // Get directional vector btwn inner & outer
+		vd *= thicknesses[outerSurf.graph->id(fnode)];																  // Directional vector returned by findDirectionVector is unitary
+
+		SNode finode = this->graph->nodeFromId(fnodeId); // Add node to this surface;
+		SNode innerCurrToMap = finode;					 // Current node to map is first node
+		(*this->coords)[innerCurrToMap] = (*outerSurf.coords)[fnode] - vd;		   // set coordinates of inner node
 	}
 }
 

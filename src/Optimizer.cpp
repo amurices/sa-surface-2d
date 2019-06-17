@@ -164,7 +164,6 @@ void Optimizer::step_saV2(ThickSurface &state, double *temperature, double a0)
 	applyChanges(state, neighborChanges, thicknessChanges);
 	double eN = findEnergy(state, a0);
 
-	//printf("Energies: S: %.4f\tN: %.4f\n", eS, eN);
 	double prob = findProbability(eS, eN, *temperature);
 	double coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
 

@@ -20,18 +20,6 @@ class Optimizer
 	InitSaParams* params;
 	
 	// a.2) References - What the simulation needs to see to run correctly
-	ThickSurface *ln;	// Last neighbour calculated; useful for mid-evolution rendering
-	ThickSurface *state; // Local variables evolved state,
-	ThickSurface nstate; // new state,
-	ThickSurface nghbr;  // evolved state and random neighbor
-
-	// SA attributes b) For testing purposes - these are interesting to output
-	double gray = 2000;		 // Gray matter of any given solution (outer - inner areas)
-	double white = 2000;	 // White matter (inner area)
-	double stretch = 2000;   // Stretch factor for any solution (diffMul * diff btwn grays ^ diffPow)
-	double perimeter = 2000; // Perimeter of any given solution (sum of all vector lengths)
-	double energy = 2000;	// And fitness of solution ofc.
-
 	// SA functions ------
 	Optimizer(ThickSurface &org); //met constructor
 	void init_SA(double scale = 1, int smooth = 0,

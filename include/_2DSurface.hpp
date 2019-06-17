@@ -54,6 +54,8 @@ class _2DSurface
 	 */
 	void updateInnerSurfaceV2(_2DSurface &outerSurf, std::vector<double> &thicknesses, std::set<NodeChange_t> *nodeChanges);
 
+    void updateEntireInnerSurface(_2DSurface &outerSurf, const std::vector<double> &thicknesses);
+
 	/* 
 	 * Given a node, draws nodes next to it toward the direction it was pushed/pulled.
 	 *
