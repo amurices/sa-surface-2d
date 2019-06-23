@@ -3,6 +3,7 @@
 #include <nanogui/nanogui.h>
 
 #include <fstream>
+#include <map>
 
 #include "Renderer.hpp"
 #include "Optimizer.hpp"
@@ -22,17 +23,21 @@ int main(int argc, char **argv)
 
     Optimizer myOpt;
 
-    double scale = 1.0;				 // Index that will adjust some hyperparameters of evolution
+    double scale = 1.0;              // Index that will adjust some hyperparameters of evolution
     double a0 = mySurface.outer->findSurfaceAreaAndPerimeter(perim) - mySurface.inner->findSurfaceAreaAndPerimeter(perim);
-    int smooth = 10;				 // Whether neighbors should be calculated using smoothing depressions or not
-    double diffPow = 1.0;			 // Power to raise difference btwn A0 and AS
-    double diffMul = 1.0;			 // Scalar ^
-    double areaPow = 1.0;			 // Analogous to
-    double areaMul = 1.0;			 // previous two
-    double multiProb = 0.0;			 // Probability of forcing another vertex after the first one
-    double tempProb = 1.0;			 // How much weight does temperature hold
+    int smooth = 10;                 // Whether neighbors should be calculated using smoothing depressions or not
+    double diffPow = 1.0;            // Power to raise difference btwn A0 and AS
+    double diffMul = 1.0;            // Scalar ^
+    double areaPow = 1.0;            // Analogous to
+    double areaMul = 1.0;            // previous two
+    double multiProb = 0.0;          // Probability of forcing another vertex after the first one
+    double tempProb = 1.0;           // How much weight does temperature hold
     double forceOffsetRange = 0.066; // How much can points be shifted every iteration
-    double compression = 1.0;		 // How much should cortex be compressed by force
+    double compression = 1.0;        // How much should cortex be compressed by force
+
+    std::map <std::string, std::string> inputMap;
+    Util::sillyMapReader("input.txt", inputMap);
+    Util::sillyMapPrinter(inputMap);
     InitSaParams theseParams(scale, a0, smooth, diffPow, diffMul, areaPow, areaMul, multiProb, tempProb, forceOffsetRange, compression);
     myOpt.params = &theseParams;
 
