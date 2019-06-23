@@ -13,9 +13,9 @@ namespace MathGeometry
 {
 enum direction_t
 {
-	ORTHOGONAL,
-	MEDIAN,
-	MEDIAN_ANGLE
+    ORTHOGONAL,
+    MEDIAN,
+    MEDIAN_ANGLE
 };
 
 double absol(double x);
