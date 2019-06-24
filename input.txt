@@ -1,3 +1,13 @@
 scale 1.0
 smoothness 10
-jailson 123
+thickness 0.024
+points 250
+diffPow 1.0
+diffMul 1.0
+areaPow 1.0
+areaMul 1.0
+multiProb 0.0
+tempProb 1.0
+forceOffsetRange 0.066
+compression 1.0
+radius 1.0

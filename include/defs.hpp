@@ -216,6 +216,7 @@ struct InitSaParams
     // Surface params
     double radius;
     double thickness;
+    int points;
     // Optimizer params
     double scale;
     double a0;
@@ -228,22 +229,6 @@ struct InitSaParams
     double tempProb;
     double forceOffsetRange;
     double compression;
-
-    InitSaParams(double scale, double a0, 
-                 int smooth, double diffMul,
-                 double diffPow, double areaPow,
-                 double areaMul, double multiProb,
-                 double tempProb, double forceOffsetRange,
-                 double compression) : 
-                scale{scale}, a0{a0},
-                smooth{smooth}, diffMul{diffMul}, 
-                diffPow{diffPow}, areaPow{areaPow}, 
-                areaMul{areaMul}, multiProb{multiProb}, 
-                tempProb{tempProb}, forceOffsetRange{forceOffsetRange},
-                compression{compression}
-                {
-                     printf("Params:\nscale: %.4f\na0: %.4f\nsmooth: %d\ndiffMul: %.4f\ndiffPow: %.4f\nareaPow: %.4f\nareaMul: %.4f\nmultiProb: %.4f\ntempProb: %.4f\nforceOffsetRange: %.4f\ncompression: %.4f\n",scale,a0,smooth,diffMul,diffPow,areaPow,areaMul,multiProb,tempProb,forceOffsetRange,compression);
-                }
 };
 
 typedef ListDigraph::NodeMap<point_t> Coords_t;				  // _t for type
@@ -261,6 +246,23 @@ inline std::ostream &operator<<(std::ostream &os, line_t const &p)
 {
     return os << "(" << p.p1.x << ", " << p.p1.y << ") -> "
               << "(" << p.p2.x << ", " << p.p2.y << ")";
+}
+inline std::ostream &operator<<(std::ostream &os, InitSaParams const &params)
+{
+    return os << "Params:\n" 
+      << "thickness: " << params.thickness << std::endl
+      << "radius: " << params.radius << std::endl
+      << "points: " << params.points << std::endl
+      << "a0: " << params.a0 << std::endl
+      << "smooth: " << params.smooth << std::endl
+      << "diffMul: " << params.diffMul << std::endl
+      << "diffPow: " << params.diffPow << std::endl
+      << "areaPow: " << params.areaPow << std::endl
+      << "areaMul: " << params.areaMul << std::endl
+      << "multiProb: " << params.multiProb << std::endl
+      << "tempProb: " << params.tempProb << std::endl
+      << "forceOffsetRange: " << params.forceOffsetRange << std::endl
+      << "compression: " << params.compression << std::endl;
 }
 
 /* ListDigraph manipulation types. _t suffix means type. */

@@ -63,30 +63,3 @@ double Util::time_after()
     timeSince += std::abs(diff) / 1000000;
     return timeSince;
 }
-
-void Util::sillyMapReader(const std::string fileName, std::map<std::string, std::string> &map)
-{
-    std::ifstream input;
-    input.open(fileName);
-    std::string reader;
-    std::map<std::string, std::string> inputMap;
-    while (std::getline (input, reader)){
-        int valPos = reader.find(" ");
-        std::string key = reader.substr(0, valPos);
-        std::string val = reader.substr(valPos, reader.size()); 
-        map.insert(std::pair<std::string,std::string> (key, val));
-    }
-}
-
-void Util::sillyMapPrinter(const std::map<std::string, std::string> &map)
-{
-    std::cout << "{";
-    for (auto it = map.begin(); it != map.end(); it++){
-        if (it != map.begin()) std::cout <<  " ";
-        std::cout << ":" << it->first << " " << it->second;
-        auto it2 = it;
-        it2++;
-        if (it2 != map.end())
-        std::cout << std::endl;
-    } std::cout << "}\n";
-}
