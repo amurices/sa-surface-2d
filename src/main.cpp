@@ -13,11 +13,7 @@
 int main(int argc, char **argv)
 {
     nanogui::init();
-    // Declarations and instantiations:
-    // -----------------------------------------
-    nanogui::ref<Renderer> myRenderer = new Renderer();
-    // -----------------------------------------
-
+    
     Optimizer myOpt;
 
     std::unordered_map <std::string, std::string> inputMap;
@@ -30,12 +26,17 @@ int main(int argc, char **argv)
     ThickSurface mySurface;
     mySurface.generateCircularThickSurface(theseParams.radius, theseParams.points, true, theseParams.thickness, theseParams.thickness, point_t(0.0, 0.0));
 
+    // Declarations and instantiations:
+    // -----------------------------------------
+    nanogui::ref<Renderer> myRenderer = new Renderer();
+    // -----------------------------------------
+
     myRenderer->setVisible(true);
     myRenderer->thickSurface = &mySurface;
     myRenderer->optimizer = &myOpt;
     double temperature = 0;
     myRenderer->uploadIndices();
-    
+    myRenderer->makeInputForms(myRenderer->windows[0]);
     // Awkward a0 generation
     double perim;
     theseParams.a0 = mySurface.outer->findSurfaceAreaAndPerimeter(perim) - mySurface.inner->findSurfaceAreaAndPerimeter(perim);;
@@ -48,7 +49,7 @@ int main(int argc, char **argv)
         myRenderer->drawContents();
         myRenderer->drawWidgets();
         myOpt.changed = true;
-        if (myRenderer->shouldStep){
+        if (myOpt.shouldStep || myOpt.singleStep){
             myOpt.step_saV2(mySurface, &temperature, theseParams.a0);
         }
         myRenderer->uploadSurface();

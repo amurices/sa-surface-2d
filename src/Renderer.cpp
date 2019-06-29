@@ -15,41 +15,16 @@ nanogui::TextBox* Renderer::makeForm(nanogui::Widget *parent,
     textBox->setUnits(unit);
     textBox->setFontSize(16);
     textBox->setFormat("[-]?[0-9]*\\.?[0-9]+");
-    
+    textBox->setValue(initialValue);
     return textBox;
 }
 
-Renderer::Renderer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "NanoGUI Test")
+Renderer::Renderer() : nanogui::Screen(Eigen::Vector2i(1600, 900), "NanoGUI Test")
 {
     windows.resize(1);
     windows[0] = new nanogui::Window(this, "Parameter forms");
     windows[0]->setPosition(Eigen::Vector2i(15, 15));
     windows[0]->setLayout(new nanogui::GroupLayout());
-    nanogui::TextBox *textBox;
-    textBox = makeForm(windows[0], "Thickness", "dunno", "* outer radius");
-    textBox->setCallback([this](const std::string &str) {
-        std::cout << "Thickness went from " << this->thickSurface->thicknesses[0];
-        std::vector<double> newThicknesses(this->thickSurface->outer->nNodes, std::stof(str));
-        this->thickSurface->thicknesses = newThicknesses;
-        this->thickSurface->updateEntireInnerSurface();
-        std::cout << " to " << this->thickSurface->thicknesses[0] << std::endl;
-        //TODO: Gen thicknesses
-        return true;
-    });
-
-    nanogui::TextBox *textBox1;
-    textBox1 = makeForm(windows[0], "Smoothness", "dunno", "# of nodes pushed");
-    textBox1->setCallback([this](const std::string &str) {
-        std::cout << "Smoothness went from " << this->optimizer->params->smooth;
-        this->optimizer->params->smooth = std::stoi(str); if (this->optimizer->params->smooth < 0) this->optimizer->params->smooth = 0;
-        std::cout << " to " << this->optimizer->params->smooth << std::endl;
-        return true;
-    });
-
-    nanogui::Button *b = new nanogui::Button(windows[0], "Start/Pause");
-    b->setCallback([this] { this->shouldStep = !this->shouldStep; });
-    performLayout();
-
     mShader.init(
             /* An identifying name */
             "a_simple_shader",
@@ -70,6 +45,100 @@ Renderer::Renderer() : nanogui::Screen(Eigen::Vector2i(1024, 768), "NanoGUI Test
             "    color = vec4(vec3(intensity), 1.0);\n"
             "}"
         );
+}
+
+void Renderer::makeInputForms(nanogui::Window *targetWindow)
+{
+    textBoxes.resize(32);
+    textBoxes[0] = makeForm(targetWindow, "Thickness", std::to_string(this->thickSurface->thicknesses[0]), "* outer radius");
+    textBoxes[0]->setCallback([this](const std::string &str) {
+        std::cout << "Thickness went from " << this->thickSurface->thicknesses[0];
+        std::vector<double> newThicknesses(this->thickSurface->outer->nNodes, std::stod(str));
+        this->thickSurface->thicknesses = newThicknesses;
+        this->thickSurface->updateEntireInnerSurface();
+        std::cout << " to " << this->thickSurface->thicknesses[0] << std::endl;
+        //TODO: Gen thicknesses
+        return true;
+    });
+
+    textBoxes[1] = makeForm(targetWindow, "Smoothness", std::to_string(this->optimizer->params->smooth), "nodes pp");
+    textBoxes[1]->setCallback([this](const std::string &str) {
+        std::cout << "Smoothness went from " << this->optimizer->params->smooth;
+        this->optimizer->params->smooth = std::stoi(str); if (this->optimizer->params->smooth < 0) this->optimizer->params->smooth = 0;
+        std::cout << " to " << this->optimizer->params->smooth << std::endl;
+        return true;
+    });
+
+    textBoxes[1] = makeForm(targetWindow, "DiffMul", std::to_string(this->optimizer->params->diffMul), "");
+    textBoxes[1]->setCallback([this](const std::string &str) {
+        std::cout << "DiffMul went from " << this->optimizer->params->diffMul;
+        this->optimizer->params->diffMul = std::stod(str); if (this->optimizer->params->diffMul < 0) this->optimizer->params->diffMul = 0;
+        std::cout << " to " << this->optimizer->params->diffMul << std::endl;
+        return true;
+    });
+
+    textBoxes[2] = makeForm(targetWindow, "DiffPow", std::to_string(this->optimizer->params->diffPow), "");
+    textBoxes[2]->setCallback([this](const std::string &str) {
+        std::cout << "DiffPow went from " << this->optimizer->params->diffPow;
+        this->optimizer->params->diffPow = std::stod(str); if (this->optimizer->params->diffPow < 0) this->optimizer->params->diffPow = 0;
+        std::cout << " to " << this->optimizer->params->diffPow << std::endl;
+        return true;
+    });
+
+    textBoxes[3] = makeForm(targetWindow, "AreaMul", std::to_string(this->optimizer->params->areaMul), "");
+    textBoxes[3]->setCallback([this](const std::string &str) {
+        std::cout << "AreaMul went from " << this->optimizer->params->areaMul;
+        this->optimizer->params->areaMul = std::stod(str); if (this->optimizer->params->areaMul < 0) this->optimizer->params->areaMul = 0;
+        std::cout << " to " << this->optimizer->params->areaMul << std::endl;
+        return true;
+    });
+
+    textBoxes[4] = makeForm(targetWindow, "AreaPow", std::to_string(this->optimizer->params->areaPow), "");
+    textBoxes[4]->setCallback([this](const std::string &str) {
+        std::cout << "AreaPow went from " << this->optimizer->params->areaPow;
+        this->optimizer->params->areaPow = std::stod(str); if (this->optimizer->params->areaPow < 0) this->optimizer->params->areaPow = 0;
+        std::cout << " to " << this->optimizer->params->areaPow << std::endl;
+        return true;
+    });
+
+    textBoxes[4] = makeForm(targetWindow, "Compression", std::to_string(this->optimizer->params->compression), "");
+    textBoxes[4]->setCallback([this](const std::string &str) {
+        std::cout << "Compression went from " << this->optimizer->params->compression;
+        this->optimizer->params->compression = std::stod(str); if (this->optimizer->params->compression < 0) this->optimizer->params->compression = 0;
+        std::cout << " to " << this->optimizer->params->compression << std::endl;
+        return true;
+    });
+
+    textBoxes[5] = makeForm(targetWindow, "ForceOffsetRange", std::to_string(this->optimizer->params->forceOffsetRange), "");
+    textBoxes[5]->setCallback([this](const std::string &str) {
+        std::cout << "ForceOffsetRange went from " << this->optimizer->params->forceOffsetRange;
+        this->optimizer->params->forceOffsetRange = std::stod(str); if (this->optimizer->params->forceOffsetRange < 0) this->optimizer->params->forceOffsetRange = 0;
+        std::cout << " to " << this->optimizer->params->forceOffsetRange << std::endl;
+        return true;
+    });
+
+    textBoxes[6] = makeForm(targetWindow, "MultiProb", std::to_string(this->optimizer->params->multiProb), "");
+    textBoxes[6]->setCallback([this](const std::string &str) {
+        std::cout << "MultiProb went from " << this->optimizer->params->multiProb;
+        this->optimizer->params->multiProb = std::stod(str); if (this->optimizer->params->multiProb < 0) this->optimizer->params->multiProb = 0;
+        std::cout << " to " << this->optimizer->params->multiProb << std::endl;
+        return true;
+    });
+
+    textBoxes[7] = makeForm(targetWindow, "TempProb", std::to_string(this->optimizer->params->tempProb), "");
+    textBoxes[7]->setCallback([this](const std::string &str) {
+        std::cout << "TempProb went from " << this->optimizer->params->tempProb;
+        this->optimizer->params->tempProb = std::stod(str); if (this->optimizer->params->tempProb < 0) this->optimizer->params->tempProb = 0;
+        std::cout << " to " << this->optimizer->params->tempProb << std::endl;
+        return true;
+    });
+
+    nanogui::Button *b0 = new nanogui::Button(targetWindow, "Single step");
+    b0->setCallback([this] { this->optimizer->singleStep = true; });
+
+    nanogui::Button *b1 = new nanogui::Button(targetWindow, "Start/Pause");
+    b1->setCallback([this] { this->optimizer->shouldStep = !this->optimizer->shouldStep; });
+    performLayout();
 }
 
 static bool indexUploaded = false;

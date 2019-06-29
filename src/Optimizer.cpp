@@ -182,6 +182,11 @@ void Optimizer::step_saV2(ThickSurface &state, double *temperature, double a0)
         changed = false;
         revertChanges(state, neighborChanges, thicknessChanges);
     }
+    if (singleStep)
+    {
+        singleStep = false;
+        shouldStep = false;
+    }
     // TODO: Pedreirar menos aqui
     //*temperature -= 0.01;
 }

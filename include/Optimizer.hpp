@@ -8,12 +8,9 @@ class Optimizer
 {
   public:
     ThickSurface *org;				// Reference to original surface
-    _2DSurface *innerCircle = NULL; // Inner and
-    _2DSurface *outerCircle = NULL; // outer shapes that constrain surface movement
-    int gen;
-    int maxT = 6500;
     bool changed;
-
+    bool shouldStep = false;
+    bool singleStep = false;
     // -------------------
     // SA attributes a) To actually function ------
     // a.1) Hyperparameters - They alter the simulation's behavior
