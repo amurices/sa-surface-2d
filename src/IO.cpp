@@ -5,6 +5,10 @@ void IO::sillyMapReader(const std::string fileName, std::unordered_map<std::stri
 {
     std::ifstream input;
     input.open(fileName);
+    if (input.fail()){
+        printf("Input file %s not found.\n", fileName.c_str());
+        exit(0);
+    }
     std::string reader;
     std::map<std::string, std::string> inputMap;
     while (std::getline (input, reader)){

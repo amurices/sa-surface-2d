@@ -9,63 +9,61 @@ Optimizer::~Optimizer()
 {
 }
 
-void Optimizer::applyChanges(ThickSurface &thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges)
+void Optimizer::applyChanges(ThickSurface *thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges)
 {
     // TODO: Apply changes has to see what updateInnerSurfaceV2 has done. So the call to updateInnerSurfaceV2 should be done inside here,
     // with the changes being simply added to changes and thicknessChanges. Then after a call to applyChanges has been made, all the changes
     // are done AND will be visible within the sets, which means they can be reversed.
     for (auto it = changes.begin(); it != changes.end(); it++)
     {
-        if (it->graph == thickSurface.outer->graph)
+        if (it->graph == thickSurface->outer->graph)
         {
-            (*thickSurface.outer->coords)[it->node] += it->change;
+            (*thickSurface->outer->coords)[it->node] += it->change;
         }
     }
 
     for (auto it = thicknessChanges.begin(); it != thicknessChanges.end(); it++)
     {
-        thickSurface.thicknesses[it->nodeIndex] += it->change;
+        thickSurface->thicknesses[it->nodeIndex] += it->change;
     }
     std::set<SNode> changedIDK;
-    thickSurface.updateInnerSurfaceV2(&changes);
+    thickSurface->updateInnerSurfaceV2(&changes);
 }
 
-void Optimizer::revertChanges(ThickSurface &thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges)
+void Optimizer::revertChanges(ThickSurface *thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges)
 {
     // TODO: Apply changes has to see what updateInnerSurfaceV2 has done. So the call to updateInnerSurfaceV2 should be done inside here,
     // with the changes being simply added to changes and thicknessChanges. Then after a call to applyChanges has been made, all the changes
     // are done AND will be visible within the sets, which means they can be reversed.
     for (auto it = changes.begin(); it != changes.end(); it++)
     {
-        if (it->graph == thickSurface.outer->graph)
+        if (it->graph == thickSurface->outer->graph)
         {
-            (*thickSurface.outer->coords)[it->node] -= it->change;
+            (*thickSurface->outer->coords)[it->node] -= it->change;
         }
-        else if (it->graph == thickSurface.inner->graph)
+        else if (it->graph == thickSurface->inner->graph)
         {
-            (*thickSurface.inner->coords)[it->node] -= it->change;
+            (*thickSurface->inner->coords)[it->node] -= it->change;
         }
     }
 
     for (auto it = thicknessChanges.begin(); it != thicknessChanges.end(); it++)
     {
-        thickSurface.thicknesses[it->nodeIndex] -= it->change;
+        thickSurface->thicknesses[it->nodeIndex] -= it->change;
     }
 }
 
-void Optimizer::findNeighbor(ThickSurface &org, std::set<NodeChange_t> *neighborChanges,
+void Optimizer::findNeighbor(ThickSurface *thickSurface, std::set<NodeChange_t> *neighborChanges,
                              std::set<ThicknessChange_t> *neighborThicknessChanges)
 {
     std::vector<int> randomIndexes;
     // Use a set of changes for node and thickness changes
-    std::set<NodeChange_t> changes;
-    std::set<ThicknessChange_t> thicknessChanges;
 
     // First, choose indices that will be modified by random neighbor search
     double coinFlip = 0.0;
     do
     { // do {} while guarantees that at least one node is modified
-        int randomIndex = rand() % org.outer->nNodes;
+        int randomIndex = rand() % thickSurface->outer->nNodes;
         randomIndexes.push_back(randomIndex);
         coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
     } while (coinFlip < this->params->multiProb);
@@ -74,8 +72,8 @@ void Optimizer::findNeighbor(ThickSurface &org, std::set<NodeChange_t> *neighbor
     {
         int randomIndex = randomIndexes[i];
 
-        SNode randomNode = org.outer->graph->nodeFromId(randomIndex);
-        SNode randomInnerNode = org.inner->graph->nodeFromId(org.outer->correspondence[randomIndex]);
+        SNode randomNode = thickSurface->outer->graph->nodeFromId(randomIndex);
+        SNode randomInnerNode = thickSurface->inner->graph->nodeFromId(thickSurface->outer->correspondence[randomIndex]);
 
         // Choose a random offset, bounded by optimizer params
         double offsetX, offsetY;
@@ -84,11 +82,11 @@ void Optimizer::findNeighbor(ThickSurface &org, std::set<NodeChange_t> *neighbor
         
         point_t dir(offsetX, offsetY);
 
-        point_t pdir = (*org.outer->coords)[randomNode] + dir;
-        point_t mdir = (*org.outer->coords)[randomNode] - dir;
+        point_t pdir = (*thickSurface->outer->coords)[randomNode] + dir;
+        point_t mdir = (*thickSurface->outer->coords)[randomNode] - dir;
 
         // Collect change to outer node's position.
-        neighborChanges->insert(NodeChange_t(randomNode, dir, org.outer->graph));
+        neighborChanges->insert(NodeChange_t(randomNode, dir, thickSurface->outer->graph));
 
         // We now have the offset of the neighbor in relation to the current state. If we want to know whether
         // this particular force has stretched or compressed the surface, which will determine whether we multiply
@@ -98,23 +96,23 @@ void Optimizer::findNeighbor(ThickSurface &org, std::set<NodeChange_t> *neighbor
         // probability function) we can just compare the distance of the offset point if the offset were in the opposite
         // direction.
 
-        double distPdir = Util::dist(pdir, (*org.inner->coords)[randomInnerNode]);
-        double distMdir = Util::dist(mdir, (*org.inner->coords)[randomInnerNode]);
+        double distPdir = Util::dist(pdir, (*thickSurface->inner->coords)[randomInnerNode]);
+        double distMdir = Util::dist(mdir, (*thickSurface->inner->coords)[randomInnerNode]);
 
         // If the distance to the inner node is now larger, then the surface will be stretched, otherwise itll be compressed
         double thicknessDiff;
-        thicknessDiff = org.thicknesses[randomIndex] * (distPdir > distMdir ? this->params->compression : 1 / this->params->compression);
-        thicknessDiff -= org.thicknesses[randomIndex];
+        thicknessDiff = thickSurface->thicknesses[randomIndex] * (distPdir > distMdir ? this->params->compression : 1 / this->params->compression);
+        thicknessDiff -= thickSurface->thicknesses[randomIndex];
 
         neighborThicknessChanges->insert(ThicknessChange_t(randomIndex, thicknessDiff));
-        org.smoothAdjacentThicknesses(thicknessDiff, this->params->smooth, randomNode, neighborThicknessChanges, &MathGeometry::linearSmooth);
+        thickSurface->smoothAdjacentThicknesses(thicknessDiff, this->params->smooth, randomNode, neighborThicknessChanges, &MathGeometry::linearSmooth);
         // TODO: Pass changes to smoothAdjacentNodesV2 so that based on it, it does its thing and adds
         // the appropriate shit to changes. Add smoothAdjacentNodesV2 prototype so it compiles.
-        org.outer->smoothAdjacentNodesV2(randomNode, dir, this->params->smooth, neighborChanges, &MathGeometry::linearSmooth);
+        thickSurface->outer->smoothAdjacentNodesV2(randomNode, dir, this->params->smooth, neighborChanges, &MathGeometry::linearSmooth);
     }
 }
 
-double Optimizer::findEnergy(const ThickSurface &s, double a0)
+double Optimizer::findEnergy(const ThickSurface *thickSurface, double a0)
 {
     double res;
 
@@ -122,9 +120,9 @@ double Optimizer::findEnergy(const ThickSurface &s, double a0)
     double grayMatterArea, grayMatterPerimeter;
 
     // White matter area is just the inner surface's area
-    whiteMatterArea = s.inner->findSurfaceAreaAndPerimeter(whiteMatterPerimeter);
+    whiteMatterArea = thickSurface->inner->findSurfaceAreaAndPerimeter(whiteMatterPerimeter);
     // Gray matter area is the difference between the outer surface and the inner surface
-    grayMatterArea = s.outer->findSurfaceAreaAndPerimeter(grayMatterPerimeter) - whiteMatterArea;
+    grayMatterArea = thickSurface->outer->findSurfaceAreaAndPerimeter(grayMatterPerimeter) - whiteMatterArea;
     // Area must be non-negative
     grayMatterArea = MathGeometry::absol(grayMatterArea);
 
@@ -150,14 +148,14 @@ double Optimizer::findProbability(double eS, double eN, double t)
         return exp((eS - eN) / t);
 }
 
-void Optimizer::stepSimulatedAnnealing(ThickSurface &state, double *temperature, double a0)
+void Optimizer::stepSimulatedAnnealing(ThickSurface *thickSurface, double *temperature, double a0)
 {
     neighborChanges.clear();
     thicknessChanges.clear();
-    findNeighbor(state, &neighborChanges, &thicknessChanges);
-    double eS = findEnergy(state, a0);
-    applyChanges(state, neighborChanges, thicknessChanges);
-    double eN = findEnergy(state, a0);
+    findNeighbor(thickSurface, &neighborChanges, &thicknessChanges);
+    double eS = findEnergy(thickSurface, a0);
+    applyChanges(thickSurface, neighborChanges, thicknessChanges);
+    double eN = findEnergy(thickSurface, a0);
 
     double prob = findProbability(eS, eN, *temperature);
     double coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
@@ -165,8 +163,8 @@ void Optimizer::stepSimulatedAnnealing(ThickSurface &state, double *temperature,
     std::vector<_2DSurface*> surfaces;
     std::vector<point_t> potentialIntersections;
 
-    surfaces.push_back(state.outer);
-    surfaces.push_back(state.inner);	
+    surfaces.push_back(thickSurface->outer);
+    surfaces.push_back(thickSurface->inner);
     int numInts = MathGeometry::findSurfaceIntersections(surfaces, potentialIntersections);
     if (numInts > 0) {
         prob = 0; // We'll always want to revert changes
@@ -175,7 +173,7 @@ void Optimizer::stepSimulatedAnnealing(ThickSurface &state, double *temperature,
     if (coinFlip >= prob)
     {
         changed = false;
-        revertChanges(state, neighborChanges, thicknessChanges);
+        revertChanges(thickSurface, neighborChanges, thicknessChanges);
     }
     if (singleStep)
     {

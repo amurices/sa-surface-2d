@@ -50,7 +50,7 @@ int main(int argc, char **argv)
         myRenderer->drawWidgets();
         myOpt.changed = true;
         if (myOpt.shouldStep || myOpt.singleStep){
-            myOpt.stepSimulatedAnnealing(mySurface, &temperature, theseParams.a0);
+            myOpt.stepSimulatedAnnealing(&mySurface, &temperature, theseParams.a0);
         }
         myRenderer->uploadSurface();
         glfwSwapBuffers(myRenderer->glfwWindow());

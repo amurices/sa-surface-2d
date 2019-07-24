@@ -7,7 +7,6 @@
 class Optimizer
 {
   public:
-    ThickSurface *org;				// Reference to original surface
     bool changed;
     bool shouldStep = false;
     bool singleStep = false;
@@ -21,20 +20,20 @@ class Optimizer
     InitSaParams* params;
     
     // a.2) References - What the simulation needs to see to run correctly
-    void stepSimulatedAnnealing(ThickSurface &state, double *temperature, double a0);
+    void stepSimulatedAnnealing(ThickSurface *thickSurface, double *temperature, double a0);
 
-    void findNeighbor(ThickSurface &org, std::set<NodeChange_t> *neighborChanges,
+    void findNeighbor(ThickSurface *thickSurface, std::set<NodeChange_t> *neighborChanges,
                       std::set<ThicknessChange_t> *neighborThicknessChanges);
 
-    void applyChanges(ThickSurface &thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges);
-    void revertChanges(ThickSurface &thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges);
+    void applyChanges(ThickSurface *thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges);
+    void revertChanges(ThickSurface *thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges);
 
     /* Given a state S, that when relaxed has energy a0, calculates its internal energy.
      *
      * @param s the state of which the internal energy will be calculated.
      * @param a0 the area of the initial (relaxed) state of the system.
      */
-    double findEnergy(const ThickSurface &s, double a0);
+    double findEnergy(const ThickSurface *thickSurface, double a0);
 
     /* Given temperature T and energy values of state S, neighbor N, returns the probability (between 0 and 1) of moving from S to N.
      *

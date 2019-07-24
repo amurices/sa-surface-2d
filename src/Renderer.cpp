@@ -189,7 +189,6 @@ void Renderer::uploadSurface(){
         if (it == thickSurface->inner->graph->nodeFromId(0))
             break;
     }
-    
     /* Shader binding */
     mShader.bind();
     mShader.uploadAttrib("position", positions);
