@@ -1,11 +1,6 @@
 #include "Optimizer.hpp"
 #include "MathGeometry.hpp"
 
-Optimizer::Optimizer(InitSaParams* params)
-{
-    this->params = params;
-}
-
 Optimizer::Optimizer()
 {
 }
@@ -58,7 +53,8 @@ void Optimizer::revertChanges(ThickSurface &thickSurface, std::set<NodeChange_t>
     }
 }
 
-void Optimizer::findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighborChanges, std::set<ThicknessChange_t> *neighborThicknessChanges)
+void Optimizer::findNeighbor(ThickSurface &org, std::set<NodeChange_t> *neighborChanges,
+                             std::set<ThicknessChange_t> *neighborThicknessChanges)
 {
     std::vector<int> randomIndexes;
     // Use a set of changes for node and thickness changes
@@ -154,12 +150,11 @@ double Optimizer::findProbability(double eS, double eN, double t)
         return exp((eS - eN) / t);
 }
 
-void Optimizer::step_saV2(ThickSurface &state, double *temperature, double a0)
+void Optimizer::stepSimulatedAnnealing(ThickSurface &state, double *temperature, double a0)
 {
-    std::set<NodeChange_t> neighborChanges;
-    std::set<ThicknessChange_t> thicknessChanges;
-
-    findNeighborV2(state, &neighborChanges, &thicknessChanges);
+    neighborChanges.clear();
+    thicknessChanges.clear();
+    findNeighbor(state, &neighborChanges, &thicknessChanges);
     double eS = findEnergy(state, a0);
     applyChanges(state, neighborChanges, thicknessChanges);
     double eN = findEnergy(state, a0);

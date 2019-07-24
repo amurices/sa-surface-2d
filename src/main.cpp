@@ -17,7 +17,7 @@ int main(int argc, char **argv)
     Optimizer myOpt;
 
     std::unordered_map <std::string, std::string> inputMap;
-    IO::sillyMapReader("input.txt", inputMap);
+    IO::sillyMapReader("../input.txt", inputMap);
     InitSaParams theseParams;
     IO::parseInputToParams(inputMap, &theseParams);
     std::cout << theseParams;
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
         myRenderer->drawWidgets();
         myOpt.changed = true;
         if (myOpt.shouldStep || myOpt.singleStep){
-            myOpt.step_saV2(mySurface, &temperature, theseParams.a0);
+            myOpt.stepSimulatedAnnealing(mySurface, &temperature, theseParams.a0);
         }
         myRenderer->uploadSurface();
         glfwSwapBuffers(myRenderer->glfwWindow());

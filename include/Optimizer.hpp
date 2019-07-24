@@ -11,22 +11,20 @@ class Optimizer
     bool changed;
     bool shouldStep = false;
     bool singleStep = false;
+    std::set<NodeChange_t> neighborChanges;
+    std::set<ThicknessChange_t> thicknessChanges;
+    std::vector<_2DSurface*> constraintSurfaces; // Surfaces which org can't intersect with
+
     // -------------------
     // SA attributes a) To actually function ------
     // a.1) Hyperparameters - They alter the simulation's behavior
     InitSaParams* params;
     
     // a.2) References - What the simulation needs to see to run correctly
-    // SA functions ------
-    Optimizer(ThickSurface &org); //met constructor
-    void init_SA(double scale = 1, int smooth = 0,
-                 double diffPow = 1, double diffMul = 1,
-                 double areaPow = 1, double areaMul = 1,
-                 double multiProb = 0, double forceOffsetRange = 0.066,
-                 double tempProb = 0, double compression = 1);
-    void step_saV2(ThickSurface &state, double *temperature, double a0);
+    void stepSimulatedAnnealing(ThickSurface &state, double *temperature, double a0);
 
-    void findNeighborV2(ThickSurface &org, std::set<NodeChange_t> *neighborChanges, std::set<ThicknessChange_t> *neighborThicknessChanges);
+    void findNeighbor(ThickSurface &org, std::set<NodeChange_t> *neighborChanges,
+                      std::set<ThicknessChange_t> *neighborThicknessChanges);
 
     void applyChanges(ThickSurface &thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges);
     void revertChanges(ThickSurface &thickSurface, std::set<NodeChange_t> &changes, std::set<ThicknessChange_t> &thicknessChanges);
@@ -46,9 +44,6 @@ class Optimizer
      */
     double findProbability(double eS, double eN, double t);
 
-    void evolve_sa(int kMax, bool time = true);
-
     Optimizer();
-    Optimizer(InitSaParams* params);
     ~Optimizer();
 };

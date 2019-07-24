@@ -1,0 +1,71 @@
+cmake_minimum_required(VERSION 3.14)
+project(sa_surface_2d)
+
+set(CMAKE_CXX_STANDARD 14)
+
+include_directories(include)
+include_directories(nanogui)
+include_directories(nanogui/include)
+include_directories(nanogui/include/nanogui)
+include_directories(nanogui/ext)
+include_directories(nanogui/ext/eigen)
+include_directories(nanogui/ext/nanovg/src)
+
+add_executable(sa_surface_2d
+        include/_2DSurface.hpp
+        include/defs.hpp
+        include/IO.hpp
+        include/MathGeometry.hpp
+        include/Optimizer.hpp
+        include/Renderer.hpp
+        include/ThickSurface.hpp
+        include/Util.hpp
+        nanogui/include/nanogui/serializer/core.h
+        nanogui/include/nanogui/serializer/opengl.h
+        nanogui/include/nanogui/serializer/sparse.h
+        nanogui/include/nanogui/button.h
+        nanogui/include/nanogui/checkbox.h
+        nanogui/include/nanogui/colorpicker.h
+        nanogui/include/nanogui/colorwheel.h
+        nanogui/include/nanogui/combobox.h
+        nanogui/include/nanogui/common.h
+        nanogui/include/nanogui/entypo.h
+        nanogui/include/nanogui/formhelper.h
+        nanogui/include/nanogui/glcanvas.h
+        nanogui/include/nanogui/glutil.h
+        nanogui/include/nanogui/graph.h
+        nanogui/include/nanogui/imagepanel.h
+        nanogui/include/nanogui/imageview.h
+        nanogui/include/nanogui/label.h
+        nanogui/include/nanogui/layout.h
+        nanogui/include/nanogui/messagedialog.h
+        nanogui/include/nanogui/nanogui.h
+        nanogui/include/nanogui/object.h
+        nanogui/include/nanogui/opengl.h
+        nanogui/include/nanogui/popup.h
+        nanogui/include/nanogui/popupbutton.h
+        nanogui/include/nanogui/progressbar.h
+        nanogui/include/nanogui/python.h
+        nanogui/include/nanogui/screen.h
+        nanogui/include/nanogui/slider.h
+        nanogui/include/nanogui/stackedwidget.h
+        nanogui/include/nanogui/tabheader.h
+        nanogui/include/nanogui/tabwidget.h
+        nanogui/include/nanogui/textbox.h
+        nanogui/include/nanogui/theme.h
+        nanogui/include/nanogui/toolbutton.h
+        nanogui/include/nanogui/vscrollpanel.h
+        nanogui/include/nanogui/widget.h
+        nanogui/include/nanogui/window.h
+        src/_2DSurface.cpp
+        src/IO.cpp
+        src/main.cpp
+        src/MathGeometry.cpp
+        src/Optimizer.cpp
+        src/Renderer.cpp
+        src/ThickSurface.cpp
+        src/Util.cpp)
+find_package(OpenGL)
+target_link_libraries(sa_surface_2d
+        /usr/local/lib/libnanogui.dylib
+        ${OPENGL_gl_LIBRARY})
