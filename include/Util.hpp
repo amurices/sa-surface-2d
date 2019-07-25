@@ -2,7 +2,7 @@
 #include "defs.hpp"
 namespace Util
 {
-double dist(point_t p1, point_t p2);
+double pointsDistance(point_t p1, point_t p2);
 
 bool ltTolerance(double a, double b, double tol);
 bool gtTolerance(double a, double b, double tol);

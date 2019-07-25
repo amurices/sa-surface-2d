@@ -80,13 +80,13 @@ void Optimizer::findNeighbor(ThickSurface *thickSurface, std::set<NodeChange_t> 
         offsetX = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
         offsetY = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
         
-        point_t dir(offsetX, offsetY);
+        point_t directionOfChange(offsetX, offsetY);
 
-        point_t pdir = (*thickSurface->outer->coords)[randomNode] + dir;
-        point_t mdir = (*thickSurface->outer->coords)[randomNode] - dir;
+        point_t newPositionByAddingChange = (*thickSurface->outer->coords)[randomNode] + directionOfChange;
+        point_t newPositionBySubtractingChange = (*thickSurface->outer->coords)[randomNode] - directionOfChange;
 
         // Collect change to outer node's position.
-        neighborChanges->insert(NodeChange_t(randomNode, dir, thickSurface->outer->graph));
+        neighborChanges->insert(NodeChange_t(randomNode, directionOfChange, thickSurface->outer->graph));
 
         // We now have the offset of the neighbor in relation to the current state. If we want to know whether
         // this particular force has stretched or compressed the surface, which will determine whether we multiply
@@ -96,8 +96,10 @@ void Optimizer::findNeighbor(ThickSurface *thickSurface, std::set<NodeChange_t> 
         // probability function) we can just compare the distance of the offset point if the offset were in the opposite
         // direction.
 
-        double distPdir = Util::dist(pdir, (*thickSurface->inner->coords)[randomInnerNode]);
-        double distMdir = Util::dist(mdir, (*thickSurface->inner->coords)[randomInnerNode]);
+        double distPdir = Util::pointsDistance(newPositionByAddingChange,
+                                               (*thickSurface->inner->coords)[randomInnerNode]);
+        double distMdir = Util::pointsDistance(newPositionBySubtractingChange,
+                                               (*thickSurface->inner->coords)[randomInnerNode]);
 
         // If the distance to the inner node is now larger, then the surface will be stretched, otherwise itll be compressed
         double thicknessDiff;
@@ -106,9 +108,7 @@ void Optimizer::findNeighbor(ThickSurface *thickSurface, std::set<NodeChange_t> 
 
         neighborThicknessChanges->insert(ThicknessChange_t(randomIndex, thicknessDiff));
         thickSurface->smoothAdjacentThicknesses(thicknessDiff, this->params->smooth, randomNode, neighborThicknessChanges, &MathGeometry::linearSmooth);
-        // TODO: Pass changes to smoothAdjacentNodesV2 so that based on it, it does its thing and adds
-        // the appropriate shit to changes. Add smoothAdjacentNodesV2 prototype so it compiles.
-        thickSurface->outer->smoothAdjacentNodesV2(randomNode, dir, this->params->smooth, neighborChanges, &MathGeometry::linearSmooth);
+        thickSurface->outer->smoothAdjacentNodesV2(randomNode, directionOfChange, this->params->smooth, neighborChanges, &MathGeometry::linearSmooth);
     }
 }
 
@@ -150,11 +150,11 @@ double Optimizer::findProbability(double eS, double eN, double t)
 
 void Optimizer::stepSimulatedAnnealing(ThickSurface *thickSurface, double *temperature, double a0)
 {
-    neighborChanges.clear();
-    thicknessChanges.clear();
-    findNeighbor(thickSurface, &neighborChanges, &thicknessChanges);
+    this->neighborChanges.clear();
+    this->thicknessChanges.clear();
+    findNeighbor(thickSurface, &this->neighborChanges, &this->thicknessChanges);
     double eS = findEnergy(thickSurface, a0);
-    applyChanges(thickSurface, neighborChanges, thicknessChanges);
+    applyChanges(thickSurface, this->neighborChanges, this->thicknessChanges);
     double eN = findEnergy(thickSurface, a0);
 
     double prob = findProbability(eS, eN, *temperature);
@@ -173,7 +173,7 @@ void Optimizer::stepSimulatedAnnealing(ThickSurface *thickSurface, double *tempe
     if (coinFlip >= prob)
     {
         changed = false;
-        revertChanges(thickSurface, neighborChanges, thicknessChanges);
+        revertChanges(thickSurface, this->neighborChanges, this->thicknessChanges);
     }
     if (singleStep)
     {

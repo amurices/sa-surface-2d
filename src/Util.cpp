@@ -2,7 +2,7 @@
 #include "sys/time.h"
 #include <fstream>
 
-double Util::dist(point_t p1, point_t p2)
+double Util::pointsDistance(point_t p1, point_t p2)
 {
     std::pair<double, double> norm = std::make_pair(p2.x - p1.x, p2.y - p1.y);
     return sqrt(norm.first * norm.first + norm.second * norm.second);
