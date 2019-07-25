@@ -124,21 +124,25 @@ void _2DSurface::smoothAdjacentNodesV2(SNode changedNode, point_t changedDiffere
 	for (int c = 1; c <= u; c++)
 	{
 		prev = this->graph->source(ListDigraph::InArcIt(*this->graph, prev));
+		SNode outgoingFromPrev = this->graph->target(ListDigraph::OutArcIt(*this->graph, prev));
 		next = this->graph->target(ListDigraph::OutArcIt(*this->graph, next));
+        SNode outgoingFromNext = this->graph->target(ListDigraph::OutArcIt(*this->graph, next));
 
 		double ratio = (*func)(u, c);
 		point_t coordsChange(changedDifference.x * ratio, changedDifference.y * ratio);
 
 		// Previous and next nodes are also going to be altered as a matter of where they are in relation to their inner correspondents
-		changedSet->insert(NodeChange_t(prev, coordsChange, this->graph));
-		changedSet->insert(NodeChange_t(next, coordsChange, this->graph));
+		changedSet->insert(NodeChange_t(prev, outgoingFromPrev, coordsChange, this->graph));
+		changedSet->insert(NodeChange_t(next, outgoingFromNext, coordsChange, this->graph));
 	}
 	// The single node at the end and beginning of a set of changed smoothed nodes are also altered (updateInner has to see them)
 	// Don't know if this is necessary, but for the sake of consistency, i'll add the redundant changes.
 	prev = this->graph->source(ListDigraph::InArcIt(*this->graph, prev));
-	next = this->graph->target(ListDigraph::OutArcIt(*this->graph, next));
-	changedSet->insert(NodeChange_t(prev, point_t(0, 0), this->graph));
-	changedSet->insert(NodeChange_t(next, point_t(0, 0), this->graph));
+    SNode outgoingFromPrev = this->graph->target(ListDigraph::OutArcIt(*this->graph, prev));
+    next = this->graph->target(ListDigraph::OutArcIt(*this->graph, next));
+    SNode outgoingFromNext = this->graph->target(ListDigraph::OutArcIt(*this->graph, next));
+    changedSet->insert(NodeChange_t(prev, outgoingFromPrev, point_t(0, 0), this->graph));
+	changedSet->insert(NodeChange_t(next, outgoingFromNext, point_t(0, 0), this->graph));
 }
 
 void _2DSurface::generateInnerSurface(_2DSurface &outerSurf, const std::vector<double> &thicknesses)
@@ -230,10 +234,12 @@ void _2DSurface::updateInnerSurfaceV2(_2DSurface &outerSurf, std::vector<double>
 
 		// TODO: THIS IS SHIT.
 		SNode finode = this->graph->nodeFromId(fnodeId); // Add node to this surface;
+		SNode outgoingNode = this->graph->target(ListDigraph::OutArcIt(*this->graph, finode));
 		SNode innerCurrToMap = finode;					 // Current node to map is first node
 		additions.insert(
 			NodeChange_t(
 				innerCurrToMap,													   // node where the change is applied
+				outgoingNode,                                                      // node where the changed is outgoing
 				(*outerSurf.coords)[fnode] - vd - (*this->coords)[innerCurrToMap], // the difference (if we add this node's coords we'll get it back)
 				this->graph));													   // inner node's graph
 		(*this->coords)[innerCurrToMap] = (*outerSurf.coords)[fnode] - vd;		   // set coordinates of inner node

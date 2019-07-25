@@ -189,6 +189,15 @@ void Renderer::uploadSurface(){
         if (it == thickSurface->inner->graph->nodeFromId(0))
             break;
     }
+
+//    for (auto it = optimizer->neighborChanges.begin(); it != optimizer->neighborChanges.end();){
+//        point_t position;
+//        if (it->graph == thickSurface->inner->graph){
+//            position = (*thickSurface->inner->coords)[it->node] + it->change;
+//        } else {
+//            it++;
+//        }
+//    }
     /* Shader binding */
     mShader.bind();
     mShader.uploadAttrib("position", positions);

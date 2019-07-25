@@ -73,6 +73,7 @@ void Optimizer::findNeighbor(ThickSurface *thickSurface, std::set<NodeChange_t> 
         int randomIndex = randomIndexes[i];
 
         SNode randomNode = thickSurface->outer->graph->nodeFromId(randomIndex);
+        SNode randomNodeOutgoing = thickSurface->outer->graph->target(ListDigraph::OutArcIt(*thickSurface->outer->graph, randomNode));
         SNode randomInnerNode = thickSurface->inner->graph->nodeFromId(thickSurface->outer->correspondence[randomIndex]);
 
         // Choose a random offset, bounded by optimizer params
@@ -86,7 +87,7 @@ void Optimizer::findNeighbor(ThickSurface *thickSurface, std::set<NodeChange_t> 
         point_t newPositionBySubtractingChange = (*thickSurface->outer->coords)[randomNode] - directionOfChange;
 
         // Collect change to outer node's position.
-        neighborChanges->insert(NodeChange_t(randomNode, directionOfChange, thickSurface->outer->graph));
+        neighborChanges->insert(NodeChange_t(randomNode, randomNodeOutgoing, directionOfChange, thickSurface->outer->graph));
 
         // We now have the offset of the neighbor in relation to the current state. If we want to know whether
         // this particular force has stretched or compressed the surface, which will determine whether we multiply

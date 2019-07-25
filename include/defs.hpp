@@ -270,54 +270,59 @@ inline std::ostream &operator<<(std::ostream &os, InitSaParams const &params)
 typedef ListDigraph::NodeMap<point_t> Coords_t;
 typedef ListDigraph::Node SNode; // S for surface
 
-typedef struct ct
+struct NodeChange_t
 {
     SNode node;
+    SNode next;
     point_t change;
     ListDigraph *graph;
 
-    ct(SNode node, point_t change, ListDigraph *graph)
+    NodeChange_t(SNode node, SNode next, point_t change, ListDigraph *graph)
     {
         this->node = node;
+        this->next = next;
         this->change = change;
         this->graph = graph;
     }
 
-    void operator=(const struct ct &otherChange)
+    NodeChange_t& operator=(const struct NodeChange_t &otherChange)
     {
         this->node = otherChange.node;
+        this->next = otherChange.next;
         this->change = otherChange.change;
         this->graph = otherChange.graph;
+        return *this;
     }
 
-    bool operator<(const struct ct &otherChange) const
+    bool operator<(const struct NodeChange_t &otherChange) const
     {
         return (node < otherChange.node |
                 change < otherChange.change |
-                graph < otherChange.graph);
+                graph < otherChange.graph |
+                next < otherChange.next);
     }
-} NodeChange_t;
+};
 
-typedef struct tct
+struct ThicknessChange_t
 {
     int nodeIndex;
     double change;
 
-    tct(int nodeIndex, double change)
+    ThicknessChange_t(int nodeIndex, double change)
     {
         this->nodeIndex = nodeIndex;
         this->change = change;
     }
 
-    void operator=(const struct tct &otherChange)
+    void operator=(const struct ThicknessChange_t &otherChange)
     {
         nodeIndex = otherChange.nodeIndex;
         change = otherChange.change;
     }
 
-    bool operator<(const struct tct &otherChange) const
+    bool operator<(const struct ThicknessChange_t &otherChange) const
     {
         return (nodeIndex < otherChange.nodeIndex |
                 change < otherChange.change);
     }
-} ThicknessChange_t;
+};
