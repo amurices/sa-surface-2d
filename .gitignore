@@ -3,6 +3,7 @@
 *.exe
 *.obj
 Debug
+cmake-build-debug/
 # temporary build target
 target
 
