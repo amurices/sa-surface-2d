@@ -92,10 +92,16 @@ void ThickSurface::generateCircularThickSurface(double radius, int pts, bool ran
     {
         throw std::exception();
     }
+    if (this->outer != NULL){
+        delete this->outer;
+    }
     this->outer = new _2DSurface();
     this->outer->generateCircularSurface(radius, pts, center);
     this->outer->establishPartitions(horzPartsNumber, vertPartsNumber);
 
+    if (this->inner != NULL){
+        delete this->inner;
+    }
     this->inner = new _2DSurface();
     this->inner->generateInnerSurface(*this->outer, this->thicknesses);
     this->inner->establishPartitions(horzPartsNumber, vertPartsNumber);

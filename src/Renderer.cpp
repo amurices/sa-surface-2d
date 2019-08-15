@@ -1,3 +1,4 @@
+#include <fstream>
 #include "Renderer.hpp"
 
 nanogui::TextBox* Renderer::makeForm(nanogui::Widget *parent,
@@ -138,6 +139,33 @@ void Renderer::makeInputForms(nanogui::Window *targetWindow)
 
     nanogui::Button *b1 = new nanogui::Button(targetWindow, "Start/Pause");
     b1->setCallback([this] { this->optimizer->shouldStep = !this->optimizer->shouldStep; });
+
+    nanogui::Button *b2 = new nanogui::Button(targetWindow, "Start recording");
+    b2->setCallback([this, b2] {
+        if (!this->optimizer->recording){
+            this->optimizer->outputFile.open(OUTPUT_FILE_NAME);
+            if (this->optimizer->outputFile.fail()){
+                printf("Error opening output file %s.\n", OUTPUT_FILE_NAME);
+                exit(0);
+            }
+            b2->setCaption("Stop recording");
+        } else {
+            this->optimizer->outputFile.close();
+            b2->setCaption("Start recording");
+        }
+        this->optimizer->recording = !this->optimizer->recording;
+
+    });
+
+    nanogui::Button *b3 = new nanogui::Button(targetWindow, "Reset");
+    b3->setCallback([this] {
+        this->optimizer->reset();
+        std::unordered_map <std::string, std::string> inputMap;
+        IO::sillyMapReader("../input.txt", inputMap);
+        InitSaParams theseParams;
+        IO::parseInputToParams(inputMap, &theseParams);
+        this->thickSurface->generateCircularThickSurface(theseParams.radius, theseParams.points, true, theseParams.thickness, theseParams.thickness, point_t(0.0, 0.0));
+    });
     performLayout();
 }
 

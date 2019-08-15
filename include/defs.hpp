@@ -21,7 +21,7 @@ using namespace lemon;
 
 const double TOLERANCE = 0.00000001;
 const double PI = 3.14159265358979323846;
-
+#define OUTPUT_FILE_NAME "../output.txt"
 /*** TODO list:
     
     1. DONE (in Salvador) -- Have a memory-safe graph representation of surfaces. 

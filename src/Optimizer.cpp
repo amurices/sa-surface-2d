@@ -181,6 +181,21 @@ void Optimizer::stepSimulatedAnnealing(ThickSurface *thickSurface, double *tempe
         singleStep = false;
         shouldStep = false;
     }
+
+    if (this->recording){
+        commitToOutputFile(eS, eN, *temperature, 0, 0, changed);
+    }
     // TODO: Pedreirar menos aqui
     //*temperature -= 0.01;
+}
+
+void Optimizer::commitToOutputFile(double eS, double eN, double t, double whiteS, double whiteN, bool changed)
+{
+    this->outputFile << "eS " << eS << " eN " << eN << " T " << t << " wS " << whiteS << " wN " << whiteN << " moved? " << changed << std::endl;
+}
+
+void Optimizer::reset(){
+    this->shouldStep = false;
+    this->singleStep = false;
+    this->changed = false;
 }

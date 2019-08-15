@@ -1,4 +1,6 @@
 #pragma once
+
+#include <fstream>
 #include "defs.hpp"
 #include "ThickSurface.hpp"
 #include "Util.hpp"
@@ -7,12 +9,15 @@
 class Optimizer
 {
   public:
-    bool changed;
+    bool changed = false;
     bool shouldStep = false;
     bool singleStep = false;
     std::set<NodeChange_t> neighborChanges;
     std::set<ThicknessChange_t> thicknessChanges;
     std::vector<_2DSurface*> constraintSurfaces; // Surfaces which org can't intersect with
+    bool recording = false;
+    std::ofstream outputFile;
+
 
     // -------------------
     // SA attributes a) To actually function ------
@@ -42,6 +47,10 @@ class Optimizer
      * @param t the current temperature of the system.
      */
     double findProbability(double eS, double eN, double t);
+
+    void commitToOutputFile(double eS, double eN, double t, double whiteS, double whiteN, bool changed);
+
+    void reset();
 
     Optimizer();
     ~Optimizer();
