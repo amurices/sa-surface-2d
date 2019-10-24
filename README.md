@@ -75,7 +75,8 @@ via the *nanogui*-powered front end GUI. The parameters are:
 below showcases what happens with a randomly selected node in a given iteration.
 ![](resources/how-smoothness-works-in-sad.png)
 A node's neighbors are pushed in the same direction it was, with decreasing intensity based on how far from it
-they are.
+they are. Smoothness is an integer number that determines how many nodes will be "smoothed"; so the example in the picture
+shows a simulation with smoothness set to 2. lower smoothness values tend to lead to more "gyrified" but more jagged and "spiky" simulations.
 2. **forceOffsetRange**; Defines the numerical range in the XY plane a node can be pushed in. Example: if set to
 0.066, the maximum alteration to a node's coordinates is (0.033, 0.033) and the minimum (-0.033, -0.033).
 3. **thickness**; the initial thickness of the surface. Every element in the `thicknesses` array described above is
