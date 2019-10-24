@@ -79,7 +79,7 @@ they are.
 2. **forceOffsetRange**; Defines the numerical range in the XY plane a node can be pushed in. Example: if set to
 0.066, the maximum alteration to a node's coordinates is (0.033, 0.033) and the minimum (-0.033, -0.033).
 3. **thickness**; the initial thickness of the surface. Every element in the `thicknesses` array described above is
-set to this value in the beginning of the simulation. The number means *percentage of radius*, so a thick surface with
+set to this value in the beginning of the simulation. The number means *multiplication of radius*, so a thick surface with
 thickness 1.0 has no inner surface area.
 4. **points**; Number of nodes in the outer and inner polygons. Higher numbers mean smoother-looking simulations, but
 also slower ones.
