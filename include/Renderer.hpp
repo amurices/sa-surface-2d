@@ -58,6 +58,7 @@
 #include "ThickSurface.hpp"
 #include "Optimizer.hpp"
 #include "IO.hpp"
+#include "GlobalState.hpp"
 
 // #include <lemon/list_graph.h>
 // #include <FTGL/ftgl.h>
@@ -87,6 +88,7 @@ class Renderer : public nanogui::Screen
     std::vector<nanogui::TextBox*> textBoxes;
     nanogui::Popup *popup;
     ThickSurface* thickSurface;
+    Graph::ThickSurface2* thickSurface2;
     Optimizer* optimizer;
 
     Renderer();
@@ -97,7 +99,10 @@ class Renderer : public nanogui::Screen
     void makeInputForms(nanogui::Window* targetWindow);
     void uploadIndices();
     void uploadSurface();
+    void uploadIndices2();
+    void uploadSurface2();
     virtual void drawContents();
+    virtual void drawContents2();
     ~Renderer();
     nanogui::GLShader mShader;
 

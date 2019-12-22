@@ -142,13 +142,26 @@ double Optimizer::findEnergy(const ThickSurface *thickSurface, double a0)
 
 double Optimizer::findProbability(double eS, double eN, double t)
 {
+    double potentialResult = exp((eS - eN) / t);
+    std::cout << "t is " << t <<  "; potentialResult (should be undefined) is: " << potentialResult << std::endl;
     if (eN < eS)
         return 1;
-
     else
-        return exp((eS - eN) / t);
+        return potentialResult;
 }
-
+/*
+1. Perimetros, pontos e areas no output
+2. Tratar os três casos de T:
+  - Zero: continua retornando sempre o estado de menor energia
+  - Finita: Continua retornando o estado da fórmula
+  - Infinita: retorna qualquer coisa
+3. Temperatura constante
+ t = t0 . exp (-t /tal) onde tal = escala de tempo
+4. densidade de pontos nao pode ser mto grande
+5. fazer lista de correspondência entre pontos
+6. STL?
+7. Arquivo separado com energia e um só com pontos <- isso faz sentido
+*/
 void Optimizer::stepSimulatedAnnealing(ThickSurface *thickSurface, double *temperature, double a0)
 {
     this->neighborChanges.clear();

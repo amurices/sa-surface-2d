@@ -4,11 +4,15 @@
 
 #include <fstream>
 #include <unordered_map>
+#include <GlobalState.hpp>
+#include <MathGeometry.hpp>
 
 #include "Renderer.hpp"
 #include "Optimizer.hpp"
 #include "ThickSurface.hpp"
 #include "IO.hpp"
+#include "GlobalState.hpp"
+
 
 int main(int argc, char **argv)
 {

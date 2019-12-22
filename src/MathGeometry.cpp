@@ -12,6 +12,11 @@ double MathGeometry::findNorm(const point_t &a)
     return sqrt(a.x * a.x + a.y * a.y);
 }
 
+double MathGeometry::findNorm2d(double x, double y)
+{
+    return sqrt(x * x + y * y);
+}
+
 double MathGeometry::sineSmooth(double u, double c)
 {
     return sin(0.5 * PI * (u - c) / u);

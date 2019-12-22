@@ -218,14 +218,57 @@ void Renderer::uploadSurface(){
             break;
     }
 
-//    for (auto it = optimizer->neighborChanges.begin(); it != optimizer->neighborChanges.end();){
-//        point_t position;
-//        if (it->graph == thickSurface->inner->graph){
-//            position = (*thickSurface->inner->coords)[it->node] + it->change;
-//        } else {
-//            it++;
-//        }
-//    }
+    /* Shader binding */
+    mShader.bind();
+    mShader.uploadAttrib("position", positions);
+    mShader.setUniform("intensity", 0.8f);
+}
+
+void Renderer::uploadIndices2(){
+    size_t numOuterVertices = thickSurface2->layers[Graph::OUTER].nodes.size();
+    size_t numInnerVertices = thickSurface2->layers[Graph::INNER].nodes.size();
+    nanogui::MatrixXu indices(2, numOuterVertices + 1 + numInnerVertices + 1);
+    size_t i = 0;
+    /* Outer surface indices */
+    for (; i < numOuterVertices - 1; i++){
+        indices.col(i) << i, (i + 1);
+    }
+    indices.col(i) << i, 0;
+
+    /* Inner surface indices */
+    for (i++ ; i - numOuterVertices < numInnerVertices - 1; i++){
+        indices.col(i) << i, (i + 1);
+
+    }
+    indices.col(i) << i, numOuterVertices;
+
+    /* Shader binding */
+    mShader.bind();
+    mShader.uploadIndices(indices);
+}
+
+void Renderer::uploadSurface2(){
+    size_t numOuterVertices = thickSurface2->layers[Graph::OUTER].nodes.size();
+    size_t numInnerVertices = thickSurface2->layers[Graph::INNER].nodes.size();
+    nanogui::MatrixXf positions(3, numOuterVertices + numInnerVertices);
+    size_t i = 0;
+    /* Outer surface index positions */
+    for (auto it = thickSurface2->layers[Graph::OUTER].nodes[0]; true;){
+        positions.col(i) << it->coords[Graph::X], it->coords[Graph::Y], 0;
+        it = it->to;
+        i++;
+        if (it == thickSurface2->layers[Graph::OUTER].nodes[0])
+            break;
+    }
+    /* Inner surface index positions */
+    for (auto it = thickSurface2->layers[Graph::INNER].nodes[0]; true;){
+        positions.col(i) << it->coords[Graph::X], it->coords[Graph::Y], 0;
+        it = it->to;
+        i++;
+        if (it == thickSurface2->layers[Graph::INNER].nodes[0])
+            break;
+    }
+
     /* Shader binding */
     mShader.bind();
     mShader.uploadAttrib("position", positions);
@@ -245,6 +288,21 @@ void Renderer::drawContents() {
 
     /* Draw lines starting at index 0 */
     mShader.drawIndexed(GL_LINES, 0, thickSurface->outer->nNodes * 2);
+}
+
+void Renderer::drawContents2() {
+    /* Draw the window contents using OpenGL */
+    mShader.bind();
+
+    nanogui::Matrix4f mvp;
+    mvp.setIdentity();
+
+    mvp.row(0) *= (float) mSize.y() / (float) mSize.x();
+
+    mShader.setUniform("modelViewProj", mvp);
+
+    /* Draw lines starting at index 0 */
+    mShader.drawIndexed(GL_LINES, 0, thickSurface2->layers[Graph::OUTER].nodes.size() + thickSurface2->layers[Graph::INNER].nodes.size());
 }
 
 Renderer::~Renderer()

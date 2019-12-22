@@ -27,7 +27,7 @@ add_executable(sa_surface_2d
         src/Optimizer.cpp
         src/Renderer.cpp
         src/ThickSurface.cpp
-        src/Util.cpp)
+        src/Util.cpp src/GlobalState.cpp include/GlobalState.hpp)
 find_package(OpenGL)
 target_link_libraries(sa_surface_2d
         /usr/local/lib/libnanogui.dylib
