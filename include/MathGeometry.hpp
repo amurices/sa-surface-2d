@@ -28,6 +28,8 @@ int findPartitionNumber(point_t p, int numHorzPartitions, int numVertPartitions)
 double sineSmooth(double u, double c);
 double linearSmooth(double u, double c);
 double inverseSmooth(double u, double c);
+
+std::vector<point_t> surfaceIntersections(const std::vector<std::pair<point_t, point_t>> &lines);
 int findSurfaceIntersections(const std::vector<_2DSurface*> &xs, std::vector<point_t> &is);
 
 } // namespace MathGeometry

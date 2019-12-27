@@ -77,7 +77,7 @@ namespace Graph {
     /*
      * Returns area in [0] and perimeter in [1]
      * */
-    std::vector<double> surfaceAreaAndPerimeter(const Surface &surface);
+    double surfaceArea(const Surface &surface);
 
     ThickSurface2 generateCircularThicksurface(double centerX, double centerY, double outerRadius, double initialThickness, int pts);
 }
@@ -108,8 +108,8 @@ namespace GlobalState {
         double temperature;
     };
 
-    static SurfaceParameters* surfaceParameters;
-    static OptimizerParameters* optimizerParameters;
+    extern SurfaceParameters surfaceParameters;
+    extern OptimizerParameters optimizerParameters;
     extern Graph::ThickSurface2 thickSurface;
 
     void setSurfaceParameters(double radius, double thickness, double centerX, double centerY, int points);

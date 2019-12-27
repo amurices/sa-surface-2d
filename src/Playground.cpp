@@ -3,44 +3,14 @@
 //
 
 int main(int argc, char **argv) {
-    /* My sweet playground*/
-    nanogui::init();
-
-    Optimizer myOpt;
-
-    std::unordered_map <std::string, std::string> inputMap;
-    IO::sillyMapReader("../input.txt", inputMap);
-    InitSaParams theseParams;
-    IO::parseInputToParams(inputMap, &theseParams);
-    std::cout << theseParams;
-    GlobalState::setSurfaceParameters(theseParams.radius, theseParams.radius, 0.0, 0.0, theseParams.points);
-    GlobalState::initThickSurface();
-    double initialGrayMatter = Graph::surfaceAreaAndPerimeter(GlobalState::thickSurface.layers[Graph::OUTER])[0] -
-                               Graph::surfaceAreaAndPerimeter(GlobalState::thickSurface.layers[Graph::INNER])[0];
-    GlobalState::setOptimizerParameters(initialGrayMatter, theseParams.smooth, theseParams.diffMul, theseParams.diffPow,
-                                        theseParams.areaMul, theseParams.areaPow, theseParams.multiProb,
-                                        theseParams.tempProb, theseParams.forceOffsetRange, theseParams.compression,
-                                        MathGeometry::linearSmooth, 0);
-
-    // Declarations and instantiations:
-    // -----------------------------------------
-    nanogui::ref <Renderer> myRenderer = new Renderer();
-    // -----------------------------------------
-
-    myRenderer->setVisible(true);
-    myRenderer->thickSurface2 = &GlobalState::thickSurface;
-    myRenderer->uploadIndices2();
-
-    //printf("a0: %.3f\n", initialGrayMatter);
-
-    while (!glfwWindowShouldClose(myRenderer->glfwWindow())) {
-        glClearColor(0, 0, 0, 1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-        myRenderer->drawContents2();
-
-        myRenderer->uploadSurface2();
-        glfwSwapBuffers(myRenderer->glfwWindow());
-        glfwPollEvents();
+    auto myChangeset = Graph::smoothAdjacentNodes(GlobalState::thickSurface.layers[Graph::OUTER], Graph::NodeChange(GlobalState::thickSurface.layers[Graph::OUTER].nodes[0], -0.05, 0.0), 10, MathGeometry::linearSmooth);
+    auto myInnerChangeset = Graph::innerChangesetFromOuterChangeset(GlobalState::thickSurface, myChangeset, 1.0);
+    for (auto it = myChangeset.begin(); it != myChangeset.end(); it++){
+        it->node->coords[Graph::X] += it->changeX;
+        it->node->coords[Graph::Y] += it->changeY;
+    }
+    for (auto it = myInnerChangeset.begin(); it != myInnerChangeset.end(); it++){
+        it->node->coords[Graph::X] += it->changeX;
+        it->node->coords[Graph::Y] += it->changeY;
     }
 }

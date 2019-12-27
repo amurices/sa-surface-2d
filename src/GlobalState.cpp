@@ -7,6 +7,8 @@
 #include <Util.hpp>
 
 Graph::ThickSurface2 GlobalState::thickSurface;
+GlobalState::SurfaceParameters GlobalState::surfaceParameters;
+GlobalState::OptimizerParameters GlobalState::optimizerParameters;
 
 Graph::Surface Graph::generateCircularGraph(double centerX, double centerY, double radius, int pts) {
     Surface toReturn;
@@ -53,29 +55,21 @@ Graph::smoothAdjacentNodes(const Graph::Surface &surface, Graph::NodeChange init
     return toReturn;
 }
 
-std::vector<double> Graph::surfaceAreaAndPerimeter(const Graph::Surface &surface) {
-    std::vector<double> toReturn(2, 0);
+double Graph::surfaceArea(const Graph::Surface &surface) {
+    double toReturn = 0;
     Graph::Node *prev, *next, *no;
     no = surface.nodes[0];
     do {
         prev = no->from;
         next = no->to;
-
-        // Perimeter calculation: -----------------------------------------------------
-        double perimVectorX = no->coords[Graph::X] - prev->coords[Graph::X];
-        double perimVectorY = no->coords[Graph::Y] - prev->coords[Graph::Y];
-        double perimVectorNorm = MathGeometry::findNorm2d(perimVectorX, perimVectorY);
-        toReturn[1] += perimVectorNorm;
-        // End of perimeter calculation -----------------------------------------------
-
-        toReturn[0] += no->coords[Graph::X] * (next->coords[Graph::Y] - prev->coords[Graph::Y]);
+        toReturn += no->coords[Graph::X] * (next->coords[Graph::Y] - prev->coords[Graph::Y]);
         no = next;
     } while (no != surface.nodes[0]);
 
-    toReturn[0] /= 2;
+    toReturn /= 2;
 
-    if (toReturn[0] < 0)
-        toReturn[0] = 0;
+    if (toReturn < 0)
+        toReturn = 0;
 
     return toReturn;
 }
@@ -127,6 +121,8 @@ std::set<Graph::NodeChange> Graph::neighborOuterChangeset(const Graph::Surface &
     return toReturn;
 }
 
+
+
 /* This will assume the original changeset is in the outer surface, which means the changeset returned is
  * based on "new" coordinates of the outer surface. */
 std::set<Graph::NodeChange> Graph::innerChangesetFromOuterChangeset(const Graph::ThickSurface2 &thickSurface,
@@ -144,13 +140,18 @@ std::set<Graph::NodeChange> Graph::innerChangesetFromOuterChangeset(const Graph:
         point_t pPrev(prevX, prevY);
         point_t pNext(nextX, nextY);
         // Dont know if the below is right, but basically, we find the direction we should push an inner node in via the old method,
-        // then push it in that direction with a magnitude equivalent to the outer change's, multiplied by an additional parameter compression, which is basically softness
+        // then push it in that direction preserving the distance to the outer node, multiplied by an additional parameter compression, which is basically softness
+        // ÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆ
+        auto distance = MathGeometry::findNorm(point_t(fnode->coords[Graph::X] - fnode->correspondents[0]->coords[Graph::X],
+                                                       fnode->coords[Graph::Y] - fnode->correspondents[0]->coords[Graph::Y]));
+        auto distanceWithChange = MathGeometry::findNorm(point_t(fnode->coords[Graph::X] + it->changeX - fnode->correspondents[0]->coords[Graph::X],
+                                                                 fnode->coords[Graph::Y] + it->changeY - fnode->correspondents[0]->coords[Graph::Y]));
         point_t vd = MathGeometry::findDirectionVector(pPrev, pNext,
                                                        point_t(fnode->coords[Graph::X], fnode->coords[Graph::Y]),
                                                        MathGeometry::MEDIAN_ANGLE); // Get directional vector btwn inner & outer
         double changeNorm = MathGeometry::findNorm(point_t(it->changeX, it->changeY));
-        toReturn.insert(Graph::NodeChange(fnode->correspondents[0], vd.x * changeNorm * compression,
-                                          vd.y * changeNorm * compression));
+        toReturn.insert(Graph::NodeChange(fnode->correspondents[0], - vd.x * changeNorm * compression,
+                                          - vd.y * changeNorm * compression));
     }
     return toReturn;
 }
@@ -169,39 +170,34 @@ Graph::neighborChangeset(const Graph::ThickSurface2 &thickSurface, double compre
 
 
 void GlobalState::setSurfaceParameters(double radius, double thickness, double centerX, double centerY, int points) {
-    GlobalState::surfaceParameters->radius = radius;
-    GlobalState::surfaceParameters->thickness = thickness;
-    GlobalState::surfaceParameters->centerX = centerX;
-    GlobalState::surfaceParameters->centerY = centerY;
-    GlobalState::surfaceParameters->points = points;
+    GlobalState::surfaceParameters.radius = radius;
+    GlobalState::surfaceParameters.thickness = thickness;
+    GlobalState::surfaceParameters.centerX = centerX;
+    GlobalState::surfaceParameters.centerY = centerY;
+    GlobalState::surfaceParameters.points = points;
 }
 
 void GlobalState::setOptimizerParameters(double initialGrayMatter, int smoothness, double diffMul, double diffPow,
                                          double areaMul, double areaPow, double multiProb, double tempProb,
                                          double forceOffsetRange, double compression,
                                          double (*smoothnessFunction)(double, double), double temperature) {
-    GlobalState::optimizerParameters->initialGrayMatter = initialGrayMatter;
-    GlobalState::optimizerParameters->smoothness = smoothness;
-    GlobalState::optimizerParameters->diffMul = diffMul;
-    GlobalState::optimizerParameters->diffPow = diffPow;
-    GlobalState::optimizerParameters->areaMul = areaMul;
-    GlobalState::optimizerParameters->areaPow = areaPow;
-    GlobalState::optimizerParameters->multiProb = multiProb;
-    GlobalState::optimizerParameters->tempProb = tempProb;
-    GlobalState::optimizerParameters->forceOffsetRange = forceOffsetRange;
-    GlobalState::optimizerParameters->compression = compression;
-    GlobalState::optimizerParameters->smoothnessFunction = smoothnessFunction;
-    GlobalState::optimizerParameters->temperature = temperature;
+    GlobalState::optimizerParameters.initialGrayMatter = initialGrayMatter;
+    GlobalState::optimizerParameters.smoothness = smoothness;
+    GlobalState::optimizerParameters.diffMul = diffMul;
+    GlobalState::optimizerParameters.diffPow = diffPow;
+    GlobalState::optimizerParameters.areaMul = areaMul;
+    GlobalState::optimizerParameters.areaPow = areaPow;
+    GlobalState::optimizerParameters.multiProb = multiProb;
+    GlobalState::optimizerParameters.tempProb = tempProb;
+    GlobalState::optimizerParameters.forceOffsetRange = forceOffsetRange;
+    GlobalState::optimizerParameters.compression = compression;
+    GlobalState::optimizerParameters.smoothnessFunction = smoothnessFunction;
+    GlobalState::optimizerParameters.temperature = temperature;
 }
 
 void GlobalState::initThickSurface() {
-    GlobalState::thickSurface = Graph::generateCircularThicksurface(surfaceParameters->centerX,
-                                                                    surfaceParameters->centerY, surfaceParameters->radius,
-                                                                    surfaceParameters->thickness,
-                                                                    surfaceParameters->points);
-}
-
-void GlobalState::initParameterObjects() {
-    GlobalState::optimizerParameters = new OptimizerParameters();
-    GlobalState::surfaceParameters = new SurfaceParameters();
+    GlobalState::thickSurface = Graph::generateCircularThicksurface(surfaceParameters.centerX,
+                                                                    surfaceParameters.centerY, surfaceParameters.radius,
+                                                                    surfaceParameters.thickness,
+                                                                    surfaceParameters.points);
 }

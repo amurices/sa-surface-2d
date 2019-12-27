@@ -229,6 +229,54 @@ bool find_lines_intersection(line_t a, line_t b, point_t &where)
     return false;
 }
 
+bool findLineSegmentIntersection(point_t a1, point_t a2, point_t b1, point_t b2, point_t &where)
+{
+    // It's hard for this to be self-documenting haha
+    point_t r, s;
+    r = a2 - a1;
+    s = b2 - b1;
+
+    // Now we have: line = q + qv, and any point on the vector is obtainable by p + t*r, for some t
+    // We want a t and u so p + t*pv = q + u*qv. Then t = (q − p) × s / (r × s) and u = (q − p) × r / (r × s)
+    double t, u;
+    double crossRandS = cross(r, s);
+    double crossQminusPandS = cross(b1 - a1, s);
+    double crossQminusPandR = cross(b1 - a1, r);
+
+    // Collinear and parallel possibilities don't matter here. We simply treat them as non-intersections
+    if (crossRandS == 0)
+    {
+        return false;
+    }
+
+    t = crossQminusPandS / crossRandS;
+    u = crossQminusPandR / crossRandS;
+
+    // If both T and U are in [0, 1] interval, then an intersection happens. We adopt an exclusive interval
+    // so that neighbor edges aren't taken to be intersecting.
+    if (Util::gtTolerance(t, 0, TOLERANCE) && Util::ltTolerance(t, 1, TOLERANCE) && Util::gtTolerance(u, 0, TOLERANCE) && Util::ltTolerance(u, 1, TOLERANCE))
+    {
+        where = a1 + r * t;
+        return true;
+    }
+
+    // If control reaches this point, previous test failed. There is no intersection.
+    return false;
+}
+
+std::vector<point_t> MathGeometry::surfaceIntersections(const std::vector<std::pair<point_t, point_t>> &lines){
+    std::vector<point_t> toReturn;
+    for (auto outerIt = lines.begin(); outerIt != lines.end(); outerIt++){
+        for (auto innerIt = outerIt; innerIt != lines.end(); innerIt++){
+            point_t where;
+            if (findLineSegmentIntersection(outerIt->first, outerIt->second, innerIt->first, innerIt->second, where)){
+                toReturn.push_back(where);
+            }
+        }
+    }
+    return toReturn;
+}
+
 int MathGeometry::findSurfaceIntersections(const std::vector<_2DSurface *> &xs, std::vector<point_t> &is)
 {
     Util::time_before();

@@ -9,5 +9,5 @@ areaMul 1.0
 multiProb 0.0
 tempProb 1.0
 forceOffsetRange 0.066
-compression 0.6
+compression 1.0
 radius 1.0
