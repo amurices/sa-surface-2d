@@ -24,6 +24,13 @@ namespace Graph {
         }
     };
 
+    struct Line {
+        Node* a;
+        Node* b;
+    };
+
+    typedef std::vector<Line*> Intersectables;
+
     struct NodeChange {
         Node *node;
         double changeX;
@@ -64,19 +71,21 @@ namespace Graph {
     std::set<NodeChange> smoothAdjacentNodes(const Surface &surface, NodeChange initialChange, int smoothness,
                                              double (*f)(double idk, double idk2));
 
-    std::set<NodeChange> neighborOuterChangeset(const Surface &surface, double multiProb,
+    std::set<NodeChange> changesetForNodes(const Surface &surface, const std::vector<Graph::Node*> &nodesToPush,
                                                 double forceOffsetRange, int smoothness,
                                                 double (*f)(double idk1, double idk2));
 
     std::set<NodeChange> innerChangesetFromOuterChangeset(const ThickSurface2 &thickSurface, const std::set<NodeChange> &outerChanges,
                                                           double compression);
 
-    std::set<NodeChange> neighborChangeset(const ThickSurface2 &thickSurface, double compression, double forceOffsetRange, double multiProb,
-                                           int smoothness, double (*f)(double idk1, double idk2));
+    std::vector<Graph::Node*> randomNodes(const Graph::Surface& surface, double multiProb);
 
-    /*
-     * Returns area in [0] and perimeter in [1]
-     * */
+    std::set<NodeChange> generateChangesetForOuterNodes(const ThickSurface2 &thickSurface, const std::vector<Graph::Node*> &outerNodes, double compression,
+                                                        double forceOffsetRange, double multiProb,
+                                                        int smoothness, double (*f)(double idk1, double idk2));
+
+    void applyNodeChanges(std::set <Graph::NodeChange> &changes);
+
     double surfaceArea(const Surface &surface);
 
     ThickSurface2 generateCircularThicksurface(double centerX, double centerY, double outerRadius, double initialThickness, int pts);
@@ -111,6 +120,7 @@ namespace GlobalState {
     extern SurfaceParameters surfaceParameters;
     extern OptimizerParameters optimizerParameters;
     extern Graph::ThickSurface2 thickSurface;
+    extern Graph::Intersectables intersectables;
 
     void setSurfaceParameters(double radius, double thickness, double centerX, double centerY, int points);
 

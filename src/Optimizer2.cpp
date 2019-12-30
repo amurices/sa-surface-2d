@@ -6,12 +6,15 @@
 #include "Optimizer2.hpp"
 
 std::set<Graph::NodeChange> Optimizer2::findNeighbor(){
-    return Graph::neighborChangeset(GlobalState::thickSurface,
-                                    GlobalState::optimizerParameters.compression,
-                                    GlobalState::optimizerParameters.forceOffsetRange,
-                                    GlobalState::optimizerParameters.multiProb,
-                                    GlobalState::optimizerParameters.smoothness,
-                                    GlobalState::optimizerParameters.smoothnessFunction);
+    auto nodesToPush = Graph::randomNodes(GlobalState::thickSurface.layers[Graph::OUTER],
+                                          GlobalState::optimizerParameters.multiProb);
+    return Graph::generateChangesetForOuterNodes(GlobalState::thickSurface,
+                                                 nodesToPush,
+                                                 GlobalState::optimizerParameters.compression,
+                                                 GlobalState::optimizerParameters.forceOffsetRange,
+                                                 GlobalState::optimizerParameters.multiProb,
+                                                 GlobalState::optimizerParameters.smoothness,
+                                                 GlobalState::optimizerParameters.smoothnessFunction);
 }
 double Optimizer2::findEnergy(){
     double res;
@@ -52,13 +55,22 @@ void Optimizer2::temperatureFunction(){
     GlobalState::optimizerParameters.temperature = GlobalState::optimizerParameters.temperature;
 }
 
+std::vector<std::pair<point_t, point_t>> makeLines(){
+    std::vector<std::pair<point_t, point_t>> toReturn;
+    for (auto layerIt = GlobalState::thickSurface.layers.begin(); layerIt != GlobalState::thickSurface.layers.end(); layerIt++){
+        for (auto surfaceIt = layerIt->nodes.begin(); surfaceIt != layerIt->nodes.end(); surfaceIt++){
+            toReturn.push_back(std::make_pair(point_t((*surfaceIt)->coords[Graph::X],
+                                                          (*surfaceIt)->coords[Graph::Y]),
+                                                  point_t((*surfaceIt)->to->coords[Graph::X],
+                                                          (*surfaceIt)->to->coords[Graph::Y])));
+        }
+    }
+}
+
 double Optimizer2::stepSimulatedAnnealing (){
     auto neighborChanges = findNeighbor();
     double energyState  = findEnergy();
-    for (auto it = neighborChanges.begin(); it != neighborChanges.end(); it++){
-        it->node->coords[Graph::X] += it->changeX;
-        it->node->coords[Graph::Y] += it->changeY;
-    }
+    Graph::applyNodeChanges(neighborChanges);
     double energyNeighbor = findEnergy();
 
     std::vector<std::pair<point_t, point_t>> surfaceLines;
