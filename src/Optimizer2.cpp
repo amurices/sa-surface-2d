@@ -74,14 +74,7 @@ double Optimizer2::stepSimulatedAnnealing (){
     double energyNeighbor = findEnergy();
 
     std::vector<std::pair<point_t, point_t>> surfaceLines;
-    for (auto layerIt = GlobalState::thickSurface.layers.begin(); layerIt != GlobalState::thickSurface.layers.end(); layerIt++){
-        for (auto surfaceIt = layerIt->nodes.begin(); surfaceIt != layerIt->nodes.end(); surfaceIt++){
-            surfaceLines.push_back(std::make_pair(point_t((*surfaceIt)->coords[Graph::X],
-                                                          (*surfaceIt)->coords[Graph::Y]),
-                                                  point_t((*surfaceIt)->to->coords[Graph::X],
-                                                          (*surfaceIt)->to->coords[Graph::Y])));
-        }
-    }
+    makeLines(); // <- Quando consertar as particoes tem que arrumar isso aqui
     auto intersections = MathGeometry::surfaceIntersections(surfaceLines);
     double prob = findProbability(energyState, energyNeighbor, GlobalState::optimizerParameters.temperature);
     if (!intersections.empty()){
