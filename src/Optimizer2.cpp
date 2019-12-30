@@ -65,6 +65,7 @@ std::vector<std::pair<point_t, point_t>> makeLines(){
                                                           (*surfaceIt)->to->coords[Graph::Y])));
         }
     }
+    return toReturn;
 }
 
 double Optimizer2::stepSimulatedAnnealing (){
@@ -73,8 +74,7 @@ double Optimizer2::stepSimulatedAnnealing (){
     Graph::applyNodeChanges(neighborChanges);
     double energyNeighbor = findEnergy();
 
-    std::vector<std::pair<point_t, point_t>> surfaceLines;
-    makeLines(); // <- Quando consertar as particoes tem que arrumar isso aqui
+    auto surfaceLines = makeLines(); // <- Quando consertar as particoes tem que arrumar isso aqui
     auto intersections = MathGeometry::surfaceIntersections(surfaceLines);
     double prob = findProbability(energyState, energyNeighbor, GlobalState::optimizerParameters.temperature);
     if (!intersections.empty()){

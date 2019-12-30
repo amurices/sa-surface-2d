@@ -4,6 +4,7 @@
 
 #include <GraphSurface.hpp>
 #include <MathGeometry.hpp>
+#include <Util.hpp>
 
 Graph::Surface Graph::generateCircularGraph(double centerX, double centerY, double radius, int pts) {
     Surface toReturn;
@@ -129,21 +130,18 @@ std::set<Graph::NodeChange> Graph::innerChangesetFromOuterChangeset(const Graph:
         // Just to not have to reimplement findDirectionVector
         point_t pPrev(prevX, prevY);
         point_t pNext(nextX, nextY);
-        // Dont know if the below is right, but basically, we find the direction we should push an inner node in via the old method,
-        // then push it in that direction preserving the distance to the outer node, multiplied by an additional parameter compression, which is basically softness
-        // ÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆ
+        // A little less obscene, but still in need of some cleaning up.
         auto distance = MathGeometry::findNorm(
                 point_t(fnode->coords[Graph::X] - fnode->correspondents[0]->coords[Graph::X],
                         fnode->coords[Graph::Y] - fnode->correspondents[0]->coords[Graph::Y]));
-        auto distanceWithChange = MathGeometry::findNorm(
-                point_t(fnode->coords[Graph::X] + it->changeX - fnode->correspondents[0]->coords[Graph::X],
-                        fnode->coords[Graph::Y] + it->changeY - fnode->correspondents[0]->coords[Graph::Y]));
         point_t vd = MathGeometry::findDirectionVector(pPrev, pNext,
                                                        point_t(fnode->coords[Graph::X], fnode->coords[Graph::Y]),
                                                        MathGeometry::MEDIAN_ANGLE); // Get directional vector btwn inner & outer
-        double changeNorm = MathGeometry::findNorm(point_t(it->changeX, it->changeY));
-        toReturn.insert(Graph::NodeChange(fnode->correspondents[0], -vd.x * changeNorm * compression,
-                                          -vd.y * changeNorm * compression));
+        auto delta =
+                point_t(fnode->coords[Graph::X] + it->changeX, fnode->coords[Graph::Y] + it->changeY) // current new outer position
+                - (vd * distance) // plus direction (unit vector) times original distance = new position
+                - point_t(fnode->correspondents[0]->coords[Graph::X], fnode->correspondents[0]->coords[Graph::Y]); // because this will be added, subtract current position
+        toReturn.insert(Graph::NodeChange(fnode->correspondents[0], delta.x * compression, delta.y * compression));
     }
     return toReturn;
 }
