@@ -7,10 +7,9 @@ This project is a renderer, using *[nanogui](https://github.com/wjakob/nanogui)*
 ### Step 1. Install dependency packages (will be automated with a script in the future)
 First, clone this repository with `git clone --recursive`. This will automatically include any git submodules it depends on.
 
-Most of the packages that need to be installed can be obtained via [Homebrew](https://brew.sh/) on Mac OS (Xcode command line tools obviously need to be installed as well). Out of the following packages, the only one that is not more easily installed with Homebrew's `brew` command is LEMON:
+Most of the packages that need to be installed can be obtained via [Homebrew](https://brew.sh/) on Mac OS (Xcode command line tools obviously need to be installed as well):
 
 _Packages_:
-* [LEMON](https://lemon.cs.elte.hu/trac/lemon/wiki/InstallLinux) (depends on [CMake](https://cmake.org/))
 * [GLFW](https://www.glfw.org/)
 * [GLEW](http://glew.sourceforge.net/)
 * [FTGL](http://ftgl.sourceforge.net/docs/html/ftgl-tutorial.html)
