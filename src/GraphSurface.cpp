@@ -5,6 +5,7 @@
 #include <GraphSurface.hpp>
 #include <MathGeometry.hpp>
 #include <Util.hpp>
+#include <cmath>
 
 Graph::Surface Graph::generateCircularGraph(double centerX, double centerY, double radius, int pts) {
     Surface toReturn;
@@ -128,19 +129,19 @@ std::set<Graph::NodeChange> Graph::innerChangesetFromOuterChangeset(const Graph:
         double prevX = fnode->from->coords[Graph::X];
         double prevY = fnode->from->coords[Graph::Y];
         // Just to not have to reimplement findDirectionVector
-        point_t pPrev(prevX, prevY);
-        point_t pNext(nextX, nextY);
+        MathGeometry::point_t pPrev(prevX, prevY);
+        MathGeometry::point_t pNext(nextX, nextY);
         // A little less obscene, but still in need of some cleaning up.
         auto distance = MathGeometry::findNorm(
-                point_t(fnode->coords[Graph::X] - fnode->correspondents[0]->coords[Graph::X],
+                MathGeometry::point_t(fnode->coords[Graph::X] - fnode->correspondents[0]->coords[Graph::X],
                         fnode->coords[Graph::Y] - fnode->correspondents[0]->coords[Graph::Y]));
-        point_t vd = MathGeometry::findDirectionVector(pPrev, pNext,
-                                                       point_t(fnode->coords[Graph::X], fnode->coords[Graph::Y]),
+        MathGeometry::point_t vd = MathGeometry::findDirectionVector(pPrev, pNext,
+                                                       MathGeometry::point_t(fnode->coords[Graph::X], fnode->coords[Graph::Y]),
                                                        MathGeometry::MEDIAN_ANGLE); // Get directional vector btwn inner & outer
         auto delta =
-                point_t(fnode->coords[Graph::X] + it->changeX, fnode->coords[Graph::Y] + it->changeY) // current new outer position
+                MathGeometry::point_t(fnode->coords[Graph::X] + it->changeX, fnode->coords[Graph::Y] + it->changeY) // current new outer position
                 - (vd * distance) // plus direction (unit vector) times original distance = new position
-                - point_t(fnode->correspondents[0]->coords[Graph::X], fnode->correspondents[0]->coords[Graph::Y]); // because this will be added, subtract current position
+                - MathGeometry::point_t(fnode->correspondents[0]->coords[Graph::X], fnode->correspondents[0]->coords[Graph::Y]); // because this will be added, subtract current position
         toReturn.insert(Graph::NodeChange(fnode->correspondents[0], delta.x * compression, delta.y * compression));
     }
     return toReturn;

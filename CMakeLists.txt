@@ -12,24 +12,17 @@ include_directories(nanogui/ext/eigen)
 include_directories(nanogui/ext/nanovg/src)
 
 add_executable(sa_surface_2d
-        include/_2DSurface.hpp
-        include/defs.hpp
         include/IO.hpp
         include/MathGeometry.hpp
-        include/Optimizer.hpp
         include/Renderer.hpp
-        include/ThickSurface.hpp
         include/Util.hpp
         include/GlobalState.hpp
         include/Optimizer2.hpp
         include/GraphSurface.hpp
-        src/_2DSurface.cpp
         src/IO.cpp
         src/main.cpp
         src/MathGeometry.cpp
-        src/Optimizer.cpp
         src/Renderer.cpp
-        src/ThickSurface.cpp
         src/Util.cpp
         src/GlobalState.cpp
         src/Optimizer2.cpp

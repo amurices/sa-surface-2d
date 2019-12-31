@@ -39,6 +39,9 @@ namespace GlobalState {
     extern OptimizerParameters optimizerParameters;
     extern Graph::ThickSurface2 thickSurface;
     extern Graph::Intersectables intersectables;
+    extern bool singleStep;
+    extern bool shouldStep;
+    extern bool recording;
 
     void setSurfaceParameters(double radius, double thickness, double centerX, double centerY, int points);
 

@@ -8,9 +8,7 @@
 #include <MathGeometry.hpp>
 
 #include "Renderer.hpp"
-#include "Optimizer.hpp"
 #include "Optimizer2.hpp"
-#include "ThickSurface.hpp"
 #include "IO.hpp"
 
 
@@ -21,7 +19,7 @@ int main(int argc, char **argv)
 
     std::unordered_map <std::string, std::string> inputMap;
     IO::sillyMapReader("../input.txt", inputMap);
-    InitSaParams theseParams;
+    IO::InitSaParams theseParams;
     IO::parseInputToParams(inputMap, &theseParams);
     std::cout << theseParams;
     GlobalState::setSurfaceParameters(theseParams.radius, theseParams.thickness, 0.0, 0.0, theseParams.points);
@@ -41,8 +39,8 @@ int main(int argc, char **argv)
     // Nanogui renderer setup:
     nanogui::ref <Renderer> myRenderer = new Renderer();
     myRenderer->setVisible(true);
-    myRenderer->thickSurface2 = &GlobalState::thickSurface;
     myRenderer->uploadIndices2();
+    myRenderer->makeInputForms(myRenderer->windows[0]);
     // -----------------------------------------
 
     int count = 0;
@@ -53,7 +51,8 @@ int main(int argc, char **argv)
 
         Optimizer2::stepSimulatedAnnealing();
 
-        myRenderer->drawContents2();
+        myRenderer->drawContents();
+        myRenderer->drawWidgets();
 
         myRenderer->uploadSurface2();
         glfwSwapBuffers(myRenderer->glfwWindow());

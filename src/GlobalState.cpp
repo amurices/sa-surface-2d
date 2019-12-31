@@ -10,6 +10,9 @@ Graph::ThickSurface2 GlobalState::thickSurface;
 GlobalState::SurfaceParameters GlobalState::surfaceParameters;
 GlobalState::OptimizerParameters GlobalState::optimizerParameters;
 Graph::Intersectables GlobalState::intersectables; // <- BOA IDEIA
+bool GlobalState::shouldStep = false;
+bool GlobalState::singleStep = false;
+bool GlobalState::recording = false;
 
 
 void GlobalState::setSurfaceParameters(double radius, double thickness, double centerX, double centerY, int points) {

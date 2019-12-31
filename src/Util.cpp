@@ -2,32 +2,6 @@
 #include "sys/time.h"
 #include <fstream>
 
-double Util::pointsDistance(point_t p1, point_t p2)
-{
-    std::pair<double, double> norm = std::make_pair(p2.x - p1.x, p2.y - p1.y);
-    return sqrt(norm.first * norm.first + norm.second * norm.second);
-}
-
-bool Util::ltTolerance(double a, double b, double tol)
-{
-    return (a < (b - tol));
-}
-bool Util::gtTolerance(double a, double b, double tol)
-{
-    return (a > (b + tol));
-}
-
-bool Util::eqTolerance(double a, double b, double tol)
-{
-    return (a > b - tol) && (a < b + tol);
-}
-
-double Util::absol(double x)
-{
-    if (x < 0)
-        return -x;
-    return x;
-}
 
 double Util::getRandomRange(double lower, double upper)
 {
@@ -60,6 +34,6 @@ double Util::time_after()
     float diff = tvalBefore.tv_usec - tvalAfter.tv_usec;
     if (diff > 0)
         timeSince -= 1.0;
-    timeSince += std::abs(diff) / 1000000;
+    timeSince += (diff < 0 ? - diff : diff) / 1000000;
     return timeSince;
 }

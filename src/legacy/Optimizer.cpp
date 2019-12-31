@@ -81,10 +81,10 @@ void Optimizer::findNeighbor(ThickSurface *thickSurface, std::set<NodeChange_t> 
         offsetX = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
         offsetY = Util::getRandomRange(- this->params->forceOffsetRange, this->params->forceOffsetRange);
         
-        point_t directionOfChange(offsetX, offsetY);
+        MathGeometry::point_t directionOfChange(offsetX, offsetY);
 
-        point_t newPositionByAddingChange = (*thickSurface->outer->coords)[randomNode] + directionOfChange;
-        point_t newPositionBySubtractingChange = (*thickSurface->outer->coords)[randomNode] - directionOfChange;
+        MathGeometry::point_t newPositionByAddingChange = (*thickSurface->outer->coords)[randomNode] + directionOfChange;
+        MathGeometry::point_t newPositionBySubtractingChange = (*thickSurface->outer->coords)[randomNode] - directionOfChange;
 
         // Collect change to outer node's position.
         neighborChanges->insert(NodeChange_t(randomNode, randomNodeOutgoing, directionOfChange, thickSurface->outer->graph));
@@ -175,7 +175,7 @@ void Optimizer::stepSimulatedAnnealing(ThickSurface *thickSurface, double *tempe
     double coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
 
     std::vector<_2DSurface*> surfaces;
-    std::vector<point_t> potentialIntersections;
+    std::vector<MathGeometry::point_t> potentialIntersections;
 
     surfaces.push_back(thickSurface->outer);
     surfaces.push_back(thickSurface->inner);

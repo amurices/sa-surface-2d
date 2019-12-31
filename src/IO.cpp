@@ -1,5 +1,6 @@
 #include "IO.hpp"
 #include <fstream>
+#include <iostream>
 
 void IO::sillyMapReader(const std::string fileName, std::unordered_map<std::string, std::string> &map)
 {
@@ -10,7 +11,7 @@ void IO::sillyMapReader(const std::string fileName, std::unordered_map<std::stri
         exit(0);
     }
     std::string reader;
-    std::map<std::string, std::string> inputMap;
+    std::unordered_map<std::string, std::string> inputMap;
     while (std::getline (input, reader)){
         int valPos = reader.find(" ");
         std::string key = reader.substr(0, valPos);

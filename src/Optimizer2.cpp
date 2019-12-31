@@ -3,6 +3,7 @@
 //
 
 #include <MathGeometry.hpp>
+#include <cmath>
 #include "Optimizer2.hpp"
 
 std::set<Graph::NodeChange> Optimizer2::findNeighbor(){
@@ -55,13 +56,13 @@ void Optimizer2::temperatureFunction(){
     GlobalState::optimizerParameters.temperature = GlobalState::optimizerParameters.temperature;
 }
 
-std::vector<std::pair<point_t, point_t>> makeLines(){
-    std::vector<std::pair<point_t, point_t>> toReturn;
+std::vector<std::pair<MathGeometry::point_t, MathGeometry::point_t>> makeLines(){
+    std::vector<std::pair<MathGeometry::point_t, MathGeometry::point_t>> toReturn;
     for (auto layerIt = GlobalState::thickSurface.layers.begin(); layerIt != GlobalState::thickSurface.layers.end(); layerIt++){
         for (auto surfaceIt = layerIt->nodes.begin(); surfaceIt != layerIt->nodes.end(); surfaceIt++){
-            toReturn.push_back(std::make_pair(point_t((*surfaceIt)->coords[Graph::X],
+            toReturn.push_back(std::make_pair(MathGeometry::point_t((*surfaceIt)->coords[Graph::X],
                                                           (*surfaceIt)->coords[Graph::Y]),
-                                                  point_t((*surfaceIt)->to->coords[Graph::X],
+                                                  MathGeometry::point_t((*surfaceIt)->to->coords[Graph::X],
                                                           (*surfaceIt)->to->coords[Graph::Y])));
         }
     }
