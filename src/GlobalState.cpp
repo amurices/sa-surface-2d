@@ -6,44 +6,55 @@
 #include <MathGeometry.hpp>
 #include <Util.hpp>
 
-Graph::ThickSurface2 GlobalState::thickSurface;
-GlobalState::SurfaceParameters GlobalState::surfaceParameters;
-GlobalState::OptimizerParameters GlobalState::optimizerParameters;
-Graph::Intersectables GlobalState::intersectables; // <- BOA IDEIA
-bool GlobalState::shouldStep = false;
-bool GlobalState::singleStep = false;
-bool GlobalState::recording = false;
+namespace GlobalState {
+    Graph::ThickSurface thickSurface;
+    SurfaceParameters surfaceParameters;
+    OptimizerParameters optimizerParameters;
+    Graph::Intersectables intersectables; // <- BOA IDEIA
+    bool shouldStep = false;
+    bool singleStep = false;
+    bool recording = false;
+    std::set<std::string> recordedAttributes;
 
 
-void GlobalState::setSurfaceParameters(double radius, double thickness, double centerX, double centerY, int points) {
-    GlobalState::surfaceParameters.radius = radius;
-    GlobalState::surfaceParameters.thickness = thickness;
-    GlobalState::surfaceParameters.centerX = centerX;
-    GlobalState::surfaceParameters.centerY = centerY;
-    GlobalState::surfaceParameters.points = points;
-}
+    void setSurfaceParameters(double radius, double thickness, double centerX, double centerY, int points) {
+        surfaceParameters.radius = radius;
+        surfaceParameters.thickness = thickness;
+        surfaceParameters.centerX = centerX;
+        surfaceParameters.centerY = centerY;
+        surfaceParameters.points = points;
+    }
 
-void GlobalState::setOptimizerParameters(double initialGrayMatter, int smoothness, double diffMul, double diffPow,
-                                         double areaMul, double areaPow, double multiProb, double tempProb,
-                                         double forceOffsetRange, double compression,
-                                         double (*smoothnessFunction)(double, double), double temperature) {
-    GlobalState::optimizerParameters.initialGrayMatter = initialGrayMatter;
-    GlobalState::optimizerParameters.smoothness = smoothness;
-    GlobalState::optimizerParameters.diffMul = diffMul;
-    GlobalState::optimizerParameters.diffPow = diffPow;
-    GlobalState::optimizerParameters.areaMul = areaMul;
-    GlobalState::optimizerParameters.areaPow = areaPow;
-    GlobalState::optimizerParameters.multiProb = multiProb;
-    GlobalState::optimizerParameters.tempProb = tempProb;
-    GlobalState::optimizerParameters.forceOffsetRange = forceOffsetRange;
-    GlobalState::optimizerParameters.compression = compression;
-    GlobalState::optimizerParameters.smoothnessFunction = smoothnessFunction;
-    GlobalState::optimizerParameters.temperature = temperature;
-}
+    void setOptimizerParameters(double initialGrayMatter, int smoothness, double diffMul, double diffPow,
+                                double areaMul, double areaPow, double multiProb, double tempProb,
+                                double forceOffsetRange, double compression,
+                                double (*smoothnessFunction)(double, double), double temperature) {
+        optimizerParameters.initialGrayMatter = initialGrayMatter;
+        optimizerParameters.smoothness = smoothness;
+        optimizerParameters.diffMul = diffMul;
+        optimizerParameters.diffPow = diffPow;
+        optimizerParameters.areaMul = areaMul;
+        optimizerParameters.areaPow = areaPow;
+        optimizerParameters.multiProb = multiProb;
+        optimizerParameters.tempProb = tempProb;
+        optimizerParameters.forceOffsetRange = forceOffsetRange;
+        optimizerParameters.compression = compression;
+        optimizerParameters.smoothnessFunction = smoothnessFunction;
+        optimizerParameters.temperature = temperature;
+    }
 
-void GlobalState::initThickSurface() {
-    GlobalState::thickSurface = Graph::generateCircularThicksurface(surfaceParameters.centerX,
-                                                                    surfaceParameters.centerY, surfaceParameters.radius,
-                                                                    surfaceParameters.thickness,
-                                                                    surfaceParameters.points);
+    void initThickSurface() {
+        thickSurface = Graph::generateCircularThicksurface(surfaceParameters.centerX,
+                                                           surfaceParameters.centerY, surfaceParameters.radius,
+                                                           surfaceParameters.thickness,
+                                                           surfaceParameters.points);
+    }
+
+    void deliberatelyDeleteBecauseDestructorIsCalledWheneverItWants() {
+        for (auto outerIt = thickSurface.layers.begin(); outerIt != thickSurface.layers.end(); outerIt++) {
+            for (auto innerIt = outerIt->nodes.begin(); innerIt != outerIt->nodes.end(); innerIt++) {
+                delete *innerIt;
+            }
+        }
+    }
 }

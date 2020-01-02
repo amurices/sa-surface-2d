@@ -1,4 +1,6 @@
 #include <fstream>
+#include <MathGeometry.hpp>
+#include <SurfaceProperties.hpp>
 #include "Renderer.hpp"
 
 nanogui::TextBox* Renderer::makeForm(nanogui::Widget *parent,
@@ -130,36 +132,51 @@ void Renderer::makeInputForms(nanogui::Window *targetWindow)
 
     nanogui::Button *b2 = new nanogui::Button(targetWindow, "Start recording");
     b2->setCallback([this, b2] {
-        static std::ofstream outputFile;
         if (!GlobalState::recording){
-            outputFile.open(Util::OUTPUT_FILE_NAME);
-            if (outputFile.fail()){
-                printf("Error opening output file %s.\n", Util::OUTPUT_FILE_NAME.c_str());
-                exit(0);
-            }
+            IO::openOutputFileAndWriteHeader(GlobalState::recordedAttributes);
             b2->setCaption("Stop recording");
         } else {
-            outputFile.close();
+            IO::closeOutputFile();
             b2->setCaption("Start recording");
         }
         GlobalState::recording = !GlobalState::recording;
-
     });
+
+    // Recorded surface properties setting:
+    for (auto it = SurfaceProperties::fns.begin(); it != SurfaceProperties::fns.end(); it++){
+        nanogui::CheckBox *cb0 = new nanogui::CheckBox(targetWindow, it->first);
+        cb0->setCallback([it](bool checked){
+            if (checked)
+                GlobalState::recordedAttributes.insert(it->first);
+            else
+                GlobalState::recordedAttributes.erase(it->first);
+        });
+    }
+
 
     nanogui::Button *b3 = new nanogui::Button(targetWindow, "Reset");
     b3->setCallback([this] {
-//        GlobalState::shouldStep = false;
-//        GlobalState::singleStep = false;
-//        std::unordered_map <std::string, std::string> inputMap;
-//        IO::sillyMapReader("../input.txt", inputMap);
-//        InitSaParams theseParams;
-//        IO::parseInputToParams(inputMap, &theseParams);
-//        this->thickSurface->generateCircularThickSurface(theseParams.radius, theseParams.points, true, theseParams.thickness, theseParams.thickness, MathGeometry::point_t(0.0, 0.0));
+        GlobalState::shouldStep = false;
+        GlobalState::singleStep = false;
+        std::unordered_map <std::string, std::string> inputMap;
+        IO::sillyMapReader("../input.txt", inputMap);
+        IO::InitSaParams theseParams;
+        IO::parseInputToParams(inputMap, &theseParams);
+        GlobalState::setSurfaceParameters(theseParams.radius, theseParams.thickness, 0.0, 0.0, theseParams.points);
+        GlobalState::deliberatelyDeleteBecauseDestructorIsCalledWheneverItWants();
+        GlobalState::initThickSurface();
+        double initialGrayMatter =
+                Graph::surfaceArea(GlobalState::thickSurface.layers[Graph::OUTER]) -
+                Graph::surfaceArea(GlobalState::thickSurface.layers[Graph::INNER]);
+        GlobalState::setOptimizerParameters(initialGrayMatter, theseParams.smooth, theseParams.diffMul, theseParams.diffPow,
+                                            theseParams.areaMul, theseParams.areaPow, theseParams.multiProb,
+                                            theseParams.tempProb, theseParams.forceOffsetRange, theseParams.compression,
+                                            MathGeometry::linearSmooth, 0);
     });
     performLayout();
 }
 
-void Renderer::uploadIndices2(){
+void Renderer::uploadIndices(){
     size_t numOuterVertices = GlobalState::thickSurface.layers[Graph::OUTER].nodes.size();
     size_t numInnerVertices = GlobalState::thickSurface.layers[Graph::INNER].nodes.size();
     nanogui::MatrixXu indices(2, numOuterVertices + 1 + numInnerVertices + 1);
@@ -182,7 +199,7 @@ void Renderer::uploadIndices2(){
     mShader.uploadIndices(indices);
 }
 
-void Renderer::uploadSurface2(){
+void Renderer::uploadSurface(){
     size_t numOuterVertices = GlobalState::thickSurface.layers[Graph::OUTER].nodes.size();
     size_t numInnerVertices = GlobalState::thickSurface.layers[Graph::INNER].nodes.size();
     nanogui::MatrixXf positions(3, numOuterVertices + numInnerVertices);

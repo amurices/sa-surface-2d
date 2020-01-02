@@ -4,20 +4,20 @@
 
 #include <MathGeometry.hpp>
 #include <cmath>
-#include "Optimizer2.hpp"
+#include "Optimizer.hpp"
 
-std::set<Graph::NodeChange> Optimizer2::findNeighbor(){
+std::set<Graph::NodeChange> Optimizer::findNeighbor(){
     auto nodesToPush = Graph::randomNodes(GlobalState::thickSurface.layers[Graph::OUTER],
                                           GlobalState::optimizerParameters.multiProb);
-    return Graph::generateChangesetForOuterNodes(GlobalState::thickSurface,
-                                                 nodesToPush,
-                                                 GlobalState::optimizerParameters.compression,
-                                                 GlobalState::optimizerParameters.forceOffsetRange,
-                                                 GlobalState::optimizerParameters.multiProb,
-                                                 GlobalState::optimizerParameters.smoothness,
-                                                 GlobalState::optimizerParameters.smoothnessFunction);
+    return Graph::generateTotalChangesetFromPushedOuterNodes(GlobalState::thickSurface,
+                                                             nodesToPush,
+                                                             GlobalState::optimizerParameters.compression,
+                                                             GlobalState::optimizerParameters.forceOffsetRange,
+                                                             GlobalState::optimizerParameters.multiProb,
+                                                             GlobalState::optimizerParameters.smoothness,
+                                                             GlobalState::optimizerParameters.smoothnessFunction);
 }
-double Optimizer2::findEnergy(){
+double Optimizer::findEnergy(){
     double res;
 
     double whiteMatterArea;
@@ -43,15 +43,18 @@ double Optimizer2::findEnergy(){
 
     return res;
 }
-double Optimizer2::findProbability(double energyState, double energyNeighbor, double temperature){
-    double potentialResult = exp((energyState - energyNeighbor) / temperature);
-    if (energyNeighbor < energyState)
+
+double Optimizer::findProbability(double energyState, double energyNeighbor, double temperature){
+    if (MathGeometry::ltTolerance(temperature, 0.0, MathGeometry::TOLERANCE)){
+        return energyNeighbor < energyState ? 1 : 0;
+    } else if (temperature >= INFINITY) {
         return 1;
-    else
-        return potentialResult;
+    } else {
+        return exp((energyState - energyNeighbor) / temperature);
+    }
 }
 
-void Optimizer2::temperatureFunction(){
+void Optimizer::temperatureFunction(){
     // temperature is constant for now
     GlobalState::optimizerParameters.temperature = GlobalState::optimizerParameters.temperature;
 }
@@ -69,7 +72,7 @@ std::vector<std::pair<MathGeometry::point_t, MathGeometry::point_t>> makeLines()
     return toReturn;
 }
 
-double Optimizer2::stepSimulatedAnnealing (){
+void Optimizer::stepSimulatedAnnealing (){
     auto neighborChanges = findNeighbor();
     double energyState  = findEnergy();
     Graph::applyNodeChanges(neighborChanges);

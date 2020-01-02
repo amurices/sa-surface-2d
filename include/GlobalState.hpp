@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <set>
+#include <map>
 #include <GraphSurface.hpp>
 
 namespace GlobalState {
@@ -37,11 +38,12 @@ namespace GlobalState {
 
     extern SurfaceParameters surfaceParameters;
     extern OptimizerParameters optimizerParameters;
-    extern Graph::ThickSurface2 thickSurface;
+    extern Graph::ThickSurface thickSurface;
     extern Graph::Intersectables intersectables;
     extern bool singleStep;
     extern bool shouldStep;
     extern bool recording;
+    extern std::set<std::string> recordedAttributes; // fns that receive a reference to a thick surface and calculate something of interest
 
     void setSurfaceParameters(double radius, double thickness, double centerX, double centerY, int points);
 
@@ -51,6 +53,7 @@ namespace GlobalState {
                            double compression, double (*smoothnessFunction)(double, double), double temperature);
 
     void initThickSurface();
+    void deliberatelyDeleteBecauseDestructorIsCalledWheneverItWants();
 }
 
 #endif //SA_SURFACE_2D_GLOBALSTATE_HPP

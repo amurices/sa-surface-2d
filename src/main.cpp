@@ -8,13 +8,13 @@
 #include <MathGeometry.hpp>
 
 #include "Renderer.hpp"
-#include "Optimizer2.hpp"
+#include "Optimizer.hpp"
 #include "IO.hpp"
 
 
 int main(int argc, char **argv)
 {
-    /* My sweet playground*/
+    /* My sweet playground */
     nanogui::init();
 
     std::unordered_map <std::string, std::string> inputMap;
@@ -39,22 +39,32 @@ int main(int argc, char **argv)
     // Nanogui renderer setup:
     nanogui::ref <Renderer> myRenderer = new Renderer();
     myRenderer->setVisible(true);
-    myRenderer->uploadIndices2();
+    myRenderer->uploadIndices();
     myRenderer->makeInputForms(myRenderer->windows[0]);
     // -----------------------------------------
 
-    int count = 0;
     while (!glfwWindowShouldClose(myRenderer->glfwWindow())) {
-        count++;
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        Optimizer2::stepSimulatedAnnealing();
+        if (GlobalState::shouldStep){
+            Optimizer::stepSimulatedAnnealing();
+            if (GlobalState::recording)
+                IO::commitToOutputFile(GlobalState::thickSurface, GlobalState::recordedAttributes);
+        }
+
+        if (GlobalState::singleStep){
+            GlobalState::singleStep = false;
+            GlobalState::shouldStep = false;
+            Optimizer::stepSimulatedAnnealing();
+            if (GlobalState::recording)
+                IO::commitToOutputFile(GlobalState::thickSurface, GlobalState::recordedAttributes);
+        }
 
         myRenderer->drawContents();
         myRenderer->drawWidgets();
 
-        myRenderer->uploadSurface2();
+        myRenderer->uploadSurface();
         glfwSwapBuffers(myRenderer->glfwWindow());
         glfwPollEvents();
     }

@@ -71,10 +71,10 @@ double Graph::surfaceArea(const Graph::Surface &surface) {
     return toReturn;
 }
 
-Graph::ThickSurface2
+Graph::ThickSurface
 Graph::generateCircularThicksurface(double centerX, double centerY, double outerRadius, double initialThickness,
                                     int pts) {
-    Graph::ThickSurface2 toReturn;
+    Graph::ThickSurface toReturn;
     toReturn.layers[Graph::OUTER] = Graph::generateCircularGraph(centerX, centerY, outerRadius, pts);
     toReturn.layers[Graph::INNER] = Graph::generateCircularGraph(centerX, centerY, outerRadius - initialThickness, pts);
 
@@ -117,7 +117,7 @@ void Graph::applyNodeChanges(std::set <Graph::NodeChange> &changes){
 
 /* This will assume the original changeset is in the outer surface, which means the changeset returned is
  * based on "new" coordinates of the outer surface. */
-std::set<Graph::NodeChange> Graph::innerChangesetFromOuterChangeset(const Graph::ThickSurface2 &thickSurface,
+std::set<Graph::NodeChange> Graph::innerChangesetFromOuterChangeset(const Graph::ThickSurface &thickSurface,
                                                                     const std::set<Graph::NodeChange> &outerChanges,
                                                                     double compression) {
     std::set<Graph::NodeChange> toReturn;
@@ -159,9 +159,11 @@ std::vector<Graph::Node *> Graph::randomNodes(const Graph::Surface &surface, dou
 }
 
 std::set<Graph::NodeChange>
-Graph::generateChangesetForOuterNodes(const Graph::ThickSurface2 &thickSurface, const std::vector<Graph::Node*> &outerNodes, double compression,
-                                      double forceOffsetRange,
-                                      double multiProb, int smoothness, double (*f)(double idk1, double idk2)) {
+Graph::generateTotalChangesetFromPushedOuterNodes(const Graph::ThickSurface &thickSurface,
+                                                  const std::vector<Graph::Node *> &outerNodes, double compression,
+                                                  double forceOffsetRange,
+                                                  double multiProb, int smoothness,
+                                                  double (*f)(double idk1, double idk2)) {
     std::set<Graph::NodeChange> toReturn;
     toReturn = changesetForNodes(thickSurface.layers[Graph::OUTER], outerNodes, forceOffsetRange, smoothness, f);
     auto innerChangeset = innerChangesetFromOuterChangeset(thickSurface, toReturn, compression);

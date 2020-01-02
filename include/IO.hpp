@@ -2,11 +2,15 @@
 
 #include <unordered_map>
 #include <string>
+#include <map>
 #include <iostream>
+#include <fstream>
+#include "GraphSurface.hpp"
 
 namespace IO {
-    struct InitSaParams
-    {
+    const std::string OUTPUT_FILE_NAME = "../output.txt";
+
+    struct InitSaParams {
         // Surface params
         double radius;
         double thickness;
@@ -24,10 +28,12 @@ namespace IO {
         double forceOffsetRange;
         double compression;
     };
-
-void sillyMapReader(const std::string fileName, std::unordered_map<std::string, std::string> &map);
-void sillyMapPrinter(const std::unordered_map<std::string, std::string> &map);
-void parseInputToParams(const std::unordered_map<std::string, std::string> &inputMap, InitSaParams* params);
+    void sillyMapReader(const std::string fileName, std::unordered_map<std::string, std::string> &map);
+    void sillyMapPrinter(const std::unordered_map<std::string, std::string> &map);
+    void parseInputToParams(const std::unordered_map<std::string, std::string> &inputMap, InitSaParams *params);
+    void openOutputFileAndWriteHeader(const std::set<std::string> &recordedAttributes);
+    void commitToOutputFile(const Graph::ThickSurface &thickSurface, const std::set<std::string> &recordedAttributes);
+    void closeOutputFile();
 };
 
 inline std::ostream &operator<<(std::ostream &os, IO::InitSaParams const &params)

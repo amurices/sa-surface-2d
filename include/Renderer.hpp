@@ -91,8 +91,8 @@ class Renderer : public nanogui::Screen
                     const std::string &initialValue,
                     const std::string &unit);
     void makeInputForms(nanogui::Window* targetWindow);
-    void uploadIndices2();
-    void uploadSurface2();
+    void uploadIndices();
+    void uploadSurface();
     virtual void drawContents();
     ~Renderer();
     nanogui::GLShader mShader;
