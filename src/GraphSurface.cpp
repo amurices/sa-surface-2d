@@ -30,7 +30,7 @@ Graph::Surface Graph::generateCircularGraph(double centerX, double centerY, doub
 
 std::set<Graph::NodeChange>
 Graph::smoothAdjacentNodes(const Graph::Surface &surface, Graph::NodeChange initialChange, int smoothness,
-                           double (*f)(double idk, double idk2)) {
+                           double (*f)(double, double)) {
     std::set<Graph::NodeChange> toReturn;
     toReturn.insert(initialChange);
 
@@ -163,7 +163,7 @@ Graph::generateTotalChangesetFromPushedOuterNodes(const Graph::ThickSurface &thi
                                                   const std::vector<Graph::Node *> &outerNodes, double compression,
                                                   double forceOffsetRange,
                                                   double multiProb, int smoothness,
-                                                  double (*f)(double idk1, double idk2)) {
+                                                  double (*f)(double, double)) {
     std::set<Graph::NodeChange> toReturn;
     toReturn = changesetForNodes(thickSurface.layers[Graph::OUTER], outerNodes, forceOffsetRange, smoothness, f);
     auto innerChangeset = innerChangesetFromOuterChangeset(thickSurface, toReturn, compression);
@@ -171,4 +171,36 @@ Graph::generateTotalChangesetFromPushedOuterNodes(const Graph::ThickSurface &thi
         toReturn.insert(*it);
     }
     return toReturn;
+}
+
+void Graph::mergeTwoNodes(Graph::Surface &belonging, Graph::Node* a, Graph::Node* b){
+    if (a->to == b && b->from == a){
+        auto aux = new Graph::Node();
+        aux->coords[Graph::X] = (a->coords[Graph::X] + b->coords[Graph::X]) / 2;
+        aux->coords[Graph::Y] = (a->coords[Graph::Y] + b->coords[Graph::Y]) / 2;
+        aux->to = b->to;
+        aux->from = a->from;
+        b->from->to = aux;
+        a->to->from = aux;
+        for (auto it = b->correspondents.begin(); it != b->correspondents.end(); it++){
+            aux->correspondents.push_back(*it);
+        }
+        for (auto it = a->correspondents.begin(); it != a->correspondents.end(); it++){
+            aux->correspondents.push_back(*it);
+        }
+    } else if (a->from == b && b->to == a){
+        auto aux = new Graph::Node();
+        aux->coords[Graph::X] = (a->coords[Graph::X] + b->coords[Graph::X]) / 2;
+        aux->coords[Graph::Y] = (a->coords[Graph::Y] + b->coords[Graph::Y]) / 2;
+        aux->to = a->to;
+        aux->from = b->from;
+        b->to->from = aux;
+        a->from->to = aux;
+        for (auto it = b->correspondents.begin(); it != b->correspondents.end(); it++){
+            aux->correspondents.push_back(*it);
+        }
+        for (auto it = a->correspondents.begin(); it != a->correspondents.end(); it++){
+            aux->correspondents.push_back(*it);
+        }
+    }
 }

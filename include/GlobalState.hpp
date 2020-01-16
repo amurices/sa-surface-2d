@@ -17,6 +17,8 @@ namespace GlobalState {
         double centerX;
         double centerY;
         int points;
+        double mergeThreshold;
+        double splitThreshold;
     };
 
     struct OptimizerParameters {

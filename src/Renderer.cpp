@@ -142,7 +142,7 @@ void Renderer::makeInputForms(nanogui::Window *targetWindow)
         GlobalState::recording = !GlobalState::recording;
     });
 
-    // Recorded surface properties setting:
+    // Recorded surface properties setting
     for (auto it = SurfaceProperties::fns.begin(); it != SurfaceProperties::fns.end(); it++){
         nanogui::CheckBox *cb0 = new nanogui::CheckBox(targetWindow, it->first);
         cb0->setCallback([it](bool checked){

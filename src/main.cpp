@@ -31,11 +31,6 @@ int main(int argc, char **argv)
                                         theseParams.areaMul, theseParams.areaPow, theseParams.multiProb,
                                         theseParams.tempProb, theseParams.forceOffsetRange, theseParams.compression,
                                         MathGeometry::linearSmooth, 0);
-
- //   auto myChangeset = Graph::smoothAdjacentNodes(GlobalState::thickSurface.layers[Graph::OUTER], Graph::NodeChange(GlobalState::thickSurface.layers[Graph::OUTER].nodes[100], 0, -0.35), 10, MathGeometry::linearSmooth);
- //   auto myInnerChangeset = Graph::innerChangesetFromOuterChangeset(GlobalState::thickSurface, myChangeset, 1.0);
- //   Graph::applyNodeChanges(myChangeset);
- //   Graph::applyNodeChanges(myInnerChangeset);
     // Nanogui renderer setup:
     nanogui::ref <Renderer> myRenderer = new Renderer();
     myRenderer->setVisible(true);

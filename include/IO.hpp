@@ -9,6 +9,7 @@
 
 namespace IO {
     const std::string OUTPUT_FILE_NAME = "../output.txt";
+    const std::string OUTPUT_POINTS_FILE_NAME = "../output_points.txt";
 
     struct InitSaParams {
         // Surface params
@@ -32,7 +33,9 @@ namespace IO {
     void sillyMapPrinter(const std::unordered_map<std::string, std::string> &map);
     void parseInputToParams(const std::unordered_map<std::string, std::string> &inputMap, InitSaParams *params);
     void openOutputFileAndWriteHeader(const std::set<std::string> &recordedAttributes);
+    void openOutputPointsFileAndWriteHeader(const Graph::ThickSurface &thickSurface);
     void commitToOutputFile(const Graph::ThickSurface &thickSurface, const std::set<std::string> &recordedAttributes);
+    void commitToOutputPointsFile(const Graph::ThickSurface &thickSurface);
     void closeOutputFile();
 };
 

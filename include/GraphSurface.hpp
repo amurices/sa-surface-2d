@@ -69,11 +69,11 @@ namespace Graph {
     Surface generateCircularGraph(double centerX, double centerY, double radius, int pts);
 
     std::set<NodeChange> smoothAdjacentNodes(const Surface &surface, NodeChange initialChange, int smoothness,
-                                             double (*f)(double idk, double idk2));
+                                             double (*f)(double, double));
 
     std::set<NodeChange> changesetForNodes(const Surface &surface, const std::vector<Graph::Node*> &nodesToPush,
                                            double forceOffsetRange, int smoothness,
-                                           double (*f)(double idk1, double idk2));
+                                           double (*f)(double, double));
 
     std::set<NodeChange> innerChangesetFromOuterChangeset(const ThickSurface &thickSurface, const std::set<NodeChange> &outerChanges,
                                                           double compression);
@@ -85,13 +85,15 @@ namespace Graph {
                                                                     double compression,
                                                                     double forceOffsetRange, double multiProb,
                                                                     int smoothness,
-                                                                    double (*f)(double idk1, double idk2));
+                                                                    double (*f)(double, double));
 
     void applyNodeChanges(std::set <Graph::NodeChange> &changes);
 
     double surfaceArea(const Surface &surface);
 
     ThickSurface generateCircularThicksurface(double centerX, double centerY, double outerRadius, double initialThickness, int pts);
+
+    void mergeTwoNodes(Graph::Surface &belonging, Graph::Node* a, Graph::Node* b);
 }
 
 #endif //SA_SURFACE_2D_GRAPHSURFACE_HPP
