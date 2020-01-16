@@ -38,6 +38,20 @@ int main(int argc, char **argv)
     myRenderer->makeInputForms(myRenderer->windows[0]);
     // -----------------------------------------
 
+    /* Proximos passos;
+     *
+     * Triviais:
+     * perimetro
+     * temperatura nos parametros
+     * Escala no zoom
+     *
+     * Semi-trivial:
+     * Cranio (p inicial externo) (cranio devia ter numero primo de nós)
+     *
+     * Nada trivial:
+     * Inserir e eliminar pontos
+     * */
+
     while (!glfwWindowShouldClose(myRenderer->glfwWindow())) {
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

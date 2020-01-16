@@ -19,10 +19,14 @@ namespace SurfaceProperties {
         double energy(const Graph::ThickSurface &thickSurface){
             return Optimizer::findEnergy();
         }
+        double xx(const Graph::ThickSurface &any){
+            return 40.0;
+        }
     }
     std::map<std::string, std::function<double(const Graph::ThickSurface&)>> fns =
             {{"whiteMatter", whiteMatter},
              {"grayMatter", grayMatter},
              {"perimeter", perimeter},
-             {"energy", energy}};
+             {"energy", energy},
+             {"actuallyForty", xx}};
 }
