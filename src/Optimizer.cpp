@@ -88,8 +88,8 @@ void Optimizer::stepSimulatedAnnealing (){
     if (coinFlip > prob)
     {
         for (auto it = neighborChanges.begin(); it != neighborChanges.end(); it++){
-            it->node->coords[Graph::X] -= it->changeX;
-            it->node->coords[Graph::Y] -= it->changeY;
+            it->node->coords[Graph::X] = it->prevX;
+            it->node->coords[Graph::Y] = it->prevY;
         }
     }
     temperatureFunction();
