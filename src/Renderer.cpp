@@ -177,8 +177,22 @@ void Renderer::makeInputForms(nanogui::Window *targetWindow)
 }
 
 void Renderer::uploadIndices(){
-    size_t numOuterVertices = GlobalState::thickSurface.layers[Graph::OUTER].nodes.size();
-    size_t numInnerVertices = GlobalState::thickSurface.layers[Graph::INNER].nodes.size();
+    size_t numOuterVertices = [](){
+        auto beg = GlobalState::thickSurface.layers[Graph::OUTER].nodes[0];
+        int count = 1;
+        for (auto iter = beg->to; iter != beg; iter = iter->to){
+            count++;
+        }
+        return count;
+    }();
+    size_t numInnerVertices = [](){
+        auto beg = GlobalState::thickSurface.layers[Graph::INNER].nodes[0];
+        int count = 1;
+        for (auto iter = beg->to; iter != beg; iter = iter->to){
+            count++;
+        }
+        return count;
+    }();
     nanogui::MatrixXu indices(2, numOuterVertices + 1 + numInnerVertices + 1);
     size_t i = 0;
     /* Outer surface indices */
@@ -200,8 +214,22 @@ void Renderer::uploadIndices(){
 }
 
 void Renderer::uploadSurface(){
-    size_t numOuterVertices = GlobalState::thickSurface.layers[Graph::OUTER].nodes.size();
-    size_t numInnerVertices = GlobalState::thickSurface.layers[Graph::INNER].nodes.size();
+    size_t numOuterVertices = [](){
+        auto beg = GlobalState::thickSurface.layers[Graph::OUTER].nodes[0];
+        int count = 1;
+        for (auto iter = beg->to; iter != beg; iter = iter->to){
+            count++;
+        }
+        return count;
+    }();
+    size_t numInnerVertices = [](){
+        auto beg = GlobalState::thickSurface.layers[Graph::INNER].nodes[0];
+        int count = 1;
+        for (auto iter = beg->to; iter != beg; iter = iter->to){
+            count++;
+        }
+        return count;
+    }();
     nanogui::MatrixXf positions(3, numOuterVertices + numInnerVertices);
     size_t i = 0;
     /* Outer surface index positions */

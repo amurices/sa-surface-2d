@@ -26,14 +26,13 @@ namespace Graph {
     };
 
     struct Line {
-        Node* a;
-        Node* b;
+        Node *a;
+        Node *b;
     };
 
-    typedef std::vector<Line*> Intersectables;
+    typedef std::vector<Line *> Intersectables;
 
     struct NodeChange {
-        // TODO: newNext, newPrev, prevNext, prevPrev (rsrs)
         Node *node;
         double newX;
         double newY;
@@ -41,9 +40,11 @@ namespace Graph {
         double prevY;
         bool existed;
         bool willExist;
-        NodeChange(Node* n, double nX, double nY, double pX, double pY, bool ex, bool wex){
-            node = n; newX = nX; newY = nY; prevX = pX; prevY = pY; existed = ex; willExist = wex;
-        }
+        Node *newTo;
+        Node *newFrom;
+        Node *prevTo;
+        Node *prevFrom;
+
         bool operator<(const struct NodeChange &otherChange) const {
             return (node < otherChange.node |
                     newX < otherChange.newX |
@@ -51,12 +52,15 @@ namespace Graph {
                     prevX < otherChange.prevX |
                     prevY < otherChange.prevY |
                     existed < otherChange.existed |
-                    willExist < otherChange.willExist);
+                    willExist < otherChange.willExist |
+                    newTo < otherChange.newTo |
+                    newFrom < otherChange.newFrom |
+                    prevTo < otherChange.prevTo |
+                    prevFrom < otherChange.prevFrom);
         }
 
     };
-
-    std::ostream& operator<<(std::ostream& os, const NodeChange& nc);
+    std::ostream &operator<<(std::ostream &os, const NodeChange &nc);
 
     struct Surface {
         std::vector<Node *> nodes;
@@ -79,14 +83,15 @@ namespace Graph {
     std::set<NodeChange> smoothAdjacentNodes(const Surface &surface, NodeChange initialChange, int smoothness,
                                              double (*f)(double, double));
 
-    std::set<NodeChange> changesetForNodes(const Surface &surface, const std::vector<Graph::Node*> &nodesToPush,
+    std::set<NodeChange> changesetForNodes(const Surface &surface, const std::vector<Graph::Node *> &nodesToPush,
                                            double forceOffsetRange, int smoothness,
                                            double (*f)(double, double));
 
-    std::set<NodeChange> innerChangesetFromOuterChangeset(const ThickSurface &thickSurface, const std::set<NodeChange> &outerChanges,
-                                                          double compression);
+    std::set<NodeChange>
+    innerChangesetFromOuterChangeset(const ThickSurface &thickSurface, const std::set<NodeChange> &outerChanges,
+                                     double compression);
 
-    std::vector<Graph::Node*> randomNodes(const Graph::Surface& surface, double multiProb);
+    std::vector<Graph::Node *> randomNodes(const Graph::Surface &surface, double multiProb);
 
     std::set<NodeChange> generateTotalChangesetFromPushedOuterNodes(const ThickSurface &thickSurface,
                                                                     const std::vector<Graph::Node *> &outerNodes,
@@ -95,16 +100,20 @@ namespace Graph {
                                                                     int smoothness,
                                                                     double (*f)(double, double));
 
-    void applyNodeChanges(std::set <Graph::NodeChange> &changes);
+    void applyNodeChanges(std::set<Graph::NodeChange> &changes);
+    void revertNodeChanges(std::set<Graph::NodeChange> &changes);
 
     double surfaceArea(const Surface &surface);
 
-    ThickSurface generateCircularThicksurface(double centerX, double centerY, double outerRadius, double initialThickness, int pts);
+    ThickSurface
+    generateCircularThicksurface(double centerX, double centerY, double outerRadius, double initialThickness, int pts);
 
-    void mergeTwoNodes(Graph::Surface &belonging, Graph::Node* a, Graph::Node* b);
+    void mergeTwoNodes(Graph::Surface &belonging, Graph::Node *a, Graph::Node *b);
 
     // Add node between A and B
-    void addNode(Graph::Surface &belonging, Graph::Node* a, Graph::Node* b);
+    std::set<NodeChange> addNode(Graph::Surface &belonging, Graph::Node *a, Graph::Node *b);
+    std::set<Node*> getCorrespondents(double newX, double newY, Node* a, Node *b);
+
 }
 
 #endif //SA_SURFACE_2D_GRAPHSURFACE_HPP

@@ -31,6 +31,18 @@ int main(int argc, char **argv)
                                         theseParams.areaMul, theseParams.areaPow, theseParams.multiProb,
                                         theseParams.tempProb, theseParams.forceOffsetRange, theseParams.compression,
                                         MathGeometry::linearSmooth, 0);
+
+
+    auto test = Graph::addNode(GlobalState::thickSurface.layers[Graph::OUTER],
+                                GlobalState::thickSurface.layers[Graph::OUTER].nodes[0],
+                                GlobalState::thickSurface.layers[Graph::OUTER].nodes[1]);
+    Graph::applyNodeChanges(test);
+    Graph::revertNodeChanges(test);
+//    Graph::revertNodeChanges(test2);
+//    for (auto begin = test.begin(); begin != test.end(); begin++){
+//        std::cout << "Node change:\n" << (*begin) << std::endl;
+//    }
+
     // Nanogui renderer setup:
     nanogui::ref <Renderer> myRenderer = new Renderer();
     myRenderer->setVisible(true);
