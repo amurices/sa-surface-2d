@@ -4,6 +4,7 @@
 
 #include <MathGeometry.hpp>
 #include <cmath>
+#include <Renderer.hpp>
 #include "Optimizer.hpp"
 
 std::set<Graph::NodeChange> Optimizer::findNeighbor(){
@@ -88,6 +89,15 @@ void Optimizer::stepSimulatedAnnealing (){
     if (coinFlip > prob)
     {
         Graph::revertNodeChanges(neighborChanges);
+    } else {
+        std::cout << "Nodes before: " << GlobalState::thickSurface.layers[Graph::OUTER].nodes.size();
+        std::cout << " Lines before: " << Renderer::countNumberOfLines() << std::endl;
+
+        Graph::adjustNodeResolution(GlobalState::thickSurface, GlobalState::surfaceParameters.splitThreshold, GlobalState::surfaceParameters.bothCorrsDist);
+
+        std::cout << "Nodes after: " << GlobalState::thickSurface.layers[Graph::OUTER].nodes.size();
+        std::cout << " Lines after: " << Renderer::countNumberOfLines() << std::endl;
+
     }
     temperatureFunction();
 }

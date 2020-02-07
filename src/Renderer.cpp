@@ -162,7 +162,8 @@ void Renderer::makeInputForms(nanogui::Window *targetWindow)
         IO::sillyMapReader("../input.txt", inputMap);
         IO::InitSaParams theseParams;
         IO::parseInputToParams(inputMap, &theseParams);
-        GlobalState::setSurfaceParameters(theseParams.radius, theseParams.thickness, 0.0, 0.0, theseParams.points, theseParams.bothCorrsDist);
+        GlobalState::setSurfaceParameters(theseParams.radius, theseParams.thickness, 0.0, 0.0, theseParams.points,
+                                          theseParams.bothCorrsDist, 0);
         GlobalState::deliberatelyDeleteBecauseDestructorIsCalledWheneverItWants();
         GlobalState::initThickSurface();
         double initialGrayMatter =
@@ -176,7 +177,7 @@ void Renderer::makeInputForms(nanogui::Window *targetWindow)
     performLayout();
 }
 
-int countNumberOfLines(){
+int Renderer::countNumberOfLines(){
     int counter = 0;
     auto outerIt = GlobalState::thickSurface.layers[Graph::OUTER].nodes[0];
     do {

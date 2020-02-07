@@ -7,7 +7,7 @@
 #include <Util.hpp>
 #include <cmath>
 #include <iostream>
-qgitq
+
 namespace Graph {
     std::ostream &operator<<(std::ostream &os, const NodeChange &nc) {
         os << "node: " << nc.node << "\n" <<
@@ -46,7 +46,7 @@ namespace Graph {
     }
 
     std::set<NodeChange>
-    smoothAdjacentNodes(const Surface &surface, NodeChange initialChange, int smoothness,
+    smoothAdjacentNodes(Surface &surface, NodeChange initialChange, int smoothness,
                         double (*f)(double, double)) {
         std::set<NodeChange> toReturn;
         toReturn.insert(initialChange);
@@ -61,14 +61,16 @@ namespace Graph {
             double ratio = (*f)(smoothness, c);
             auto initChangeXDelta = initialChange.newX - initialChange.prevX;
             auto initChangeYDelta = initialChange.newY - initialChange.prevY;
-            NodeChange prevChange{prev,
+            NodeChange prevChange(prev,
                                   prev->coords[Graph::X] + (initChangeXDelta * ratio),
                                   prev->coords[Graph::Y] + (initChangeYDelta * ratio),
-                                  prev->coords[Graph::X], prev->coords[Graph::Y], true, true};
-            NodeChange nextChange{next,
+                                  prev->coords[Graph::X], prev->coords[Graph::Y],
+                                  prev->to, prev->from, &surface);
+            NodeChange nextChange(next,
                                   next->coords[Graph::X] + (initChangeXDelta * ratio),
                                   next->coords[Graph::Y] + (initChangeYDelta * ratio),
-                                  next->coords[Graph::X], next->coords[Graph::Y], true, true};
+                                  next->coords[Graph::X], next->coords[Graph::Y],
+                                  next->to, next->from, &surface);
             // Previous and next nodes are also going to be altered as a matter of where they are in relation to their inner correspondents
             toReturn.insert(prevChange);
             toReturn.insert(nextChange);
@@ -115,7 +117,7 @@ namespace Graph {
     }
 
     std::set<NodeChange>
-    changesetForNodes(const Surface &surface, const std::vector<Node *> &nodesToPush,
+    changesetForNodes(Surface &surface, const std::vector<Node *> &nodesToPush,
                       double forceOffsetRange, int smoothness,
                       double (*f)(double, double)) {
         std::set<NodeChange> toReturn;
@@ -126,11 +128,13 @@ namespace Graph {
             offsetY = Util::getRandomRange(-forceOffsetRange, forceOffsetRange);
 
             // Collect change to outer node's position.
-            auto randomChange = NodeChange{*it,
+            auto randomChange = NodeChange(*it,
                                            (*it)->coords[Graph::X] + offsetX,
                                            (*it)->coords[Graph::Y] + offsetY,
                                            (*it)->coords[Graph::X],
-                                           (*it)->coords[Graph::Y], true, true};
+                                           (*it)->coords[Graph::Y],
+                                           (*it)->to, (*it)->from,
+                                           &surface);
             toReturn = smoothAdjacentNodes(surface, randomChange, smoothness, f);
         }
         return toReturn;
@@ -138,46 +142,21 @@ namespace Graph {
 
     void applyNodeChanges(std::set<NodeChange> &changes) {
         for (auto it = changes.begin(); it != changes.end(); it++) {
-            if (it->existed && !it->willExist) {
-                // This wont work because applyNodeChanges runs before "committing". We have to batch this up for deletion later
-                delete it->node;
-            } else if (!it->existed && it->willExist) {
-                it->whoHasIt->nodes.push_back(it->node);
-                it->node->coords[Graph::X] = it->newX;
-                it->node->coords[Graph::Y] = it->newY;
-                it->node->to = it->newTo;
-                it->node->from = it->newFrom;
-            } else {
-                it->node->coords[Graph::X] = it->newX;
-                it->node->coords[Graph::Y] = it->newY;
-                it->node->to = it->newTo;
-                it->node->from = it->newFrom;
-            }
+            it->node->coords[Graph::X] = it->newX;
+            it->node->coords[Graph::Y] = it->newY;
         }
     }
 
     void revertNodeChanges(std::set<NodeChange> &changes) {
         for (auto it = changes.begin(); it != changes.end(); it++) {
-            if (it->existed && !it->willExist) {
-                // Recover from the batch, which we'll have to pass somehow
-            } else if (!it->existed && it->willExist){
-                for (auto deletable = it->whoHasIt->nodes.begin(); deletable != it->whoHasIt->nodes.end(); deletable++){
-                    if (*deletable == it->node){ it->whoHasIt->nodes.erase(deletable); break; }
-                }
-                delete it->node;
-            }
-            else {
-                it->node->coords[Graph::X] = it->prevX;
-                it->node->coords[Graph::Y] = it->prevY;
-                it->node->to = it->prevTo;
-                it->node->from = it->prevFrom;
-            }
+            it->node->coords[Graph::X] = it->prevX;
+            it->node->coords[Graph::Y] = it->prevY;
         }
     }
 
 /* This will assume the original changeset is in the outer surface, which means the changeset returned is
  * based on "new" coordinates of the outer surface. */
-    std::set<NodeChange> innerChangesetFromOuterChangeset(const ThickSurface &thickSurface,
+    std::set<NodeChange> innerChangesetFromOuterChangeset(ThickSurface &thickSurface,
                                                           const std::set<NodeChange> &outerChanges,
                                                           double compression) {
         std::set<NodeChange> toReturn;
@@ -207,19 +186,16 @@ namespace Graph {
                                             (*fnode->correspondents.begin())->coords[Graph::Y]); // because this will be added, subtract current position
             auto summin = (*fnode->correspondents.begin());
             toReturn.insert(
-                    NodeChange{
+                    NodeChange(
                             summin,
                             summin->coords[Graph::X] + delta.x * compression,
                             summin->coords[Graph::Y] + delta.y * compression,
                             summin->coords[Graph::X],
                             summin->coords[Graph::Y],
-                            true,
-                            true,
                             summin->to,
                             summin->from,
-                            summin->to,
-                            summin->from,
-                    }
+                            &thickSurface.layers[Graph::INNER]
+                    )
             );
         }
         return toReturn;
@@ -237,7 +213,7 @@ namespace Graph {
     }
 
     std::set<NodeChange>
-    generateTotalChangesetFromPushedOuterNodes(const ThickSurface &thickSurface,
+    generateTotalChangesetFromPushedOuterNodes(ThickSurface &thickSurface,
                                                const std::vector<Node *> &outerNodes, double compression,
                                                double forceOffsetRange,
                                                double multiProb, int smoothness,
@@ -307,10 +283,11 @@ namespace Graph {
             };
             auto leftCorr = std::min_element(a->correspondents.begin(), a->correspondents.end(), closestToNewNode);
             auto rightCorr = std::min_element(b->correspondents.begin(), b->correspondents.end(), closestToNewNode);
-            auto leftCorrDist = MathGeometry::findNorm2d((*leftCorr)->coords[Graph::X] - newX, (*leftCorr)->coords[Graph::Y] - newY);
-            auto rightCorrDist = MathGeometry::findNorm2d((*rightCorr)->coords[Graph::X] - newX, (*rightCorr)->coords[Graph::Y] - newY);
-            if (leftCorrDist / rightCorrDist > bothCorrsDist && leftCorrDist / rightCorrDist < (1/bothCorrsDist)){
-                std::cout << leftCorrDist / rightCorrDist << ", " << rightCorrDist / leftCorrDist << std::endl;
+            auto leftCorrDist = MathGeometry::findNorm2d((*leftCorr)->coords[Graph::X] - newX,
+                                                         (*leftCorr)->coords[Graph::Y] - newY);
+            auto rightCorrDist = MathGeometry::findNorm2d((*rightCorr)->coords[Graph::X] - newX,
+                                                          (*rightCorr)->coords[Graph::Y] - newY);
+            if (leftCorrDist / rightCorrDist > bothCorrsDist && leftCorrDist / rightCorrDist < (1 / bothCorrsDist)) {
                 toReturn.insert(*leftCorr);
                 toReturn.insert(*rightCorr);
             } else
@@ -326,52 +303,22 @@ namespace Graph {
             return 1;
 
         std::cout << "Nodes arent neighbors; a: " << a << ", b: " << b << std::endl <<
-        "a->to: " << a->to << " a->from: "<< a->from << std::endl <<
-        "b->to: " << b->to << " b->from: "<< b->from << std::endl;
+                  "a->to: " << a->to << " a->from: " << a->from << std::endl <<
+                  "b->to: " << b->to << " b->from: " << b->from << std::endl;
         exit(0);
     }
 
-    std::set<NodeChange> addNode(Surface* belonging, Node *a, Node *b) {
-        std::set<NodeChange> toReturn;
-        auto neighborlyStatus = assertNeighbors(a, b);
-        if (neighborlyStatus == 2){
-            printf("Neighborly status 2; a: %d, b: %d\na->to: %d, a->from: %d\nb->to: %d, b->from: %d\n", a, b, a->to, a->from, b->to, b->from);
-            exit(0);
-        }
-        auto nodeToBeCommitted = new Node();
-        toReturn.insert(NodeChange{nodeToBeCommitted,
-                                   (a->coords[Graph::X] + b->coords[Graph::X]) / 2, // newX; will exist here
-                                   (a->coords[Graph::Y] + b->coords[Graph::Y]) / 2, // newY; will exist here
-                                   0.0, // prevX; dunmatter
-                                   0.0, // prevY; dunmatter
-                                   false, // existed
-                                   true, // willExist
-                                   neighborlyStatus == 1 ? a : b,
-                                   neighborlyStatus == 1 ? b : a,
-                                   nullptr,
-                                   nullptr
-                /* TODO: newCorrespondents */});
-        toReturn.insert(NodeChange{a, a->coords[Graph::X], a->coords[Graph::Y], a->coords[Graph::X], a->coords[Graph::Y], true, true,
-                                   neighborlyStatus == 1 ? a->to : nodeToBeCommitted,
-                                   neighborlyStatus == 1 ? nodeToBeCommitted : a->from,
-                                   a->to, a->from});
-        toReturn.insert(NodeChange{b, b->coords[Graph::X], b->coords[Graph::Y], b->coords[Graph::X], b->coords[Graph::Y], true, true,
-                                   neighborlyStatus == 0 ? b->to : nodeToBeCommitted,
-                                   neighborlyStatus == 0 ? nodeToBeCommitted : b->from,
-                                   b->to, b->from});
-        return toReturn;
-    }
-
-    void addNode2(Surface* belonging, Node *a, Node *b, double bothCorrsDist) {
+    void addNode2(Surface *belonging, Node *a, Node *b, double bothCorrsDist) {
         auto neighborlyStatus = assertNeighbors(a, b);
 
         auto nodeToBeCommitted = new Node();
-        nodeToBeCommitted->coords[Graph::X] =  (a->coords[Graph::X] + b->coords[Graph::X]) / 2;
-        nodeToBeCommitted->coords[Graph::Y] =  (a->coords[Graph::Y] + b->coords[Graph::Y]) / 2;
+        nodeToBeCommitted->coords[Graph::X] = (a->coords[Graph::X] + b->coords[Graph::X]) / 2;
+        nodeToBeCommitted->coords[Graph::Y] = (a->coords[Graph::Y] + b->coords[Graph::Y]) / 2;
         nodeToBeCommitted->to = neighborlyStatus == 1 ? a : b;
         nodeToBeCommitted->from = neighborlyStatus == 1 ? b : a;
-        nodeToBeCommitted->correspondents = getCorrespondents(nodeToBeCommitted->coords[Graph::X], nodeToBeCommitted->coords[Graph::Y], a, b, bothCorrsDist);
-        for (auto it = nodeToBeCommitted->correspondents.begin(); it != nodeToBeCommitted->correspondents.end(); it++){
+        nodeToBeCommitted->correspondents = getCorrespondents(nodeToBeCommitted->coords[Graph::X],
+                                                              nodeToBeCommitted->coords[Graph::Y], a, b, bothCorrsDist);
+        for (auto it = nodeToBeCommitted->correspondents.begin(); it != nodeToBeCommitted->correspondents.end(); it++) {
             (*it)->correspondents.insert(*it);
         }
         belonging->nodes.push_back(nodeToBeCommitted);
@@ -382,4 +329,44 @@ namespace Graph {
         b->to = neighborlyStatus == 0 ? b->to : nodeToBeCommitted;
         b->from = neighborlyStatus == 0 ? nodeToBeCommitted : b->from;
     }
+
+    void adjustNodeResolution(ThickSurface &thickSurface, double splitThreshold, double bothCorrsDist) {
+        auto beg = thickSurface.layers[Graph::OUTER].nodes[0];
+        auto distTo = MathGeometry::findNorm2d(beg->coords[Graph::X] - beg->to->coords[Graph::X],
+                                               beg->coords[Graph::Y] - beg->to->coords[Graph::Y]);
+        if (distTo > splitThreshold){
+            addNode2(&thickSurface.layers[Graph::OUTER], beg, beg->to, bothCorrsDist);
+        }
+        for (auto it = beg->to; it != beg; it = it->to){
+            distTo = MathGeometry::findNorm2d(it->coords[Graph::X] - it->to->coords[Graph::X],
+                                                   it->coords[Graph::Y] - it->to->coords[Graph::Y]);
+            if (distTo > splitThreshold){
+                addNode2(&thickSurface.layers[Graph::OUTER], it, it->to, bothCorrsDist);
+            }
+        }
+        beg = thickSurface.layers[Graph::INNER].nodes[0];
+        distTo = MathGeometry::findNorm2d(beg->coords[Graph::X] - beg->to->coords[Graph::X],
+                beg->coords[Graph::Y] - beg->to->coords[Graph::Y]);
+        if (distTo > splitThreshold){
+            addNode2(&thickSurface.layers[Graph::INNER], beg, beg->to, bothCorrsDist);
+        }
+        for (auto it = beg->to; it != beg; it = it->to){
+            distTo = MathGeometry::findNorm2d(it->coords[Graph::X] - it->to->coords[Graph::X],
+                                              it->coords[Graph::Y] - it->to->coords[Graph::Y]);
+            if (distTo > splitThreshold){
+                addNode2(&thickSurface.layers[Graph::INNER], it, it->to, bothCorrsDist);
+            }
+        }
+//        for (auto it = nodeChanges.begin(); it != nodeChanges.end(); it++) {
+//            auto distTo = MathGeometry::findNorm2d(it->node->coords[Graph::X] - it->node->to->coords[Graph::X],
+//                                                   it->node->coords[Graph::Y] - it->node->to->coords[Graph::Y]);
+//            auto distFrom = MathGeometry::findNorm2d(it->node->coords[Graph::X] - it->node->from->coords[Graph::X],
+//                                                     it->node->coords[Graph::Y] - it->node->from->coords[Graph::Y]);
+//            if (distTo > splitThreshold)
+//                addNode2(it->whoHasIt, it->node, it->node->to, bothCorrsDist);
+//            if (distFrom > splitThreshold)
+//                addNode2(it->whoHasIt, it->node, it->node->from, bothCorrsDist);
+//        }
+    }
+
 }

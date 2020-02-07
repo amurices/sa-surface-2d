@@ -17,13 +17,16 @@ namespace GlobalState {
     std::set<std::string> recordedAttributes;
 
 
-    void setSurfaceParameters(double radius, double thickness, double centerX, double centerY, int points, double bothCorrsDist) {
+    void setSurfaceParameters(double radius, double thickness, double centerX, double centerY, int points,
+                              double bothCorrsDist,
+                              double splitThreshold) {
         surfaceParameters.radius = radius;
         surfaceParameters.thickness = thickness;
         surfaceParameters.centerX = centerX;
         surfaceParameters.centerY = centerY;
         surfaceParameters.points = points;
         surfaceParameters.bothCorrsDist = bothCorrsDist;
+        surfaceParameters.splitThreshold = splitThreshold;
     }
 
     void setOptimizerParameters(double initialGrayMatter, int smoothness, double diffMul, double diffPow,

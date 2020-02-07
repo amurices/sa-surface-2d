@@ -67,6 +67,9 @@ namespace Graph {
         Node *prevFrom;
         Surface *whoHasIt; // only useful for add/delete operations
 
+        NodeChange (Node *n, double nX, double nY, double pX, double pY, Node *nt, Node *nf, Surface* whi, Node* pt = nullptr, Node *pf = nullptr, bool e = true, bool we = true){
+            node = n; newX = nX; newY = nY; prevX = pX; prevY = pY; newTo = nt; newFrom = nf; whoHasIt = whi; prevTo = pt; prevFrom = pf; existed = e; willExist = we;
+        }
         bool operator<(const struct NodeChange &otherChange) const {
             return (node < otherChange.node |
                     newX < otherChange.newX |
@@ -86,20 +89,20 @@ namespace Graph {
 
     Surface generateCircularGraph(double centerX, double centerY, double radius, int pts);
 
-    std::set<NodeChange> smoothAdjacentNodes(const Surface &surface, NodeChange initialChange, int smoothness,
+    std::set<NodeChange> smoothAdjacentNodes(Surface &surface, NodeChange initialChange, int smoothness,
                                              double (*f)(double, double));
 
-    std::set<NodeChange> changesetForNodes(const Surface &surface, const std::vector<Graph::Node *> &nodesToPush,
+    std::set<NodeChange> changesetForNodes(Surface &surface, const std::vector<Graph::Node *> &nodesToPush,
                                            double forceOffsetRange, int smoothness,
                                            double (*f)(double, double));
 
     std::set<NodeChange>
-    innerChangesetFromOuterChangeset(const ThickSurface &thickSurface, const std::set<NodeChange> &outerChanges,
+    innerChangesetFromOuterChangeset(ThickSurface &thickSurface, const std::set<NodeChange> &outerChanges,
                                      double compression);
 
     std::vector<Graph::Node *> randomNodes(const Graph::Surface &surface, double multiProb);
 
-    std::set<NodeChange> generateTotalChangesetFromPushedOuterNodes(const ThickSurface &thickSurface,
+    std::set<NodeChange> generateTotalChangesetFromPushedOuterNodes(ThickSurface &thickSurface,
                                                                     const std::vector<Graph::Node *> &outerNodes,
                                                                     double compression,
                                                                     double forceOffsetRange, double multiProb,
@@ -117,10 +120,9 @@ namespace Graph {
     void mergeTwoNodes(Graph::Surface &belonging, Graph::Node *a, Graph::Node *b);
 
     // Add node between A and B
-    std::set<NodeChange> addNode(Graph::Surface *belonging, Graph::Node *a, Graph::Node *b);
     void addNode2(Graph::Surface *belonging, Graph::Node *a, Graph::Node *b, double bothCorrsDist);
     std::set<Node*> getCorrespondents(double newX, double newY, Node* a, Node *b, double bothCorrsDist);
-
+    void adjustNodeResolution(ThickSurface &thickSurface, double splitThreshold, double bothCorrsDist);
 }
 
 #endif //SA_SURFACE_2D_GRAPHSURFACE_HPP

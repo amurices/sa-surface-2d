@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
     IO::parseInputToParams(inputMap, &theseParams);
     std::cout << theseParams;
     GlobalState::setSurfaceParameters(theseParams.radius, theseParams.thickness, 0.0, 0.0, theseParams.points,
-                                      theseParams.bothCorrsDist);
+                                      theseParams.bothCorrsDist, theseParams.splitThreshold);
     GlobalState::initThickSurface();
     double initialGrayMatter =
             Graph::surfaceArea(GlobalState::thickSurface.layers[Graph::OUTER]) -
@@ -31,12 +31,6 @@ int main(int argc, char **argv) {
                                         theseParams.areaMul, theseParams.areaPow, theseParams.multiProb,
                                         theseParams.tempProb, theseParams.forceOffsetRange, theseParams.compression,
                                         MathGeometry::linearSmooth, 0);
-
-
-    Graph::addNode2(&GlobalState::thickSurface.layers[Graph::OUTER],
-                    GlobalState::thickSurface.layers[Graph::OUTER].nodes[0],
-                    GlobalState::thickSurface.layers[Graph::OUTER].nodes[1], theseParams.bothCorrsDist);
-
 
     // Nanogui renderer setup:
     nanogui::ref<Renderer> myRenderer = new Renderer();

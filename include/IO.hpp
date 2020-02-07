@@ -29,6 +29,7 @@ namespace IO {
         double forceOffsetRange;
         double compression;
         double bothCorrsDist;
+        double splitThreshold;
     };
     void sillyMapReader(const std::string fileName, std::unordered_map<std::string, std::string> &map);
     void sillyMapPrinter(const std::unordered_map<std::string, std::string> &map);
