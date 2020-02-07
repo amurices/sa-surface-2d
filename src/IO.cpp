@@ -85,6 +85,12 @@ namespace IO {
             else if (it->first == "temperature")
                 params->temperature = std::stod(it->second);
 
+            else if (it->first == "bothCorrsDist")
+                params->bothCorrsDist = std::stod(it->second);
+
+            else if (it->first == "splitThreshold")
+                params->splitThreshold = std::stod(it->second);
+
             else{
                 // explode
                 std::cout << ":" << it->first << " " << it->second << std::endl;

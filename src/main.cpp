@@ -12,17 +12,17 @@
 #include "IO.hpp"
 
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     /* My sweet playground */
     nanogui::init();
 
-    std::unordered_map <std::string, std::string> inputMap;
+    std::unordered_map<std::string, std::string> inputMap;
     IO::sillyMapReader("../input.txt", inputMap);
     IO::InitSaParams theseParams;
     IO::parseInputToParams(inputMap, &theseParams);
     std::cout << theseParams;
-    GlobalState::setSurfaceParameters(theseParams.radius, theseParams.thickness, 0.0, 0.0, theseParams.points);
+    GlobalState::setSurfaceParameters(theseParams.radius, theseParams.thickness, 0.0, 0.0, theseParams.points,
+                                      theseParams.bothCorrsDist, theseParams.splitThreshold);
     GlobalState::initThickSurface();
     double initialGrayMatter =
             Graph::surfaceArea(GlobalState::thickSurface.layers[Graph::OUTER]) -
@@ -31,10 +31,10 @@ int main(int argc, char **argv)
                                         theseParams.areaMul, theseParams.areaPow, theseParams.multiProb,
                                         theseParams.tempProb, theseParams.forceOffsetRange, theseParams.compression,
                                         MathGeometry::linearSmooth, 0);
+
     // Nanogui renderer setup:
-    nanogui::ref <Renderer> myRenderer = new Renderer();
+    nanogui::ref<Renderer> myRenderer = new Renderer();
     myRenderer->setVisible(true);
-    myRenderer->uploadIndices();
     myRenderer->makeInputForms(myRenderer->windows[0]);
     // -----------------------------------------
 
@@ -56,24 +56,25 @@ int main(int argc, char **argv)
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        if (GlobalState::shouldStep){
+        if (GlobalState::shouldStep) {
             Optimizer::stepSimulatedAnnealing();
             if (GlobalState::recording)
                 IO::commitToOutputFile(GlobalState::thickSurface, GlobalState::recordedAttributes);
         }
 
-        if (GlobalState::singleStep){
+        if (GlobalState::singleStep) {
             GlobalState::singleStep = false;
             GlobalState::shouldStep = false;
             Optimizer::stepSimulatedAnnealing();
             if (GlobalState::recording)
                 IO::commitToOutputFile(GlobalState::thickSurface, GlobalState::recordedAttributes);
         }
+        myRenderer->uploadIndices();
+        myRenderer->uploadSurface();
 
         myRenderer->drawContents();
         myRenderer->drawWidgets();
 
-        myRenderer->uploadSurface();
         glfwSwapBuffers(myRenderer->glfwWindow());
         glfwPollEvents();
     }

@@ -91,6 +91,7 @@ class Renderer : public nanogui::Screen
                     const std::string &initialValue,
                     const std::string &unit);
     void makeInputForms(nanogui::Window* targetWindow);
+    static int countNumberOfLines();
     void uploadIndices();
     void uploadSurface();
     virtual void drawContents();

@@ -2,9 +2,12 @@
 // Created by Andre Muricy on 2019-12-25.
 //
 
+#include "Optimizer.hpp"
+#include "GlobalState.hpp"
 #include <MathGeometry.hpp>
 #include <cmath>
-#include "Optimizer.hpp"
+#include <Renderer.hpp>
+#include <GraphEffects.hpp>
 
 std::set<Graph::NodeChange> Optimizer::findNeighbor(){
     auto nodesToPush = Graph::randomNodes(GlobalState::thickSurface.layers[Graph::OUTER],
@@ -72,10 +75,34 @@ std::vector<std::pair<MathGeometry::point_t, MathGeometry::point_t>> makeLines()
     return toReturn;
 }
 
+void assertCorrespondences(){
+    auto beg = GlobalState::thickSurface.layers[Graph::OUTER].nodes[0];
+    auto it = beg;
+    do {
+        for (auto corrsIt = it->correspondents.begin(); corrsIt != it->correspondents.end(); corrsIt++){
+            bool found = false;
+            for (auto reverseCorrsIt = (*corrsIt)->correspondents.begin(); reverseCorrsIt != (*corrsIt)->correspondents.end(); reverseCorrsIt++){
+                if (*reverseCorrsIt == it){
+                    found = true;
+                    break;
+                }
+            }
+            if (!found){
+                std::cout << "Node " << it << " corresponds to " << *corrsIt << " but the latter's correspondents are: " << std::endl;
+                for (auto reverseCorrsIt = (*corrsIt)->correspondents.begin(); reverseCorrsIt != (*corrsIt)->correspondents.end(); reverseCorrsIt++){
+                    std::cout << *reverseCorrsIt << std::endl;
+                }
+            }
+        }
+        it = it->to;
+    } while (it != beg);
+
+}
+
 void Optimizer::stepSimulatedAnnealing (){
     auto neighborChanges = findNeighbor();
     double energyState  = findEnergy();
-    Graph::applyNodeChanges(neighborChanges);
+    Effects::applyNodeChanges(neighborChanges);
     double energyNeighbor = findEnergy();
 
     auto surfaceLines = makeLines(); // <- Quando consertar as particoes tem que arrumar isso aqui
@@ -87,10 +114,11 @@ void Optimizer::stepSimulatedAnnealing (){
     double coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
     if (coinFlip > prob)
     {
-        for (auto it = neighborChanges.begin(); it != neighborChanges.end(); it++){
-            it->node->coords[Graph::X] -= it->changeX;
-            it->node->coords[Graph::Y] -= it->changeY;
-        }
+        Effects::revertNodeChanges(neighborChanges);
+    } else {
+        Effects::adjustNodeResolution(neighborChanges, GlobalState::surfaceParameters.splitThreshold, GlobalState::surfaceParameters.bothCorrsDist);
     }
+    assertCorrespondences();
+
     temperatureFunction();
 }
