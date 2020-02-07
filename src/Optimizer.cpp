@@ -73,6 +73,30 @@ std::vector<std::pair<MathGeometry::point_t, MathGeometry::point_t>> makeLines()
     return toReturn;
 }
 
+void assertCorrespondences(){
+    auto beg = GlobalState::thickSurface.layers[Graph::OUTER].nodes[0];
+    auto it = beg;
+    do {
+        for (auto corrsIt = it->correspondents.begin(); corrsIt != it->correspondents.end(); corrsIt++){
+            bool found = false;
+            for (auto reverseCorrsIt = (*corrsIt)->correspondents.begin(); reverseCorrsIt != (*corrsIt)->correspondents.end(); reverseCorrsIt++){
+                if (*reverseCorrsIt == it){
+                    found = true;
+                    break;
+                }
+            }
+            if (!found){
+                std::cout << "Node " << it << " corresponds to " << *corrsIt << " but the latter's correspondents are: " << std::endl;
+                for (auto reverseCorrsIt = (*corrsIt)->correspondents.begin(); reverseCorrsIt != (*corrsIt)->correspondents.end(); reverseCorrsIt++){
+                    std::cout << *reverseCorrsIt << std::endl;
+                }
+            }
+        }
+        it = it->to;
+    } while (it != beg);
+
+}
+
 void Optimizer::stepSimulatedAnnealing (){
     auto neighborChanges = findNeighbor();
     double energyState  = findEnergy();
@@ -90,14 +114,16 @@ void Optimizer::stepSimulatedAnnealing (){
     {
         Graph::revertNodeChanges(neighborChanges);
     } else {
-        std::cout << "Nodes before: " << GlobalState::thickSurface.layers[Graph::OUTER].nodes.size();
+        std::cout << "Nodes before: " << GlobalState::thickSurface.layers[Graph::OUTER].nodes.size() + GlobalState::thickSurface.layers[Graph::INNER].nodes.size();
         std::cout << " Lines before: " << Renderer::countNumberOfLines() << std::endl;
 
         Graph::adjustNodeResolution(GlobalState::thickSurface, GlobalState::surfaceParameters.splitThreshold, GlobalState::surfaceParameters.bothCorrsDist);
 
-        std::cout << "Nodes after: " << GlobalState::thickSurface.layers[Graph::OUTER].nodes.size();
+        std::cout << "Nodes after: " << GlobalState::thickSurface.layers[Graph::OUTER].nodes.size() + GlobalState::thickSurface.layers[Graph::INNER].nodes.size();
         std::cout << " Lines after: " << Renderer::countNumberOfLines() << std::endl;
 
     }
+    assertCorrespondences();
+
     temperatureFunction();
 }

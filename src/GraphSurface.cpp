@@ -319,7 +319,7 @@ namespace Graph {
         nodeToBeCommitted->correspondents = getCorrespondents(nodeToBeCommitted->coords[Graph::X],
                                                               nodeToBeCommitted->coords[Graph::Y], a, b, bothCorrsDist);
         for (auto it = nodeToBeCommitted->correspondents.begin(); it != nodeToBeCommitted->correspondents.end(); it++) {
-            (*it)->correspondents.insert(*it);
+            (*it)->correspondents.insert(nodeToBeCommitted);
         }
         belonging->nodes.push_back(nodeToBeCommitted);
 
@@ -331,21 +331,21 @@ namespace Graph {
     }
 
     void adjustNodeResolution(ThickSurface &thickSurface, double splitThreshold, double bothCorrsDist) {
-        auto beg = thickSurface.layers[Graph::OUTER].nodes[0];
+//        auto beg = thickSurface.layers[Graph::OUTER].nodes[0];
+//        auto distTo = MathGeometry::findNorm2d(beg->coords[Graph::X] - beg->to->coords[Graph::X],
+//                                               beg->coords[Graph::Y] - beg->to->coords[Graph::Y]);
+//        if (distTo > splitThreshold){
+//            addNode2(&thickSurface.layers[Graph::OUTER], beg, beg->to, bothCorrsDist);
+//        }
+//        for (auto it = beg->to; it != beg; it = it->to){
+//            distTo = MathGeometry::findNorm2d(it->coords[Graph::X] - it->to->coords[Graph::X],
+//                                                   it->coords[Graph::Y] - it->to->coords[Graph::Y]);
+//            if (distTo > splitThreshold){
+//                addNode2(&thickSurface.layers[Graph::OUTER], it, it->to, bothCorrsDist);
+//            }
+//        }
+        auto beg = thickSurface.layers[Graph::INNER].nodes[0];
         auto distTo = MathGeometry::findNorm2d(beg->coords[Graph::X] - beg->to->coords[Graph::X],
-                                               beg->coords[Graph::Y] - beg->to->coords[Graph::Y]);
-        if (distTo > splitThreshold){
-            addNode2(&thickSurface.layers[Graph::OUTER], beg, beg->to, bothCorrsDist);
-        }
-        for (auto it = beg->to; it != beg; it = it->to){
-            distTo = MathGeometry::findNorm2d(it->coords[Graph::X] - it->to->coords[Graph::X],
-                                                   it->coords[Graph::Y] - it->to->coords[Graph::Y]);
-            if (distTo > splitThreshold){
-                addNode2(&thickSurface.layers[Graph::OUTER], it, it->to, bothCorrsDist);
-            }
-        }
-        beg = thickSurface.layers[Graph::INNER].nodes[0];
-        distTo = MathGeometry::findNorm2d(beg->coords[Graph::X] - beg->to->coords[Graph::X],
                 beg->coords[Graph::Y] - beg->to->coords[Graph::Y]);
         if (distTo > splitThreshold){
             addNode2(&thickSurface.layers[Graph::INNER], beg, beg->to, bothCorrsDist);
