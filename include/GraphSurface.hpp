@@ -73,15 +73,7 @@ namespace Graph {
         bool operator<(const struct NodeChange &otherChange) const {
             return (node < otherChange.node |
                     newX < otherChange.newX |
-                    newY < otherChange.newY |
-                    prevX < otherChange.prevX |
-                    prevY < otherChange.prevY |
-                    existed < otherChange.existed |
-                    willExist < otherChange.willExist |
-                    newTo < otherChange.newTo |
-                    newFrom < otherChange.newFrom |
-                    prevTo < otherChange.prevTo |
-                    prevFrom < otherChange.prevFrom);
+                    newY < otherChange.newY);
         }
 
     };

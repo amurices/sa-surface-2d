@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <GlobalState.hpp>
 #include <MathGeometry.hpp>
+#include <GraphEffects.hpp>
 
 #include "Renderer.hpp"
 #include "Optimizer.hpp"
@@ -31,6 +32,11 @@ int main(int argc, char **argv) {
                                         theseParams.areaMul, theseParams.areaPow, theseParams.multiProb,
                                         theseParams.tempProb, theseParams.forceOffsetRange, theseParams.compression,
                                         MathGeometry::linearSmooth, 0);
+
+    Effects::addNode2(&GlobalState::thickSurface.layers[Graph::OUTER],
+                      GlobalState::thickSurface.layers[Graph::OUTER].nodes[0],
+                      GlobalState::thickSurface.layers[Graph::OUTER].nodes[1],
+                      GlobalState::surfaceParameters.bothCorrsDist);
 
     // Nanogui renderer setup:
     nanogui::ref<Renderer> myRenderer = new Renderer();
