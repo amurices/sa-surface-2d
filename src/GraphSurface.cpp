@@ -71,6 +71,17 @@ double Graph::surfaceArea(const Graph::Surface &surface) {
     return toReturn;
 }
 
+double Graph::surfacePerimeter(const Graph::Surface &surface) {
+    Graph::Node *it = surface.nodes[0];
+    double acc = 0.0;
+    do {
+        acc += MathGeometry::findNorm2d(it->coords[Graph::X] - it->to->coords[Graph::X],
+                                        it->coords[Graph::Y] - it->to->coords[Graph::Y]);
+        it = it->to;
+    } while (it != surface.nodes[0]);
+    return acc;
+}
+
 Graph::ThickSurface
 Graph::generateCircularThicksurface(double centerX, double centerY, double outerRadius, double initialThickness,
                                     int pts) {

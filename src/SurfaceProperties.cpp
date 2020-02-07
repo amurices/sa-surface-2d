@@ -14,19 +14,15 @@ namespace SurfaceProperties {
             );
         }
         double perimeter(const Graph::ThickSurface &thickSurface){
-            return 0.0;
+            return Graph::surfacePerimeter(thickSurface.layers[Graph::OUTER]);
         }
         double energy(const Graph::ThickSurface &thickSurface){
             return Optimizer::findEnergy();
-        }
-        double xx(const Graph::ThickSurface &any){
-            return 40.0;
         }
     }
     std::map<std::string, std::function<double(const Graph::ThickSurface&)>> fns =
             {{"whiteMatter", whiteMatter},
              {"grayMatter", grayMatter},
              {"perimeter", perimeter},
-             {"energy", energy},
-             {"actuallyForty", xx}};
+             {"energy", energy}};
 }

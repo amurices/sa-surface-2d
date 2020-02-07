@@ -90,6 +90,7 @@ namespace Graph {
     void applyNodeChanges(std::set <Graph::NodeChange> &changes);
 
     double surfaceArea(const Surface &surface);
+    double surfacePerimeter(const Surface &surface);
 
     ThickSurface generateCircularThicksurface(double centerX, double centerY, double outerRadius, double initialThickness, int pts);
 
