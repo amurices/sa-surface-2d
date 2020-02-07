@@ -20,6 +20,7 @@ add_executable(sa_surface_2d
         include/Optimizer.hpp
         include/GraphSurface.hpp
         include/SurfaceProperties.hpp
+        include/GraphEffects.hpp
         src/IO.cpp
         src/main.cpp
         src/MathGeometry.cpp
@@ -28,7 +29,8 @@ add_executable(sa_surface_2d
         src/GlobalState.cpp
         src/Optimizer.cpp
         src/GraphSurface.cpp
-        src/SurfaceProperties.cpp)
+        src/SurfaceProperties.cpp
+        src/GraphEffects.cpp)
 find_package(OpenGL)
 target_link_libraries(sa_surface_2d
         /usr/local/lib/libnanogui.dylib

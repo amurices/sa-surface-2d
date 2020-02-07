@@ -109,20 +109,10 @@ namespace Graph {
                                                                     int smoothness,
                                                                     double (*f)(double, double));
 
-    void applyNodeChanges(std::set<Graph::NodeChange> &changes);
-    void revertNodeChanges(std::set<Graph::NodeChange> &changes);
-
     double surfaceArea(const Surface &surface);
 
     ThickSurface
     generateCircularThicksurface(double centerX, double centerY, double outerRadius, double initialThickness, int pts);
-
-    void mergeTwoNodes(Graph::Surface &belonging, Graph::Node *a, Graph::Node *b);
-
-    // Add node between A and B
-    void addNode2(Graph::Surface *belonging, Graph::Node *a, Graph::Node *b, double bothCorrsDist);
-    std::set<Node*> getCorrespondents(double newX, double newY, Node* a, Node *b, double bothCorrsDist);
-    void adjustNodeResolution(ThickSurface &thickSurface, double splitThreshold, double bothCorrsDist);
 }
 
 #endif //SA_SURFACE_2D_GRAPHSURFACE_HPP

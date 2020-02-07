@@ -14,6 +14,7 @@ namespace GlobalState {
     bool shouldStep = false;
     bool singleStep = false;
     bool recording = false;
+    bool showCorrespondences = false;
     std::set<std::string> recordedAttributes;
 
 

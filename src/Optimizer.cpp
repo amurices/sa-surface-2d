@@ -2,10 +2,12 @@
 // Created by Andre Muricy on 2019-12-25.
 //
 
+#include "Optimizer.hpp"
+#include "GlobalState.hpp"
 #include <MathGeometry.hpp>
 #include <cmath>
 #include <Renderer.hpp>
-#include "Optimizer.hpp"
+#include <GraphEffects.hpp>
 
 std::set<Graph::NodeChange> Optimizer::findNeighbor(){
     auto nodesToPush = Graph::randomNodes(GlobalState::thickSurface.layers[Graph::OUTER],
@@ -100,7 +102,7 @@ void assertCorrespondences(){
 void Optimizer::stepSimulatedAnnealing (){
     auto neighborChanges = findNeighbor();
     double energyState  = findEnergy();
-    Graph::applyNodeChanges(neighborChanges);
+    Effects::applyNodeChanges(neighborChanges);
     double energyNeighbor = findEnergy();
 
     auto surfaceLines = makeLines(); // <- Quando consertar as particoes tem que arrumar isso aqui
@@ -112,16 +114,9 @@ void Optimizer::stepSimulatedAnnealing (){
     double coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
     if (coinFlip > prob)
     {
-        Graph::revertNodeChanges(neighborChanges);
+        Effects::revertNodeChanges(neighborChanges);
     } else {
-        std::cout << "Nodes before: " << GlobalState::thickSurface.layers[Graph::OUTER].nodes.size() + GlobalState::thickSurface.layers[Graph::INNER].nodes.size();
-        std::cout << " Lines before: " << Renderer::countNumberOfLines() << std::endl;
-
-        Graph::adjustNodeResolution(GlobalState::thickSurface, GlobalState::surfaceParameters.splitThreshold, GlobalState::surfaceParameters.bothCorrsDist);
-
-        std::cout << "Nodes after: " << GlobalState::thickSurface.layers[Graph::OUTER].nodes.size() + GlobalState::thickSurface.layers[Graph::INNER].nodes.size();
-        std::cout << " Lines after: " << Renderer::countNumberOfLines() << std::endl;
-
+        Effects::adjustNodeResolution(neighborChanges, GlobalState::surfaceParameters.splitThreshold, GlobalState::surfaceParameters.bothCorrsDist);
     }
     assertCorrespondences();
 
