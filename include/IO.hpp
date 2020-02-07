@@ -28,6 +28,7 @@ namespace IO {
         double tempProb;
         double forceOffsetRange;
         double compression;
+        double bothCorrsDist;
     };
     void sillyMapReader(const std::string fileName, std::unordered_map<std::string, std::string> &map);
     void sillyMapPrinter(const std::unordered_map<std::string, std::string> &map);

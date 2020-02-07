@@ -82,6 +82,9 @@ namespace IO {
             else if (it->first == "forceOffsetRange")
                 params->forceOffsetRange = std::stod(it->second);
 
+            else if (it->first == "bothCorrsDist")
+                params->bothCorrsDist = std::stod(it->second);
+
             else{
                 // explode
                 std::cout << ":" << it->first << " " << it->second << std::endl;

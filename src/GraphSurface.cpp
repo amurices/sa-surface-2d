@@ -7,7 +7,7 @@
 #include <Util.hpp>
 #include <cmath>
 #include <iostream>
-
+qgitq
 namespace Graph {
     std::ostream &operator<<(std::ostream &os, const NodeChange &nc) {
         os << "node: " << nc.node << "\n" <<
@@ -141,6 +141,12 @@ namespace Graph {
             if (it->existed && !it->willExist) {
                 // This wont work because applyNodeChanges runs before "committing". We have to batch this up for deletion later
                 delete it->node;
+            } else if (!it->existed && it->willExist) {
+                it->whoHasIt->nodes.push_back(it->node);
+                it->node->coords[Graph::X] = it->newX;
+                it->node->coords[Graph::Y] = it->newY;
+                it->node->to = it->newTo;
+                it->node->from = it->newFrom;
             } else {
                 it->node->coords[Graph::X] = it->newX;
                 it->node->coords[Graph::Y] = it->newY;
@@ -155,6 +161,9 @@ namespace Graph {
             if (it->existed && !it->willExist) {
                 // Recover from the batch, which we'll have to pass somehow
             } else if (!it->existed && it->willExist){
+                for (auto deletable = it->whoHasIt->nodes.begin(); deletable != it->whoHasIt->nodes.end(); deletable++){
+                    if (*deletable == it->node){ it->whoHasIt->nodes.erase(deletable); break; }
+                }
                 delete it->node;
             }
             else {
@@ -204,7 +213,13 @@ namespace Graph {
                             summin->coords[Graph::Y] + delta.y * compression,
                             summin->coords[Graph::X],
                             summin->coords[Graph::Y],
-                            true, true}
+                            true,
+                            true,
+                            summin->to,
+                            summin->from,
+                            summin->to,
+                            summin->from,
+                    }
             );
         }
         return toReturn;
@@ -279,7 +294,7 @@ namespace Graph {
         return toReturn;
     }
 
-    std::set<Node *> getCorrespondents(double newX, double newY, Node *a, Node *b) {
+    std::set<Node *> getCorrespondents(double newX, double newY, Node *a, Node *b, double bothCorrsDist) {
         std::set<Node *> toReturn;
         auto potentialCorrespondent = commonCorrespondent(a, b);
         if (potentialCorrespondent != nullptr) {
@@ -292,26 +307,33 @@ namespace Graph {
             };
             auto leftCorr = std::min_element(a->correspondents.begin(), a->correspondents.end(), closestToNewNode);
             auto rightCorr = std::min_element(b->correspondents.begin(), b->correspondents.end(), closestToNewNode);
-            toReturn.insert(*leftCorr);
-            toReturn.insert(*rightCorr);
-
+            auto leftCorrDist = MathGeometry::findNorm2d((*leftCorr)->coords[Graph::X] - newX, (*leftCorr)->coords[Graph::Y] - newY);
+            auto rightCorrDist = MathGeometry::findNorm2d((*rightCorr)->coords[Graph::X] - newX, (*rightCorr)->coords[Graph::Y] - newY);
+            if (leftCorrDist / rightCorrDist > bothCorrsDist && leftCorrDist / rightCorrDist < (1/bothCorrsDist)){
+                std::cout << leftCorrDist / rightCorrDist << ", " << rightCorrDist / leftCorrDist << std::endl;
+                toReturn.insert(*leftCorr);
+                toReturn.insert(*rightCorr);
+            } else
+                toReturn.insert(closestToNewNode(*leftCorr, *rightCorr) ? *leftCorr : *rightCorr);
         }
         return toReturn;
     }
 
-    int checkNeighbors(Node *a, Node *b) {
+    int assertNeighbors(Node *a, Node *b) {
         if (a->to == b && b->from == a)
             return 0;
         else if (b->to == a && a->from == b)
             return 1;
-        else
-            return 2;
+
+        std::cout << "Nodes arent neighbors; a: " << a << ", b: " << b << std::endl <<
+        "a->to: " << a->to << " a->from: "<< a->from << std::endl <<
+        "b->to: " << b->to << " b->from: "<< b->from << std::endl;
+        exit(0);
     }
 
-    // This should return a BUFFED NodeChange
-    std::set<NodeChange> addNode(Surface &belonging, Node *a, Node *b) {
+    std::set<NodeChange> addNode(Surface* belonging, Node *a, Node *b) {
         std::set<NodeChange> toReturn;
-        auto neighborlyStatus = checkNeighbors(a, b);
+        auto neighborlyStatus = assertNeighbors(a, b);
         if (neighborlyStatus == 2){
             printf("Neighborly status 2; a: %d, b: %d\na->to: %d, a->from: %d\nb->to: %d, b->from: %d\n", a, b, a->to, a->from, b->to, b->from);
             exit(0);
@@ -338,5 +360,26 @@ namespace Graph {
                                    neighborlyStatus == 0 ? nodeToBeCommitted : b->from,
                                    b->to, b->from});
         return toReturn;
+    }
+
+    void addNode2(Surface* belonging, Node *a, Node *b, double bothCorrsDist) {
+        auto neighborlyStatus = assertNeighbors(a, b);
+
+        auto nodeToBeCommitted = new Node();
+        nodeToBeCommitted->coords[Graph::X] =  (a->coords[Graph::X] + b->coords[Graph::X]) / 2;
+        nodeToBeCommitted->coords[Graph::Y] =  (a->coords[Graph::Y] + b->coords[Graph::Y]) / 2;
+        nodeToBeCommitted->to = neighborlyStatus == 1 ? a : b;
+        nodeToBeCommitted->from = neighborlyStatus == 1 ? b : a;
+        nodeToBeCommitted->correspondents = getCorrespondents(nodeToBeCommitted->coords[Graph::X], nodeToBeCommitted->coords[Graph::Y], a, b, bothCorrsDist);
+        for (auto it = nodeToBeCommitted->correspondents.begin(); it != nodeToBeCommitted->correspondents.end(); it++){
+            (*it)->correspondents.insert(*it);
+        }
+        belonging->nodes.push_back(nodeToBeCommitted);
+
+        a->to = neighborlyStatus == 1 ? a->to : nodeToBeCommitted;
+        a->from = neighborlyStatus == 1 ? nodeToBeCommitted : a->from;
+
+        b->to = neighborlyStatus == 0 ? b->to : nodeToBeCommitted;
+        b->from = neighborlyStatus == 0 ? nodeToBeCommitted : b->from;
     }
 }

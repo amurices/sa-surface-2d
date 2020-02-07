@@ -28,9 +28,30 @@ namespace Graph {
     struct Line {
         Node *a;
         Node *b;
+        enum LineType{
+            INTERLAYER,
+            INTRALAYER
+        };
+        LineType type;
     };
 
     typedef std::vector<Line *> Intersectables;
+
+    struct Surface {
+        std::vector<Node *> nodes;
+    };
+
+    const int DEFAULT_LAYERS = 2;
+    const int OUTER = 0;
+    const int INNER = 1;
+
+    struct ThickSurface {
+        std::vector<Surface> layers;
+
+        ThickSurface() {
+            layers.resize(DEFAULT_LAYERS);
+        }
+    };
 
     struct NodeChange {
         Node *node;
@@ -44,6 +65,7 @@ namespace Graph {
         Node *newFrom;
         Node *prevTo;
         Node *prevFrom;
+        Surface *whoHasIt; // only useful for add/delete operations
 
         bool operator<(const struct NodeChange &otherChange) const {
             return (node < otherChange.node |
@@ -61,22 +83,6 @@ namespace Graph {
 
     };
     std::ostream &operator<<(std::ostream &os, const NodeChange &nc);
-
-    struct Surface {
-        std::vector<Node *> nodes;
-    };
-
-    const int DEFAULT_LAYERS = 2;
-    const int OUTER = 0;
-    const int INNER = 1;
-
-    struct ThickSurface {
-        std::vector<Surface> layers;
-
-        ThickSurface() {
-            layers.resize(DEFAULT_LAYERS);
-        }
-    };
 
     Surface generateCircularGraph(double centerX, double centerY, double radius, int pts);
 
@@ -111,8 +117,9 @@ namespace Graph {
     void mergeTwoNodes(Graph::Surface &belonging, Graph::Node *a, Graph::Node *b);
 
     // Add node between A and B
-    std::set<NodeChange> addNode(Graph::Surface &belonging, Graph::Node *a, Graph::Node *b);
-    std::set<Node*> getCorrespondents(double newX, double newY, Node* a, Node *b);
+    std::set<NodeChange> addNode(Graph::Surface *belonging, Graph::Node *a, Graph::Node *b);
+    void addNode2(Graph::Surface *belonging, Graph::Node *a, Graph::Node *b, double bothCorrsDist);
+    std::set<Node*> getCorrespondents(double newX, double newY, Node* a, Node *b, double bothCorrsDist);
 
 }
 

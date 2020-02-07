@@ -12,17 +12,17 @@
 #include "IO.hpp"
 
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     /* My sweet playground */
     nanogui::init();
 
-    std::unordered_map <std::string, std::string> inputMap;
+    std::unordered_map<std::string, std::string> inputMap;
     IO::sillyMapReader("../input.txt", inputMap);
     IO::InitSaParams theseParams;
     IO::parseInputToParams(inputMap, &theseParams);
     std::cout << theseParams;
-    GlobalState::setSurfaceParameters(theseParams.radius, theseParams.thickness, 0.0, 0.0, theseParams.points);
+    GlobalState::setSurfaceParameters(theseParams.radius, theseParams.thickness, 0.0, 0.0, theseParams.points,
+                                      theseParams.bothCorrsDist);
     GlobalState::initThickSurface();
     double initialGrayMatter =
             Graph::surfaceArea(GlobalState::thickSurface.layers[Graph::OUTER]) -
@@ -33,20 +33,14 @@ int main(int argc, char **argv)
                                         MathGeometry::linearSmooth, 0);
 
 
-    auto test = Graph::addNode(GlobalState::thickSurface.layers[Graph::OUTER],
-                                GlobalState::thickSurface.layers[Graph::OUTER].nodes[0],
-                                GlobalState::thickSurface.layers[Graph::OUTER].nodes[1]);
-    Graph::applyNodeChanges(test);
-    Graph::revertNodeChanges(test);
-//    Graph::revertNodeChanges(test2);
-//    for (auto begin = test.begin(); begin != test.end(); begin++){
-//        std::cout << "Node change:\n" << (*begin) << std::endl;
-//    }
+    Graph::addNode2(&GlobalState::thickSurface.layers[Graph::OUTER],
+                    GlobalState::thickSurface.layers[Graph::OUTER].nodes[0],
+                    GlobalState::thickSurface.layers[Graph::OUTER].nodes[1], theseParams.bothCorrsDist);
+
 
     // Nanogui renderer setup:
-    nanogui::ref <Renderer> myRenderer = new Renderer();
+    nanogui::ref<Renderer> myRenderer = new Renderer();
     myRenderer->setVisible(true);
-    myRenderer->uploadIndices();
     myRenderer->makeInputForms(myRenderer->windows[0]);
     // -----------------------------------------
 
@@ -68,24 +62,25 @@ int main(int argc, char **argv)
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        if (GlobalState::shouldStep){
+        if (GlobalState::shouldStep) {
             Optimizer::stepSimulatedAnnealing();
             if (GlobalState::recording)
                 IO::commitToOutputFile(GlobalState::thickSurface, GlobalState::recordedAttributes);
         }
 
-        if (GlobalState::singleStep){
+        if (GlobalState::singleStep) {
             GlobalState::singleStep = false;
             GlobalState::shouldStep = false;
             Optimizer::stepSimulatedAnnealing();
             if (GlobalState::recording)
                 IO::commitToOutputFile(GlobalState::thickSurface, GlobalState::recordedAttributes);
         }
+        myRenderer->uploadIndices();
+        myRenderer->uploadSurface();
 
         myRenderer->drawContents();
         myRenderer->drawWidgets();
 
-        myRenderer->uploadSurface();
         glfwSwapBuffers(myRenderer->glfwWindow());
         glfwPollEvents();
     }

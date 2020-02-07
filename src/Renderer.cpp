@@ -162,7 +162,7 @@ void Renderer::makeInputForms(nanogui::Window *targetWindow)
         IO::sillyMapReader("../input.txt", inputMap);
         IO::InitSaParams theseParams;
         IO::parseInputToParams(inputMap, &theseParams);
-        GlobalState::setSurfaceParameters(theseParams.radius, theseParams.thickness, 0.0, 0.0, theseParams.points);
+        GlobalState::setSurfaceParameters(theseParams.radius, theseParams.thickness, 0.0, 0.0, theseParams.points, theseParams.bothCorrsDist);
         GlobalState::deliberatelyDeleteBecauseDestructorIsCalledWheneverItWants();
         GlobalState::initThickSurface();
         double initialGrayMatter =
@@ -176,37 +176,53 @@ void Renderer::makeInputForms(nanogui::Window *targetWindow)
     performLayout();
 }
 
+int countNumberOfLines(){
+    int counter = 0;
+    auto outerIt = GlobalState::thickSurface.layers[Graph::OUTER].nodes[0];
+    do {
+        counter += outerIt->correspondents.size();
+        outerIt = outerIt->to;
+        counter++;
+    } while (outerIt != GlobalState::thickSurface.layers[Graph::OUTER].nodes[0]);
+
+    auto innerIt = GlobalState::thickSurface.layers[Graph::INNER].nodes[0];
+    do {
+        innerIt = innerIt->to;
+        counter++;
+    } while (innerIt != GlobalState::thickSurface.layers[Graph::INNER].nodes[0]);
+    return counter;
+}
+
 void Renderer::uploadIndices(){
-    size_t numOuterVertices = [](){
-        auto beg = GlobalState::thickSurface.layers[Graph::OUTER].nodes[0];
-        int count = 1;
-        for (auto iter = beg->to; iter != beg; iter = iter->to){
-            count++;
-        }
-        return count;
-    }();
-    size_t numInnerVertices = [](){
-        auto beg = GlobalState::thickSurface.layers[Graph::INNER].nodes[0];
-        int count = 1;
-        for (auto iter = beg->to; iter != beg; iter = iter->to){
-            count++;
-        }
-        return count;
-    }();
-    nanogui::MatrixXu indices(2, numOuterVertices + 1 + numInnerVertices + 1);
-    size_t i = 0;
-    /* Outer surface indices */
-    for (; i < numOuterVertices - 1; i++){
-        indices.col(i) << i, (i + 1);
-    }
-    indices.col(i) << i, 0;
+    int indicesNumber = countNumberOfLines();
+    int outerSurfaceIndicesNumber = indicesNumber - GlobalState::thickSurface.layers[Graph::INNER].nodes.size();
 
-    /* Inner surface indices */
-    for (i++ ; i - numOuterVertices < numInnerVertices - 1; i++){
-        indices.col(i) << i, (i + 1);
+    nanogui::MatrixXu indices(2, indicesNumber);
+    size_t counter = 0;
+    /* Outer surface indices << */
+    int eachNodeCounter = 0;
+    int eachCorrespondentCounter = 1;
+    auto outerIt = GlobalState::thickSurface.layers[Graph::OUTER].nodes[0];
+    do {
+        for (auto corrsIt = outerIt->correspondents.begin(); corrsIt != outerIt->correspondents.end(); corrsIt++){
+            indices.col(counter) << eachNodeCounter, eachNodeCounter + eachCorrespondentCounter;
+            counter++; eachCorrespondentCounter++;
+        }
+        outerIt = outerIt->to;
+        indices.col(counter) << eachNodeCounter, (eachNodeCounter + eachCorrespondentCounter) % outerSurfaceIndicesNumber; // Next in same layer
+        eachNodeCounter += eachCorrespondentCounter;
+        eachCorrespondentCounter = 1;
+        counter++;
+    } while (outerIt != GlobalState::thickSurface.layers[Graph::OUTER].nodes[0]);
 
-    }
-    indices.col(i) << i, numOuterVertices;
+    /* Inner surface indices  */
+    auto innerIt = GlobalState::thickSurface.layers[Graph::INNER].nodes[0];
+    int innerStartsAt = counter;
+    do {
+        innerIt = innerIt->to;
+        indices.col(counter) << counter, ((counter + 1) - innerStartsAt) % GlobalState::thickSurface.layers[Graph::INNER].nodes.size() ? (counter + 1) : innerStartsAt; // Next in same layer
+        counter++;
+    } while (innerIt != GlobalState::thickSurface.layers[Graph::INNER].nodes[0]);
 
     /* Shader binding */
     mShader.bind();
@@ -214,41 +230,29 @@ void Renderer::uploadIndices(){
 }
 
 void Renderer::uploadSurface(){
-    size_t numOuterVertices = [](){
-        auto beg = GlobalState::thickSurface.layers[Graph::OUTER].nodes[0];
-        int count = 1;
-        for (auto iter = beg->to; iter != beg; iter = iter->to){
-            count++;
-        }
-        return count;
-    }();
-    size_t numInnerVertices = [](){
-        auto beg = GlobalState::thickSurface.layers[Graph::INNER].nodes[0];
-        int count = 1;
-        for (auto iter = beg->to; iter != beg; iter = iter->to){
-            count++;
-        }
-        return count;
-    }();
-    nanogui::MatrixXf positions(3, numOuterVertices + numInnerVertices);
-    size_t i = 0;
-    /* Outer surface index positions */
-    for (auto it = GlobalState::thickSurface.layers[Graph::OUTER].nodes[0]; true;){
-        positions.col(i) << it->coords[Graph::X], it->coords[Graph::Y], 0;
-        it = it->to;
-        i++;
-        if (it == GlobalState::thickSurface.layers[Graph::OUTER].nodes[0])
-            break;
-    }
-    /* Inner surface index positions */
-    for (auto it = GlobalState::thickSurface.layers[Graph::INNER].nodes[0]; true;){
-        positions.col(i) << it->coords[Graph::X], it->coords[Graph::Y], 0;
-        it = it->to;
-        i++;
-        if (it == GlobalState::thickSurface.layers[Graph::INNER].nodes[0])
-            break;
-    }
+    int indicesNumber = countNumberOfLines();
+    nanogui::MatrixXf positions(3, indicesNumber);
+    size_t counter = 0;
+    /* Outer surface indices << */
+    auto outerIt = GlobalState::thickSurface.layers[Graph::OUTER].nodes[0];
+    do {
+        positions.col(counter) << outerIt->coords[Graph::X], outerIt->coords[Graph::Y], 0;
 
+        for (auto corrsIt = outerIt->correspondents.begin(); corrsIt != outerIt->correspondents.end(); corrsIt++){
+            counter++;
+            positions.col(counter) << (*corrsIt)->coords[Graph::X], (*corrsIt)->coords[Graph::Y], 0;
+        }
+        outerIt = outerIt->to;
+        counter++;
+    } while (outerIt != GlobalState::thickSurface.layers[Graph::OUTER].nodes[0]);
+
+    /* Inner surface indices  */
+    auto innerIt = GlobalState::thickSurface.layers[Graph::INNER].nodes[0];
+    do {
+        positions.col(counter) << innerIt->coords[Graph::X], innerIt->coords[Graph::Y], 0;
+        innerIt = innerIt->to;
+        counter++;
+    } while (innerIt != GlobalState::thickSurface.layers[Graph::INNER].nodes[0]);
     /* Shader binding */
     mShader.bind();
     mShader.uploadAttrib("position", positions);
@@ -267,7 +271,7 @@ void Renderer::drawContents() {
     mShader.setUniform("modelViewProj", mvp);
 
     /* Draw lines starting at index 0 */
-    mShader.drawIndexed(GL_LINES, 0, GlobalState::thickSurface.layers[Graph::OUTER].nodes.size() + GlobalState::thickSurface.layers[Graph::INNER].nodes.size());
+    mShader.drawIndexed(GL_LINES, 0, countNumberOfLines());
 }
 
 Renderer::~Renderer()

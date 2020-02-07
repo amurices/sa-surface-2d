@@ -19,6 +19,7 @@ namespace GlobalState {
         int points;
         double mergeThreshold;
         double splitThreshold;
+        double bothCorrsDist;
     };
 
     struct OptimizerParameters {
@@ -47,7 +48,7 @@ namespace GlobalState {
     extern bool recording;
     extern std::set<std::string> recordedAttributes; // fns that receive a reference to a thick surface and calculate something of interest
 
-    void setSurfaceParameters(double radius, double thickness, double centerX, double centerY, int points);
+    void setSurfaceParameters(double radius, double thickness, double centerX, double centerY, int points, double bothCorrsDist);
 
     void
     setOptimizerParameters(double initialGrayMatter, int smoothness, double diffMul, double diffPow, double areaMul,
