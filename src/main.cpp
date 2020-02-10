@@ -33,10 +33,12 @@ int main(int argc, char **argv) {
                                         theseParams.tempProb, theseParams.forceOffsetRange, theseParams.compression,
                                         MathGeometry::linearSmooth, 0);
 
-    Effects::addNode2(&GlobalState::thickSurface.layers[Graph::OUTER],
-                      GlobalState::thickSurface.layers[Graph::OUTER].nodes[0],
-                      GlobalState::thickSurface.layers[Graph::OUTER].nodes[1],
-                      GlobalState::surfaceParameters.bothCorrsDist);
+
+    MathGeometry::point_t vd = MathGeometry::findDirectionVector(MathGeometry::point_t(-0.6, -1.0), MathGeometry::point_t(-0.6, 1.0), MathGeometry::point_t(-0.5, 0.0),
+                                                                 MathGeometry::MEDIAN_ANGLE);
+    std::cout << vd.x << ", " << vd.y << std::endl;
+    vd = MathGeometry::findDirectionVector2(MathGeometry::point_t(-0.5, 0.0), MathGeometry::point_t(-0.6, -1.0), MathGeometry::point_t(-0.6, 1.0));
+    std::cout << vd.x << ", " << vd.y << std::endl;
 
     // Nanogui renderer setup:
     nanogui::ref<Renderer> myRenderer = new Renderer();
@@ -85,3 +87,16 @@ int main(int argc, char **argv) {
         glfwPollEvents();
     }
 }
+
+/* Playground code
+    for (int i = 0; i < 20; i++){
+        Effects::addNode2(&GlobalState::thickSurface.layers[Graph::OUTER],
+                          GlobalState::thickSurface.layers[Graph::OUTER].nodes[0],
+                          GlobalState::thickSurface.layers[Graph::OUTER].nodes[0]->to,
+                          0.7);
+        Effects::addNode2(&GlobalState::thickSurface.layers[Graph::INNER],
+                          GlobalState::thickSurface.layers[Graph::INNER].nodes[0],
+                          GlobalState::thickSurface.layers[Graph::INNER].nodes[0]->to,
+                          0.7);
+    }
+ */

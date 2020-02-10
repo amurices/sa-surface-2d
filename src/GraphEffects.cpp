@@ -49,7 +49,8 @@ namespace Effects {
         return toReturn;
     }
 
-    std::set<Graph::Node *> correspondToBothNeighbors(double newX, double newY, Graph::Node *a, Graph::Node *b, double bothCorrsDist){
+    std::set<Graph::Node *>
+    correspondToBothNeighbors(double newX, double newY, Graph::Node *a, Graph::Node *b, double bothCorrsDist) {
         auto closestToNewNode = [newX, newY](Graph::Node *c0, Graph::Node *c1) {
             auto dist0 = MathGeometry::findNorm2d(c0->coords[Graph::X] - newX, c0->coords[Graph::Y] - newY);
             auto dist1 = MathGeometry::findNorm2d(c1->coords[Graph::X] - newX, c1->coords[Graph::Y] - newY);
@@ -62,17 +63,34 @@ namespace Effects {
         auto rightCorrDist = MathGeometry::findNorm2d((*rightCorr)->coords[Graph::X] - newX,
                                                       (*rightCorr)->coords[Graph::Y] - newY);
         if (leftCorrDist / rightCorrDist > bothCorrsDist && leftCorrDist / rightCorrDist < (1 / bothCorrsDist)) {
-            return std::set<Graph::Node *> {*leftCorr, *rightCorr};
+            return std::set<Graph::Node *>{*leftCorr, *rightCorr};
         } else
-            return std::set<Graph::Node *> { closestToNewNode(*leftCorr, *rightCorr) ? *leftCorr : *rightCorr };
+            return std::set<Graph::Node *>{closestToNewNode(*leftCorr, *rightCorr) ? *leftCorr : *rightCorr};
     }
 
-    std::set<Graph::Node *> getCorrespondents(double newX, double newY, Graph::Node *a, Graph::Node *b, double bothCorrsDist) {
+    struct Correspondent {
+        Graph::Node *commonCorr;
+        std::set<Graph::Node *> corrs;
+    };
+    std::ostream &operator<<(std::ostream &os, const Correspondent &c) {
+        if (c.commonCorr != nullptr){
+            os << "special case: " << c.commonCorr << std::endl;
+        } else {
+            for (auto it = c.corrs.begin(); it != c.corrs.end(); it++){
+                os << "no common corrs:\n";
+                os << (*it) << std::endl;
+            }
+        }
+        return os;
+    }
+
+    Correspondent getCorrespondents(double newX, double newY, Graph::Node *a, Graph::Node *b, double bothCorrsDist) {
         auto potentialCorrespondent = commonCorrespondent(a, b);
         if (potentialCorrespondent != nullptr)
-            return std::set<Graph::Node* >{ potentialCorrespondent };
+            return Correspondent{potentialCorrespondent};
         else
-            return correspondToBothNeighbors(newX, newY, a, b, bothCorrsDist);
+            return Correspondent{nullptr,
+                                 correspondToBothNeighbors(newX, newY, a, b, bothCorrsDist)};
     }
 
     int assertNeighbors(Graph::Node *a, Graph::Node *b) {
@@ -87,6 +105,28 @@ namespace Effects {
         exit(0);
     }
 
+    void mutuallyEraseCorrespondences(Graph::Node *a, Graph::Node *b) {
+        if (a->correspondents.size() > 1 && b->correspondents.size() > 1) {
+            a->correspondents.erase(b);
+            b->correspondents.erase(a);
+        }
+    }
+
+    void mergeCorrespondencesIntoNewNode(Graph::Node *newNode, Graph::Node *existingNode) {
+        mutuallyEraseCorrespondences(existingNode, newNode->to);
+        mutuallyEraseCorrespondences(existingNode, newNode->from);
+
+        newNode->correspondents.insert(existingNode);
+        existingNode->correspondents.insert(newNode);
+    }
+
+    void correspondNodeToNodes(Graph::Node *a, std::set<Graph::Node *> bs) {
+        for (auto it = bs.begin(); it != bs.end(); it++) {
+            a->correspondents.insert(*it);
+            (*it)->correspondents.insert(a);
+        }
+    }
+
     void addNode2(Graph::Surface *belonging, Graph::Node *a, Graph::Node *b, double bothCorrsDist) {
         auto neighborlyStatus = assertNeighbors(a, b);
 
@@ -95,17 +135,13 @@ namespace Effects {
         nodeToBeCommitted->coords[Graph::Y] = (a->coords[Graph::Y] + b->coords[Graph::Y]) / 2;
         nodeToBeCommitted->to = neighborlyStatus == 1 ? a : b;
         nodeToBeCommitted->from = neighborlyStatus == 1 ? b : a;
-        nodeToBeCommitted->correspondents = getCorrespondents(nodeToBeCommitted->coords[Graph::X],
-                                                              nodeToBeCommitted->coords[Graph::Y], a, b, bothCorrsDist);
+        Correspondent c = getCorrespondents(nodeToBeCommitted->coords[Graph::X],
+                                            nodeToBeCommitted->coords[Graph::Y], a, b, bothCorrsDist);
 
-        // TODO: We can have a 1-sized set without this working. We need a special case
-        if (nodeToBeCommitted->correspondents.size() == 1){
-            (*nodeToBeCommitted->correspondents.begin())->correspondents = std::set<Graph::Node*>{nodeToBeCommitted};
-        }
-        else {
-            for (auto it = nodeToBeCommitted->correspondents.begin(); it != nodeToBeCommitted->correspondents.end(); it++) {
-                (*it)->correspondents.insert(nodeToBeCommitted);
-            }
+        if (c.commonCorr != nullptr) {
+            mergeCorrespondencesIntoNewNode(nodeToBeCommitted, c.commonCorr);
+        } else {
+            correspondNodeToNodes(nodeToBeCommitted, c.corrs);
         }
 
         belonging->nodes.push_back(nodeToBeCommitted);
@@ -143,4 +179,46 @@ namespace Effects {
             it->node->coords[Graph::Y] = it->prevY;
         }
     }
+
+    // Not serious
+    void adjustNodeResolution2(Graph::ThickSurface &thickSurface, double splitThreshold, double bothCorrsDist) {
+        for (int i = 0; i < thickSurface.layers[Graph::OUTER].nodes.size(); i++) {
+            auto it = thickSurface.layers[Graph::OUTER].nodes[i];
+            auto distTo = MathGeometry::findNorm2d(it->coords[Graph::X] - it->to->coords[Graph::X],
+                                                   it->coords[Graph::Y] - it->to->coords[Graph::Y]);
+            if (distTo > splitThreshold)
+                addNode2(&thickSurface.layers[Graph::OUTER], it, it->to, bothCorrsDist);
+        }
+
+        for (int i = 0; i < thickSurface.layers[Graph::INNER].nodes.size(); i++) {
+            auto it = thickSurface.layers[Graph::INNER].nodes[i];
+            auto distTo = MathGeometry::findNorm2d(it->coords[Graph::X] - it->to->coords[Graph::X],
+                                                   it->coords[Graph::Y] - it->to->coords[Graph::Y]);
+            if (distTo > splitThreshold)
+                addNode2(&thickSurface.layers[Graph::INNER], it, it->to, bothCorrsDist);
+        }
+    }
+
+    void adjustNodeResolution3(Graph::ThickSurface &thickSurface, double splitThreshold, double bothCorrsDist) {
+        auto beg = thickSurface.layers[Graph::OUTER].nodes[0];
+        auto it = beg;
+        do {
+            auto distTo = MathGeometry::findNorm2d(it->coords[Graph::X] - it->to->coords[Graph::X],
+                                                   it->coords[Graph::Y] - it->to->coords[Graph::Y]);
+            if (distTo > splitThreshold)
+                addNode2(&thickSurface.layers[Graph::OUTER], it, it->to, bothCorrsDist);
+            it = it->to;
+        } while (it != beg);
+
+        beg = thickSurface.layers[Graph::INNER].nodes[0];
+        it = beg;
+        do {
+            auto distTo = MathGeometry::findNorm2d(it->coords[Graph::X] - it->to->coords[Graph::X],
+                                                   it->coords[Graph::Y] - it->to->coords[Graph::Y]);
+            if (distTo > splitThreshold)
+                addNode2(&thickSurface.layers[Graph::INNER], it, it->to, bothCorrsDist);
+            it = it->to;
+        } while (it != beg);
+    }
+
 }

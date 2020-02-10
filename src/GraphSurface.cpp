@@ -7,20 +7,29 @@
 #include <Util.hpp>
 #include <cmath>
 #include <iostream>
+#include <iomanip>
 
 namespace Graph {
+    std::ostream &operator<<(std::ostream &os, const Node *n) {
+        os << "(" << n->coords[Graph::X] << ", " << n->coords[Graph::Y] << "). corrs: " << n->correspondents.size();
+        os << ", at\n";
+        for (auto it = n->correspondents.begin(); n->correspondents.end() != it; it++)
+            os << "\t(" << (*it)->coords[Graph::X] << ", " << (*it)->coords[Graph::Y] << ")\n";
+        return os;
+    }
+
+    std::ostream &operator<<(std::ostream &os, const std::set<Node *> &n) {
+        for (auto it = n.begin(); n.end() != it; it++)
+            os << "\t(" << (*it)->coords[Graph::X] << ", " << (*it)->coords[Graph::Y] << ")\n";
+        return os;
+    }
+
     std::ostream &operator<<(std::ostream &os, const NodeChange &nc) {
         os << "node: " << nc.node << "\n" <<
            "newX: " << nc.newX << "\n" <<
            "newY: " << nc.newY << "\n" <<
            "prevX: " << nc.prevX << "\n" <<
-           "prevY: " << nc.prevY << "\n" <<
-           "newTo: " << nc.newTo << "\n" <<
-           "newFrom: " << nc.newFrom << "\n" <<
-           "prevTo: " << nc.prevTo << "\n" <<
-           "prevFrom: " << nc.prevFrom << "\n" <<
-           "existed: " << nc.existed << "\n" <<
-           "willExist: " << nc.willExist << "\n";
+           "prevY: " << nc.prevY << "\n";
         return os;
     }
 
@@ -161,27 +170,24 @@ namespace Graph {
         for (auto it = outerChanges.begin(); it != outerChanges.end(); it++) {
             // Changed nodes have their correspondents updated one at a time
             Node *fnode = (*it).node;
-            double nextX = fnode->to->coords[Graph::X];
-            double nextY = fnode->to->coords[Graph::Y];
-            double prevX = fnode->from->coords[Graph::X];
-            double prevY = fnode->from->coords[Graph::Y];
             // Just to not have to reimplement findDirectionVector
-            MathGeometry::point_t pPrev(prevX, prevY);
-            MathGeometry::point_t pNext(nextX, nextY);
+            MathGeometry::point_t pfrom(fnode->from->coords[Graph::X], fnode->from->coords[Graph::Y]);
+            MathGeometry::point_t pto(fnode->to->coords[Graph::X], fnode->to->coords[Graph::Y]);
             // A little less obscene, but still in need of some cleaning up.
-            auto distance = MathGeometry::findNorm(
-                    MathGeometry::point_t(fnode->coords[Graph::X] - (*fnode->correspondents.begin())->coords[Graph::X],
-                                          fnode->coords[Graph::Y] -
-                                          (*fnode->correspondents.begin())->coords[Graph::Y]));
-            MathGeometry::point_t vd = MathGeometry::findDirectionVector(pPrev, pNext,
-                                                                         MathGeometry::point_t(fnode->coords[Graph::X],
-                                                                                               fnode->coords[Graph::Y]),
-                                                                         MathGeometry::MEDIAN_ANGLE); // Get directional vector btwn inner & outer
+            auto distance = MathGeometry::findNorm2d(
+                    fnode->coords[Graph::X] - (*fnode->correspondents.begin())->coords[Graph::X],
+                    fnode->coords[Graph::Y] - (*fnode->correspondents.begin())->coords[Graph::Y]);
+            MathGeometry::point_t vd2 = MathGeometry::findDirectionVector2(
+                    MathGeometry::point_t(fnode->coords[Graph::X],
+                                          fnode->coords[Graph::Y]),
+                    pto,
+                    pfrom);
             auto delta =
                     MathGeometry::point_t(it->newX, it->newY) // current new outer position
-                    - (vd * distance) // plus direction (unit vector) times original distance = new position
+                    + (vd2 * distance) // plus direction (unit vector) times original distance = new position
                     - MathGeometry::point_t((*fnode->correspondents.begin())->coords[Graph::X],
                                             (*fnode->correspondents.begin())->coords[Graph::Y]); // because this will be added, subtract current position
+                                            // TODO: Sum below for each correspondent. Damn dis shit good
             for (auto summin = fnode->correspondents.begin(); summin != fnode->correspondents.end(); summin++) {
                 toReturn.insert(
                         NodeChange(

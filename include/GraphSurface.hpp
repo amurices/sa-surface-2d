@@ -24,7 +24,8 @@ namespace Graph {
             coords.resize(DEFAULT_DIMENSIONS);
         }
     };
-
+    std::ostream &operator<<(std::ostream &os, const Node* n);
+    std::ostream &operator<<(std::ostream &os, const std::set<Node*> &n);
     struct Line {
         Node *a;
         Node *b;
@@ -80,17 +81,6 @@ namespace Graph {
     std::ostream &operator<<(std::ostream &os, const NodeChange &nc);
 
     Surface generateCircularGraph(double centerX, double centerY, double radius, int pts);
-
-    std::set<NodeChange> smoothAdjacentNodes(Surface &surface, NodeChange initialChange, int smoothness,
-                                             double (*f)(double, double));
-
-    std::set<NodeChange> changesetForNodes(Surface &surface, const std::vector<Graph::Node *> &nodesToPush,
-                                           double forceOffsetRange, int smoothness,
-                                           double (*f)(double, double));
-
-    std::set<NodeChange>
-    innerChangesetFromOuterChangeset(ThickSurface &thickSurface, const std::set<NodeChange> &outerChanges,
-                                     double compression);
 
     std::vector<Graph::Node *> randomNodes(const Graph::Surface &surface, double multiProb);
 

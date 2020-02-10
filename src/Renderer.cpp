@@ -61,6 +61,16 @@ void Renderer::makeInputForms(nanogui::Window *targetWindow) {
     });
 
     textBoxes.push_back(
+            makeForm(targetWindow, "Temperature", std::to_string(GlobalState::optimizerParameters.temperature), ""));
+    textBoxes[textBoxes.size() - 1]->setCallback([this](const std::string &str) {
+        std::cout << "Temperature went from " << GlobalState::optimizerParameters.temperature;
+        GlobalState::optimizerParameters.temperature = std::stod(str);
+        if (GlobalState::optimizerParameters.temperature < 0) GlobalState::optimizerParameters.temperature = 0;
+        std::cout << " to " << GlobalState::optimizerParameters.temperature << std::endl;
+        return true;
+    });
+
+    textBoxes.push_back(
             makeForm(targetWindow, "DiffMul", std::to_string(GlobalState::optimizerParameters.diffMul), ""));
     textBoxes[textBoxes.size() - 1]->setCallback([this](const std::string &str) {
         std::cout << "DiffMul went from " << GlobalState::optimizerParameters.diffMul;

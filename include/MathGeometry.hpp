@@ -40,6 +40,7 @@ namespace MathGeometry
         void operator-=(const point_t &p){ x -= p.x; y -= p.y; }
         void operator*=(const double &a) { x *= a; y *= a; }
     };
+    std::ostream &operator<<(std::ostream &os, const point_t &n);
 
     inline bool ltTolerance(double a, double b, double tol){ return (a < (b - tol)); }
     inline bool gtTolerance(double a, double b, double tol){ return (a > (b + tol)); }
@@ -48,6 +49,7 @@ namespace MathGeometry
     double findNorm(const point_t &a);
     double findNorm2d(double x, double y);
     point_t findDirectionVector(const point_t &a, const point_t &b, const point_t &c, direction_t Type = MEDIAN_ANGLE);
+    point_t findDirectionVector2(point_t p, point_t to, point_t from);
     int findPartitionNumber(point_t p, int numHorzPartitions, int numVertPartitions);
     double sineSmooth(double u, double c);
     double linearSmooth(double u, double c);

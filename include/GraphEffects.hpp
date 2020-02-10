@@ -17,6 +17,10 @@ namespace Effects {
 
     void applyNodeChanges(std::set<Graph::NodeChange> &changes);
     void revertNodeChanges(std::set<Graph::NodeChange> &changes);
+
+    void adjustNodeResolution2(Graph::ThickSurface &thickSurface, double splitThreshold, double bothCorrsDist);
+    void adjustNodeResolution3(Graph::ThickSurface &thickSurface, double splitThreshold, double bothCorrsDist);
+
 }
 
 #endif //SA_SURFACE_2D_GRAPHEFFECTS_HPP
