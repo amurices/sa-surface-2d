@@ -125,9 +125,6 @@ namespace Optimizer {
     }
 
     void stepSimulatedAnnealing() {
-//        Effects::adjustNodeResolution3(GlobalState::thickSurface, GlobalState::surfaceParameters.splitThreshold,
-//                                       GlobalState::surfaceParameters.bothCorrsDist);
-//        return;
         auto neighborChanges = findNeighbor();
         double energyState = findEnergy();
         Effects::applyNodeChanges(neighborChanges);

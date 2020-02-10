@@ -33,13 +33,6 @@ int main(int argc, char **argv) {
                                         theseParams.tempProb, theseParams.forceOffsetRange, theseParams.compression,
                                         MathGeometry::linearSmooth, 0);
 
-
-    MathGeometry::point_t vd = MathGeometry::findDirectionVector(MathGeometry::point_t(-0.6, -1.0), MathGeometry::point_t(-0.6, 1.0), MathGeometry::point_t(-0.5, 0.0),
-                                                                 MathGeometry::MEDIAN_ANGLE);
-    std::cout << vd.x << ", " << vd.y << std::endl;
-    vd = MathGeometry::findDirectionVector2(MathGeometry::point_t(-0.5, 0.0), MathGeometry::point_t(-0.6, -1.0), MathGeometry::point_t(-0.6, 1.0));
-    std::cout << vd.x << ", " << vd.y << std::endl;
-
     // Nanogui renderer setup:
     nanogui::ref<Renderer> myRenderer = new Renderer();
     myRenderer->setVisible(true);
