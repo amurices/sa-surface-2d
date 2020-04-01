@@ -23,6 +23,18 @@ namespace Optimizer {
                                                                  GlobalState::optimizerParameters.smoothnessFunction);
     }
 
+    std::map<Graph::Node *, std::set<Graph::NodeChange2>> findNeighbor2() {
+        auto nodesToPush = Graph::randomNodes(GlobalState::thickSurface.layers[Graph::OUTER],
+                                              GlobalState::optimizerParameters.multiProb);
+        return Graph::generateTotalChangesetFromPushedOuterNodes2(GlobalState::thickSurface,
+                                                                  nodesToPush,
+                                                                  GlobalState::optimizerParameters.compression,
+                                                                  GlobalState::optimizerParameters.forceOffsetRange,
+                                                                  GlobalState::optimizerParameters.multiProb,
+                                                                  GlobalState::optimizerParameters.smoothness,
+                                                                  GlobalState::optimizerParameters.smoothnessFunction);
+    }
+
     double findEnergy() {
         double res;
 
@@ -67,8 +79,26 @@ namespace Optimizer {
         GlobalState::optimizerParameters.temperature = GlobalState::optimizerParameters.temperature;
     }
 
-    std::vector<std::pair<MathGeometry::point_t, MathGeometry::point_t>> makeLines() {
+    std::vector<std::pair<MathGeometry::point_t, MathGeometry::point_t>> makeCranium(double craniumRadius) {
         std::vector<std::pair<MathGeometry::point_t, MathGeometry::point_t>> toReturn;
+        for (int i = 0; i < 10; i++) {
+            auto loc0 = MathGeometry::point_t(
+                    0.0 + cos(i * (2 * MathGeometry::PI) / 10) * craniumRadius,
+                    0.0 + sin(i * (2 * MathGeometry::PI) / 10) * craniumRadius
+            );
+            auto loc1 = MathGeometry::point_t(
+                    0.0 + cos((i+1) * (2 * MathGeometry::PI) / 10) * craniumRadius,
+                    0.0 + sin((i+1) * (2 * MathGeometry::PI) / 10) * craniumRadius
+            );
+            toReturn.push_back(std::make_pair(loc0, loc1));
+        }
+
+        return toReturn;
+    }
+
+    std::vector<std::pair<MathGeometry::point_t, MathGeometry::point_t>> makeLines() {
+        std::vector<std::pair<MathGeometry::point_t, MathGeometry::point_t>> toReturn = makeCranium(GlobalState::optimizerParameters.craniumRadius);
+
         for (auto layerIt = GlobalState::thickSurface.layers.begin();
              layerIt != GlobalState::thickSurface.layers.end(); layerIt++) {
             for (auto surfaceIt = layerIt->nodes.begin(); surfaceIt != layerIt->nodes.end(); surfaceIt++) {
@@ -126,8 +156,10 @@ namespace Optimizer {
 
     void stepSimulatedAnnealing() {
         auto neighborChanges = findNeighbor();
+        auto neighborChanges2Hehe = findNeighbor2();
         double energyState = findEnergy();
         Effects::applyNodeChanges(neighborChanges);
+        // Effects::applyNodeChanges2(neighborChanges2Hehe);
         double energyNeighbor = findEnergy();
 
         auto surfaceLines = makeLines(); // <- Quando consertar as particoes tem que arrumar isso aqui
@@ -139,7 +171,7 @@ namespace Optimizer {
         double coinFlip = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
         if (coinFlip > prob) {
             Effects::revertNodeChanges(neighborChanges);
-        } else {
+        } else if (GlobalState::adjustNodeResolution) {
             Effects::adjustNodeResolution(neighborChanges, GlobalState::surfaceParameters.splitThreshold,
                                           GlobalState::surfaceParameters.bothCorrsDist);
         }

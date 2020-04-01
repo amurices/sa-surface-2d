@@ -37,6 +37,7 @@ namespace GlobalState {
         double (*smoothnessFunction)(double, double);
 
         double temperature;
+        double craniumRadius;
     };
 
     extern SurfaceParameters surfaceParameters;
@@ -47,6 +48,7 @@ namespace GlobalState {
     extern bool shouldStep;
     extern bool recording;
     extern bool showCorrespondences;
+    extern bool adjustNodeResolution;
     extern std::set<std::string> recordedAttributes; // fns that receive a reference to a thick surface and calculate something of interest
 
     void setSurfaceParameters(double radius, double thickness, double centerX, double centerY, int points,
@@ -56,7 +58,7 @@ namespace GlobalState {
     void
     setOptimizerParameters(double initialGrayMatter, int smoothness, double diffMul, double diffPow, double areaMul,
                            double areaPow, double multiProb, double tempProb, double forceOffsetRange,
-                           double compression, double (*smoothnessFunction)(double, double), double temperature);
+                           double compression, double (*smoothnessFunction)(double, double), double temperature, double craniumRadius);
 
     void initThickSurface();
     void deliberatelyDeleteBecauseDestructorIsCalledWheneverItWants();

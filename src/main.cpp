@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     GlobalState::setOptimizerParameters(initialGrayMatter, theseParams.smooth, theseParams.diffMul, theseParams.diffPow,
                                         theseParams.areaMul, theseParams.areaPow, theseParams.multiProb,
                                         theseParams.tempProb, theseParams.forceOffsetRange, theseParams.compression,
-                                        MathGeometry::linearSmooth, 0);
+                                        MathGeometry::linearSmooth, theseParams.temperature, theseParams.craniumRadius);
 
     // Nanogui renderer setup:
     nanogui::ref<Renderer> myRenderer = new Renderer();
@@ -80,16 +80,3 @@ int main(int argc, char **argv) {
         glfwPollEvents();
     }
 }
-
-/* Playground code
-    for (int i = 0; i < 20; i++){
-        Effects::addNode2(&GlobalState::thickSurface.layers[Graph::OUTER],
-                          GlobalState::thickSurface.layers[Graph::OUTER].nodes[0],
-                          GlobalState::thickSurface.layers[Graph::OUTER].nodes[0]->to,
-                          0.7);
-        Effects::addNode2(&GlobalState::thickSurface.layers[Graph::INNER],
-                          GlobalState::thickSurface.layers[Graph::INNER].nodes[0],
-                          GlobalState::thickSurface.layers[Graph::INNER].nodes[0]->to,
-                          0.7);
-    }
- */

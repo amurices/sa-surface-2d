@@ -15,6 +15,7 @@ namespace GlobalState {
     bool singleStep = false;
     bool recording = false;
     bool showCorrespondences = false;
+    bool adjustNodeResolution = false;
     std::set<std::string> recordedAttributes;
 
 
@@ -33,7 +34,7 @@ namespace GlobalState {
     void setOptimizerParameters(double initialGrayMatter, int smoothness, double diffMul, double diffPow,
                                 double areaMul, double areaPow, double multiProb, double tempProb,
                                 double forceOffsetRange, double compression,
-                                double (*smoothnessFunction)(double, double), double temperature) {
+                                double (*smoothnessFunction)(double, double), double temperature, double craniumRadius) {
         optimizerParameters.initialGrayMatter = initialGrayMatter;
         optimizerParameters.smoothness = smoothness;
         optimizerParameters.diffMul = diffMul;
@@ -46,6 +47,7 @@ namespace GlobalState {
         optimizerParameters.compression = compression;
         optimizerParameters.smoothnessFunction = smoothnessFunction;
         optimizerParameters.temperature = temperature;
+        optimizerParameters.craniumRadius = craniumRadius;
     }
 
     void initThickSurface() {

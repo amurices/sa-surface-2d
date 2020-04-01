@@ -70,45 +70,45 @@ void Renderer::makeInputForms(nanogui::Window *targetWindow) {
         return true;
     });
 
-    textBoxes.push_back(
-            makeForm(targetWindow, "DiffMul", std::to_string(GlobalState::optimizerParameters.diffMul), ""));
-    textBoxes[textBoxes.size() - 1]->setCallback([this](const std::string &str) {
-        std::cout << "DiffMul went from " << GlobalState::optimizerParameters.diffMul;
-        GlobalState::optimizerParameters.diffMul = std::stod(str);
-        if (GlobalState::optimizerParameters.diffMul < 0) GlobalState::optimizerParameters.diffMul = 0;
-        std::cout << " to " << GlobalState::optimizerParameters.diffMul << std::endl;
-        return true;
-    });
+//    textBoxes.push_back(
+//            makeForm(targetWindow, "DiffMul", std::to_string(GlobalState::optimizerParameters.diffMul), ""));
+//    textBoxes[textBoxes.size() - 1]->setCallback([this](const std::string &str) {
+//        std::cout << "DiffMul went from " << GlobalState::optimizerParameters.diffMul;
+//        GlobalState::optimizerParameters.diffMul = std::stod(str);
+//        if (GlobalState::optimizerParameters.diffMul < 0) GlobalState::optimizerParameters.diffMul = 0;
+//        std::cout << " to " << GlobalState::optimizerParameters.diffMul << std::endl;
+//        return true;
+//    });
+//
+//    textBoxes.push_back(
+//            makeForm(targetWindow, "DiffPow", std::to_string(GlobalState::optimizerParameters.diffPow), ""));
+//    textBoxes[textBoxes.size() - 1]->setCallback([this](const std::string &str) {
+//        std::cout << "DiffPow went from " << GlobalState::optimizerParameters.diffPow;
+//        GlobalState::optimizerParameters.diffPow = std::stod(str);
+//        if (GlobalState::optimizerParameters.diffPow < 0) GlobalState::optimizerParameters.diffPow = 0;
+//        std::cout << " to " << GlobalState::optimizerParameters.diffPow << std::endl;
+//        return true;
+//    });
 
-    textBoxes.push_back(
-            makeForm(targetWindow, "DiffPow", std::to_string(GlobalState::optimizerParameters.diffPow), ""));
-    textBoxes[textBoxes.size() - 1]->setCallback([this](const std::string &str) {
-        std::cout << "DiffPow went from " << GlobalState::optimizerParameters.diffPow;
-        GlobalState::optimizerParameters.diffPow = std::stod(str);
-        if (GlobalState::optimizerParameters.diffPow < 0) GlobalState::optimizerParameters.diffPow = 0;
-        std::cout << " to " << GlobalState::optimizerParameters.diffPow << std::endl;
-        return true;
-    });
-
-    textBoxes.push_back(
-            makeForm(targetWindow, "AreaMul", std::to_string(GlobalState::optimizerParameters.areaMul), ""));
-    textBoxes[textBoxes.size() - 1]->setCallback([this](const std::string &str) {
-        std::cout << "AreaMul went from " << GlobalState::optimizerParameters.areaMul;
-        GlobalState::optimizerParameters.areaMul = std::stod(str);
-        if (GlobalState::optimizerParameters.areaMul < 0) GlobalState::optimizerParameters.areaMul = 0;
-        std::cout << " to " << GlobalState::optimizerParameters.areaMul << std::endl;
-        return true;
-    });
-
-    textBoxes.push_back(
-            makeForm(targetWindow, "AreaPow", std::to_string(GlobalState::optimizerParameters.areaPow), ""));
-    textBoxes[textBoxes.size() - 1]->setCallback([this](const std::string &str) {
-        std::cout << "AreaPow went from " << GlobalState::optimizerParameters.areaPow;
-        GlobalState::optimizerParameters.areaPow = std::stod(str);
-        if (GlobalState::optimizerParameters.areaPow < 0) GlobalState::optimizerParameters.areaPow = 0;
-        std::cout << " to " << GlobalState::optimizerParameters.areaPow << std::endl;
-        return true;
-    });
+//    textBoxes.push_back(
+//            makeForm(targetWindow, "AreaMul", std::to_string(GlobalState::optimizerParameters.areaMul), ""));
+//    textBoxes[textBoxes.size() - 1]->setCallback([this](const std::string &str) {
+//        std::cout << "AreaMul went from " << GlobalState::optimizerParameters.areaMul;
+//        GlobalState::optimizerParameters.areaMul = std::stod(str);
+//        if (GlobalState::optimizerParameters.areaMul < 0) GlobalState::optimizerParameters.areaMul = 0;
+//        std::cout << " to " << GlobalState::optimizerParameters.areaMul << std::endl;
+//        return true;
+//    });
+//
+//    textBoxes.push_back(
+//            makeForm(targetWindow, "AreaPow", std::to_string(GlobalState::optimizerParameters.areaPow), ""));
+//    textBoxes[textBoxes.size() - 1]->setCallback([this](const std::string &str) {
+//        std::cout << "AreaPow went from " << GlobalState::optimizerParameters.areaPow;
+//        GlobalState::optimizerParameters.areaPow = std::stod(str);
+//        if (GlobalState::optimizerParameters.areaPow < 0) GlobalState::optimizerParameters.areaPow = 0;
+//        std::cout << " to " << GlobalState::optimizerParameters.areaPow << std::endl;
+//        return true;
+//    });
 
     textBoxes.push_back(
             makeForm(targetWindow, "Compression", std::to_string(GlobalState::optimizerParameters.compression), ""));
@@ -176,8 +176,16 @@ void Renderer::makeInputForms(nanogui::Window *targetWindow) {
         else
             GlobalState::showCorrespondences = false;
     });
+    nanogui::CheckBox *adjustCb = new nanogui::CheckBox(targetWindow, "adjust node resolution");
+    adjustCb->setCallback([](bool checked) {
+        if (checked)
+            GlobalState::adjustNodeResolution = true;
+        else
+            GlobalState::adjustNodeResolution = false;
+    });
 
     // Recorded surface properties setting
+
     for (auto it = SurfaceProperties::fns.begin(); it != SurfaceProperties::fns.end(); it++) {
         nanogui::CheckBox *cb0 = new nanogui::CheckBox(targetWindow, it->first);
         cb0->setCallback([it](bool checked) {
@@ -208,7 +216,7 @@ void Renderer::makeInputForms(nanogui::Window *targetWindow) {
                                             theseParams.diffPow,
                                             theseParams.areaMul, theseParams.areaPow, theseParams.multiProb,
                                             theseParams.tempProb, theseParams.forceOffsetRange, theseParams.compression,
-                                            MathGeometry::linearSmooth, 0);
+                                            MathGeometry::linearSmooth, theseParams.temperature, theseParams.craniumRadius);
     });
     performLayout();
 }

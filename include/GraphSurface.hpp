@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <set>
+#include <map>
 #include <iostream>
 
 namespace Graph {
@@ -24,12 +25,15 @@ namespace Graph {
             coords.resize(DEFAULT_DIMENSIONS);
         }
     };
-    std::ostream &operator<<(std::ostream &os, const Node* n);
-    std::ostream &operator<<(std::ostream &os, const std::set<Node*> &n);
+
+    std::ostream &operator<<(std::ostream &os, const Node *n);
+
+    std::ostream &operator<<(std::ostream &os, const std::set<Node *> &n);
+
     struct Line {
         Node *a;
         Node *b;
-        enum LineType{
+        enum LineType {
             INTERLAYER,
             INTRALAYER
         };
@@ -68,9 +72,22 @@ namespace Graph {
         Node *prevFrom;
         Surface *whoHasIt; // only useful for add/delete operations
 
-        NodeChange (Node *n, double nX, double nY, double pX, double pY, Node *nt, Node *nf, Surface* whi, Node* pt = nullptr, Node *pf = nullptr, bool e = true, bool we = true){
-            node = n; newX = nX; newY = nY; prevX = pX; prevY = pY; newTo = nt; newFrom = nf; whoHasIt = whi; prevTo = pt; prevFrom = pf; existed = e; willExist = we;
+        NodeChange(Node *n, double nX, double nY, double pX, double pY, Node *nt, Node *nf, Surface *whi,
+                   Node *pt = nullptr, Node *pf = nullptr, bool e = true, bool we = true) {
+            node = n;
+            newX = nX;
+            newY = nY;
+            prevX = pX;
+            prevY = pY;
+            newTo = nt;
+            newFrom = nf;
+            whoHasIt = whi;
+            prevTo = pt;
+            prevFrom = pf;
+            existed = e;
+            willExist = we;
         }
+
         bool operator<(const struct NodeChange &otherChange) const {
             return (node < otherChange.node |
                     newX < otherChange.newX |
@@ -78,6 +95,32 @@ namespace Graph {
         }
 
     };
+
+    struct NodeChange2 {
+        double newX;
+        double newY;
+        double prevX;
+        double prevY;
+        Surface *whoHasIt; // only useful for add/delete operations
+
+        NodeChange2(double nX, double nY, double pX, double pY, Surface *whi) {
+            newX = nX;
+            newY = nY;
+            prevX = pX;
+            prevY = pY;
+            whoHasIt = whi;
+        }
+
+        bool operator<(const struct NodeChange2 &otherChange) const {
+            return (newX < otherChange.newX |
+                    newY < otherChange.newY |
+                    prevX < otherChange.prevX |
+                    prevY < otherChange.prevY |
+                    whoHasIt < otherChange.whoHasIt);
+
+        }
+    };
+
     std::ostream &operator<<(std::ostream &os, const NodeChange &nc);
 
     Surface generateCircularGraph(double centerX, double centerY, double radius, int pts);
@@ -91,7 +134,16 @@ namespace Graph {
                                                                     int smoothness,
                                                                     double (*f)(double, double));
 
+    std::map<Node *, std::set<NodeChange2>> generateTotalChangesetFromPushedOuterNodes2(ThickSurface &thickSurface,
+                                                                                        const std::vector<Graph::Node *> &outerNodes,
+                                                                                        double compression,
+                                                                                        double forceOffsetRange,
+                                                                                        double multiProb,
+                                                                                        int smoothness,
+                                                                                        double (*f)(double, double));
+
     double surfaceArea(const Surface &surface);
+
     double surfacePerimeter(const Surface &surface);
 
     ThickSurface

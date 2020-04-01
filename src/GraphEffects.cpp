@@ -172,11 +172,29 @@ namespace Effects {
             it->node->coords[Graph::Y] = it->newY;
         }
     }
+    void applyNodeChanges2(std::map<Graph::Node*, std::set<Graph::NodeChange>> &changes) {
+        for (auto it = changes.begin(); it != changes.end(); it++) {
+            double nX = 0.0, nY = 0.0;
+            for (auto cs = it->second.begin(); cs != it->second.end(); cs++ ){
+                nX += cs->newX;
+                nY += cs->newY;
+            }
+            it->first->coords[Graph::X] = nX / (double) it->second.size();
+            it->first->coords[Graph::Y] = nY /(double) it->second.size();
+        }
+    }
 
     void revertNodeChanges(std::set<Graph::NodeChange> &changes) {
         for (auto it = changes.begin(); it != changes.end(); it++) {
             it->node->coords[Graph::X] = it->prevX;
             it->node->coords[Graph::Y] = it->prevY;
+        }
+    }
+
+    void revertNodeChanges2(std::map<Graph::Node*, std::set<Graph::NodeChange>> &changes) {
+        for (auto it = changes.begin(); it != changes.end(); it++) {
+            it->first->coords[Graph::X] = it->second.begin()->prevX;
+            it->first->coords[Graph::Y] = it->second.begin()->prevY;
         }
     }
 

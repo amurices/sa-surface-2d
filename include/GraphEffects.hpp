@@ -16,7 +16,9 @@ namespace Effects {
     void adjustNodeResolution(std::set<Graph::NodeChange> &changes, double splitThreshold, double bothCorrsDist);
 
     void applyNodeChanges(std::set<Graph::NodeChange> &changes);
+    void applyNodeChanges2(std::map<Graph::Node*, std::set<Graph::NodeChange>> &changes);
     void revertNodeChanges(std::set<Graph::NodeChange> &changes);
+    void revertNodeChanges2(std::map<Graph::Node*, std::set<Graph::NodeChange>> &changes);
 
     void adjustNodeResolution2(Graph::ThickSurface &thickSurface, double splitThreshold, double bothCorrsDist);
     void adjustNodeResolution3(Graph::ThickSurface &thickSurface, double splitThreshold, double bothCorrsDist);

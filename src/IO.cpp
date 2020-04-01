@@ -91,6 +91,9 @@ namespace IO {
             else if (it->first == "splitThreshold")
                 params->splitThreshold = std::stod(it->second);
 
+            else if (it->first == "craniumRadius")
+                params->craniumRadius = std::stod(it->second);
+
             else{
                 // explode
                 std::cout << ":" << it->first << " " << it->second << std::endl;

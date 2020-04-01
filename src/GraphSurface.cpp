@@ -24,14 +24,6 @@ namespace Graph {
         return os;
     }
 
-    std::ostream &operator<<(std::ostream &os, const NodeChange &nc) {
-        os << "node: " << nc.node << "\n" <<
-           "newX: " << nc.newX << "\n" <<
-           "newY: " << nc.newY << "\n" <<
-           "prevX: " << nc.prevX << "\n" <<
-           "prevY: " << nc.prevY << "\n";
-        return os;
-    }
 
     Surface generateCircularGraph(double centerX, double centerY, double radius, int pts) {
         Surface toReturn;
@@ -83,6 +75,38 @@ namespace Graph {
             // Previous and next nodes are also going to be altered as a matter of where they are in relation to their inner correspondents
             toReturn.insert(prevChange);
             toReturn.insert(nextChange);
+        }
+        return toReturn;
+    }
+
+    std::map<Node *, NodeChange2>
+    smoothAdjacentNodes2(Surface &surface, Node *changedNode, NodeChange2 initialChange, int smoothness,
+                         double (*f)(double, double)) {
+        std::map<Node *, NodeChange2> toReturn{
+                {changedNode, initialChange}
+        };
+
+        Node *prev, *next;
+        prev = next = changedNode;
+
+        for (int c = 1; c <= smoothness; c++) {
+            prev = prev->from;
+            next = next->to;
+
+            double ratio = (*f)(smoothness, c);
+            auto initChangeXDelta = initialChange.newX - initialChange.prevX;
+            auto initChangeYDelta = initialChange.newY - initialChange.prevY;
+            NodeChange2 prevChange(prev->coords[Graph::X] + (initChangeXDelta * ratio),
+                                   prev->coords[Graph::Y] + (initChangeYDelta * ratio),
+                                   prev->coords[Graph::X], prev->coords[Graph::Y],
+                                   &surface);
+            NodeChange2 nextChange(next->coords[Graph::X] + (initChangeXDelta * ratio),
+                                   next->coords[Graph::Y] + (initChangeYDelta * ratio),
+                                   next->coords[Graph::X], next->coords[Graph::Y],
+                                   &surface);
+            // Previous and next nodes are also going to be altered as a matter of where they are in relation to their inner correspondents
+            toReturn.insert(std::make_pair(next, nextChange));
+            toReturn.insert(std::make_pair(prev, prevChange));
         }
         return toReturn;
     }
@@ -161,6 +185,28 @@ namespace Graph {
         return toReturn;
     }
 
+    std::map<Node *, NodeChange2>
+    changesetForNodes2(Surface &surface, const std::vector<Node *> &nodesToPush,
+                       double forceOffsetRange, int smoothness,
+                       double (*f)(double, double)) {
+        std::map<Node *, NodeChange2> toReturn;
+        for (auto it = nodesToPush.begin(); it != nodesToPush.end(); it++) {
+            // Choose a random offset, bounded by optimizer params
+            double offsetX, offsetY;
+            offsetX = Util::getRandomRange(-forceOffsetRange, forceOffsetRange);
+            offsetY = Util::getRandomRange(-forceOffsetRange, forceOffsetRange);
+
+            // Collect change to outer node's position.
+            auto randomChange = NodeChange2((*it)->coords[Graph::X] + offsetX,
+                                            (*it)->coords[Graph::Y] + offsetY,
+                                            (*it)->coords[Graph::X],
+                                            (*it)->coords[Graph::Y],
+                                            &surface);
+            toReturn = smoothAdjacentNodes2(surface, (*it), randomChange, smoothness, f);
+        }
+        return toReturn;
+    }
+
 /* This will assume the original changeset is in the outer surface, which means the changeset returned is
  * based on "new" coordinates of the outer surface. */
     std::set<NodeChange> innerChangesetFromOuterChangeset(ThickSurface &thickSurface,
@@ -187,7 +233,7 @@ namespace Graph {
                     + (vd2 * distance) // plus direction (unit vector) times original distance = new position
                     - MathGeometry::point_t((*fnode->correspondents.begin())->coords[Graph::X],
                                             (*fnode->correspondents.begin())->coords[Graph::Y]); // because this will be added, subtract current position
-                                            // TODO: Sum below for each correspondent. Damn dis shit good
+            // TODO: Sum below for each correspondent. Damn dis shit good
             for (auto summin = fnode->correspondents.begin(); summin != fnode->correspondents.end(); summin++) {
                 toReturn.insert(
                         NodeChange(
@@ -201,6 +247,52 @@ namespace Graph {
                                 &thickSurface.layers[Graph::INNER]
                         )
                 );
+            }
+        }
+        return toReturn;
+    }
+
+    MathGeometry::point_t innerDelta(Node *n, NodeChange2 change) {
+        MathGeometry::point_t pfrom(n->from->coords[Graph::X], n->from->coords[Graph::Y]);
+        MathGeometry::point_t pto(n->to->coords[Graph::X], n->to->coords[Graph::Y]);
+        // A little less obscene, but still in need of some cleaning up.
+        auto distance = MathGeometry::findNorm2d(
+                n->coords[Graph::X] - (*n->correspondents.begin())->coords[Graph::X],
+                n->coords[Graph::Y] - (*n->correspondents.begin())->coords[Graph::Y]);
+        MathGeometry::point_t vd2 = MathGeometry::findDirectionVector2(
+                MathGeometry::point_t(n->coords[Graph::X],
+                                      n->coords[Graph::Y]),
+                pto,
+                pfrom);
+        return
+                MathGeometry::point_t(change.newX, change.newY) // current new outer position
+                + (vd2 * distance) // plus direction (unit vector) times original distance = new position
+                - MathGeometry::point_t((*n->correspondents.begin())->coords[Graph::X],
+                                        (*n->correspondents.begin())->coords[Graph::Y]); // because this will be added, subtract current position
+    }
+
+    std::map<Node *, std::set<NodeChange2>> innerChangesetFromOuterChangeset2(ThickSurface &thickSurface,
+                                                                              const std::map<Node *, NodeChange2> &outerChanges,
+                                                                              double compression) {
+        std::map<Node *, std::set<NodeChange2>> toReturn;
+        for (auto change = outerChanges.begin(); change != outerChanges.end(); change++) {
+            // Changed nodes have their correspondents updated one at a time
+            Node *fnode = change->first;
+            auto delta = innerDelta(fnode, change->second);
+            auto newChange = NodeChange2(
+                    fnode->coords[Graph::X] + delta.x * compression,
+                    fnode->coords[Graph::Y] + delta.y * compression,
+                    fnode->coords[Graph::X],
+                    fnode->coords[Graph::Y],
+                    &thickSurface.layers[Graph::INNER]
+            );
+            for (auto eachCorr = change->first->correspondents.begin();
+                 eachCorr != change->first->correspondents.end(); eachCorr++) {
+                auto itN = toReturn.find(*eachCorr);
+                if (itN != toReturn.end())
+                    itN->second.insert(newChange);
+                else
+                    toReturn.insert(std::make_pair(fnode, std::set<NodeChange2>{newChange}));
             }
         }
         return toReturn;
@@ -230,6 +322,20 @@ namespace Graph {
             toReturn.insert(*it);
         }
         return toReturn;
+    }
+
+    std::map<Node *, std::set<NodeChange2>>
+    generateTotalChangesetFromPushedOuterNodes2(ThickSurface &thickSurface,
+                                                const std::vector<Node *> &outerNodes, double compression,
+                                                double forceOffsetRange,
+                                                double multiProb, int smoothness,
+                                                double (*f)(double, double)) {
+        auto toReturn = changesetForNodes2(thickSurface.layers[Graph::OUTER], outerNodes, forceOffsetRange, smoothness, f);
+        auto innerChangeset = innerChangesetFromOuterChangeset2(thickSurface, toReturn, compression);
+        for (auto it = toReturn.begin(); it != toReturn.end(); it++) {
+            innerChangeset.insert(std::make_pair(it->first, std::set<NodeChange2> { it->second }));
+        }
+        return innerChangeset;
     }
 
 }
