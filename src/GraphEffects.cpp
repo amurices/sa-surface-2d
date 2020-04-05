@@ -4,6 +4,7 @@
 
 #include <MathGeometry.hpp>
 #include "GraphEffects.hpp"
+#include <algorithm>
 
 namespace Effects {
     void mergeTwoNodes(Graph::Surface &belonging, Graph::Node *a, Graph::Node *b) {

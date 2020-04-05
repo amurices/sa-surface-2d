@@ -10,15 +10,16 @@ This project is a renderer, using *[nanogui](https://github.com/wjakob/nanogui)*
 3. Install OpenGL headers: `sudo apt install libgl1-mesa-dev`
 4. Install this package for some reason: `sudo apt install xorg-dev`
 5. Clone recursively: `git clone https://github.com/amurices/sa-surface-2d.git --recursive`
-6. cd into nanogui’s folder: `cd nanogui`
+6. cd into nanogui’s folder: `cd sa-surface-2d/nanogui`
 7. make a build directory: `mkdir build`
-8. use CMake to write build files to this directory by doing: `cmake ..` (in Unix, .. means “the directory above”. So if your current path is /usr/bin/local, doing cd .. will take you  to /usr/bin. CMake takes a directory as a parameter to find a CMakeLists.txt file, which in this case, is the one directly above it)
-9. run `make` to compile the generated code
-10. Go back to sa-surface-2d’s directory: `cd ../..`
-11. Finally, do the same we did for nanogui; first create a build directory: `mkdir build`
-12. change directory into  that folder: `cd build`
-13. use CMake to write build files to it: `cmake ..`
-14. finally, run `make`
+8. change directory into it: `cd build`
+9. use CMake to write build files to this directory by doing: `cmake ..` (in Unix, .. means “the directory above”. So if your current path is /usr/bin/local, doing cd .. will take you  to /usr/bin. CMake takes a directory as a parameter to find a CMakeLists.txt file, which in this case, is the one directly above it)
+10. run `make` to compile the generated code
+11. Go back to sa-surface-2d’s directory: `cd ../..`
+12. Finally, do the same we did for nanogui; first create a build directory: `mkdir build`
+13. cd into that folder: `cd build`
+14. use CMake to write build files to it: `cmake ..`
+15. finally, run `make`
 
 There, just 14 steps lol. Now you can run the program by being in the build directory and just doing `./sa_surface_2d`
 
@@ -27,7 +28,6 @@ If `make` complains at the end, try replacing the `dylib` in CMakeLists.txt with
 ${CMAKE_SOURCE_DIR}/nanogui/build/libnanogui.dylib -> ${CMAKE_SOURCE_DIR}/nanogui/build/libnanogui.so
 ```
 This is due to the fact that building with cmake on Mac generates .dylib  by default, while Linux generates .so. Functionally they’re the same thing: libraries, which is just a collection of compiled code and symbols that map on to that code (which is why we have to include the nanogui headers; we have to tell our code which parts of the compiled nanogui library we’re going to use).
-After that, change directories back to the repo's root with `cd ../..` and run `make` and that should be enough to produce an executable.
 
 ## Overview of the model
 
@@ -54,7 +54,7 @@ in
    am * whiteMatter^ap + dm * (grayMatter + 1)^dp // where `am`, `ap`, `dm` and `dp` are *given* constants defined by an input file
 ```
 3. Find the *probability* of moving into a new state. The probability function is defined as follows (actual C++ implementation):
-```
+```c++
 double Optimizer::findProbability(double eS, double eN, double t){
     if (eN < eS)
         return 1;
