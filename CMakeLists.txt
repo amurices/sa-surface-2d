@@ -9,6 +9,7 @@ include_directories(nanogui/include)
 include_directories(nanogui/include/nanogui)
 include_directories(nanogui/ext)
 include_directories(nanogui/ext/eigen)
+include_directories(nanogui/ext/glfw/include)
 include_directories(nanogui/ext/nanovg/src)
 
 add_executable(sa_surface_2d
@@ -33,5 +34,5 @@ add_executable(sa_surface_2d
         src/GraphEffects.cpp)
 find_package(OpenGL)
 target_link_libraries(sa_surface_2d 
-                      ${CMAKE_SOURCE_DIR}/nanogui/build/libnanogui.so
+                      ${CMAKE_SOURCE_DIR}/nanogui/build/libnanogui.dylib
                       ${OPENGL_gl_LIBRARY})
