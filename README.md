@@ -4,27 +4,29 @@ This project is a renderer, using *[nanogui](https://github.com/wjakob/nanogui)*
 
 ## Installation
 
-### Step 1. Install dependency packages (will be automated with a script in the future)
-First, clone this repository with `git clone --recursive`. This will automatically include any git submodules it depends on.
+### On Linux (tested on Ubuntu 18.04)
+1. Install git: `sudo apt install git`
+2. Install cmake: `sudo apt install cmake`
+3. Install OpenGL headers: `sudo apt install libgl1-mesa-dev`
+4. Install this package for some reason: `sudo apt install xorg-dev`
+5. Clone recursively: `git clone https://github.com/amurices/sa-surface-2d.git --recursive`
+6. cd into nanogui’s folder: `cd nanogui`
+7. make a build directory: `mkdir build`
+8. use CMake to write build files to this directory by doing: `cmake ..` (in Unix, .. means “the directory above”. So if your current path is /usr/bin/local, doing cd .. will take you  to /usr/bin. CMake takes a directory as a parameter to find a CMakeLists.txt file, which in this case, is the one directly above it)
+9. run `make` to compile the generated code
+10. Go back to sa-surface-2d’s directory: `cd ../..`
+11. Finally, do the same we did for nanogui; first create a build directory: `mkdir build`
+12. change directory into  that folder: `cd build`
+13. use CMake to write build files to it: `cmake ..`
+14. finally, run `make`
 
-Most of the packages that need to be installed can be obtained via [Homebrew](https://brew.sh/) on Mac OS (Xcode command line tools obviously need to be installed as well):
+There, just 14 steps lol. Now you can run the program by being in the build directory and just doing `./sa_surface_2d`
 
-_Packages_:
-* [GLFW](https://www.glfw.org/)
-* [GLEW](http://glew.sourceforge.net/)
-* [FTGL](http://ftgl.sourceforge.net/docs/html/ftgl-tutorial.html)
-
-_Libraries_:
-* [CGAL](https://www.cgal.org/) # For the way faster (n lg n) sweep-line algorithm for intersection detection
-
-### Step 2. Installation and note on Nanogui
-Nanogui is included as a submodule. This means that cloning this repository recursively will also obtain nanogui's code, but it still has to be built from source. Thankfully, the process is straightforward. The steps to build nanogui are as follows, after cloning this repo:
-1. `cd nanogui`
-2. `mkdir build` (this is normally standard for CMake-based projects and libraries)
-3. `cd build`
-4. `cmake ..`
-5. `make`
-
+If `make` complains at the end, try replacing the `dylib` in CMakeLists.txt with `so`:
+```cmake
+${CMAKE_SOURCE_DIR}/nanogui/build/libnanogui.dylib -> ${CMAKE_SOURCE_DIR}/nanogui/build/libnanogui.so
+```
+This is due to the fact that building with cmake on Mac generates .dylib  by default, while Linux generates .so. Functionally they’re the same thing: libraries, which is just a collection of compiled code and symbols that map on to that code (which is why we have to include the nanogui headers; we have to tell our code which parts of the compiled nanogui library we’re going to use).
 After that, change directories back to the repo's root with `cd ../..` and run `make` and that should be enough to produce an executable.
 
 ## Overview of the model
