@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.10)
 project(sa_surface_2d)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -32,6 +32,6 @@ add_executable(sa_surface_2d
         src/SurfaceProperties.cpp
         src/GraphEffects.cpp)
 find_package(OpenGL)
-target_link_libraries(sa_surface_2d
-        /usr/local/lib/libnanogui.dylib
-        ${OPENGL_gl_LIBRARY})
+target_link_libraries(sa_surface_2d 
+                      ${CMAKE_SOURCE_DIR}/nanogui/build/libnanogui.so
+                      ${OPENGL_gl_LIBRARY})
